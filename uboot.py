@@ -96,17 +96,28 @@ class MovingObject:
                      for e, s, d in zip(self.end, self.start, self.disp))
 
     def draw_on(self, surface):
-        """Draw the object on a pygame surface, if active"""
+        """
+        Draw the object on a pygame surface, if active
+        """
         if self.is_active():
             surface.blit(self.image, self.get_position(True))
 
     def is_active(self):
+        """
+        Returns true if the object is active, False otherwise
+        """
         return self.active
 
     def deactivate(self):
+        """
+        Set the object's state to not active.
+        """
         self.active = False
 
     def get_bounding_box(self):
+        """
+        Get the bounding box of the objects representation on screen
+        """
         pos = self.get_position()
         return pygame.Rect(pos,
                            (self.image.get_width(),
@@ -131,6 +142,9 @@ class Game:
     c_score = rgbvalues["black"]
 
     def __init__(self, width, height):
+        """
+        Initialize the game with screen dimensions width x height
+        """
         self.width = width
         self.height = height
         self.waterline = int(0.2*height)
@@ -168,6 +182,9 @@ class Game:
         self.font = pygame.font.SysFont("Courier New", 30)
 
     def draw(self):
+        """
+        Draw the game graphics
+        """
         self.screen.fill(Game.c_background)
         pygame.draw.rect(self.screen, Game.c_water,
                          (0,
@@ -266,6 +283,9 @@ class Game:
                     bomb.deactivate()
 
     def handle_events(self):
+        """
+        Handle all events
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -277,6 +297,9 @@ class Game:
                     self.drop_bomb()
 
     def update_state(self):
+        """
+        Update the state of the game
+        """
         # move all objects
         self.ship.move(1/self.fps)
 
@@ -298,6 +321,9 @@ class Game:
             self.spawn_submarine()
 
     def run(self):
+        """
+        Run the game
+        """
         self.running = True
         while self.running:
             self.draw()
