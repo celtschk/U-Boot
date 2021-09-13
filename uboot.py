@@ -181,6 +181,13 @@ class Game:
 
         self.font = pygame.font.SysFont("Courier New", 30)
 
+    def write_string(self, string, position):
+        """
+        Write a string at a given position on screen
+        """
+        text = self.font.render(string, True, self.c_score)
+        self.screen.blit(text, position)
+
     def draw(self):
         """
         Draw the game graphics
@@ -200,18 +207,16 @@ class Game:
         for bomb in self.bombs:
             bomb.draw_on(self.screen)
 
-        bomb_string = "Bombs: " + str(self.get_available_bombs())
-        bomb_text = self.font.render(bomb_string,
-                                     True,
-                                     self.c_score)
-        self.screen.blit(bomb_text, (20, 20))
+        self.write_string("Bombs available: "
+                          + str(self.get_available_bombs()),
+                          (20, 20))
 
-        score_string = "Score: " + str(self.score)
-        score_text = self.font.render(score_string,
-                                      True,
-                                      self.c_score)
-        self.screen.blit(score_text, (20+self.width//2, 20))
+        self.write_string("Bomb cost: " + str(self.get_bomb_cost()),
+                          (20,50))
 
+        self.write_string("Score: " + str(self.score),
+                          (20+self.width//2, 20))
+        
         pygame.display.flip()
 
     def get_bomb_cost(self, count=1):
