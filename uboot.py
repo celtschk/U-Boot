@@ -2,15 +2,7 @@ import pygame
 import random
 
 import settings
-
-# get the colour names from X11's rgb.txt
-rgbvalues = {}
-with open("rgb.txt", "r") as rgbfile:
-    for line in rgbfile:
-        if line == "" or line[0] == '!':
-            continue
-        rgb, name = line.split('\t\t')
-        rgbvalues[name.strip()] = tuple(int(value) for value in rgb.split())
+from colours import get_colour
 
 class MovingObject:
     "This class represents any moving object in the game."
@@ -134,13 +126,13 @@ class Game:
     max_bombs = settings.limits["bomb"]
 
     # background (sky) colour
-    c_background = rgbvalues[settings.colours["sky"]]
+    c_background = get_colour("sky")
 
     # water colour
-    c_water = rgbvalues[settings.colours["water"]]
+    c_water = get_colour("water")
 
     # colour of the score display
-    c_score = rgbvalues[settings.colours["text"]]
+    c_score = get_colour("text")
 
     def __init__(self, width, height):
         """
