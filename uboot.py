@@ -181,11 +181,22 @@ class Game:
                 self.running = False
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                # Down arrow drops a bomb
                 if event.key == pygame.K_DOWN:
                     self.drop_bomb()
 
+                # F toggles fullscreen display
+                elif (event.key == pygame.K_f):
+                    size = (self.width, self.height)
+                    if self.screen.get_flags() & pygame.FULLSCREEN:
+                        pygame.display.set_mode(size)
+                    else:
+                        pygame.display.set_mode(size, pygame.FULLSCREEN)
+
+                # Q quits the game
+                elif event.key == pygame.K_q:
+                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+        
     def update_state(self):
         """
         Update the state of the game
