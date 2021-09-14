@@ -60,7 +60,7 @@ class Game:
         self.bombs = []
 
         # spawn a submarine on average every 3 seconds
-        self.p_spawn = 1/(3*self.fps)
+        self.p_spawn = settings.spawn_rates["submarine"]/self.fps
 
         self.score = 0
 

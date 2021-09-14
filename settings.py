@@ -34,6 +34,12 @@ limits = {
     "bomb": 15
     }
 
+# spawn rate (in average spawns per second) of randomly spawned obcets
+# (currently only submarines)
+spawn_rates = {
+    "submarine": 1/3
+    }
+
 # colours used in the game
 colours = {
     "sky": "sky blue",
