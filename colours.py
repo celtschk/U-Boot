@@ -1,8 +1,6 @@
-# get the colour names from X11's rgb.txt
-
 import settings
 
-# read the file rgb.txt from X11
+# get the colour names from X11's rgb.txt
 rgbvalues = {}
 with open("rgb.txt", "r") as rgbfile:
     for line in rgbfile:
