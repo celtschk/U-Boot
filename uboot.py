@@ -74,6 +74,15 @@ class Game:
         text = self.font.render(string, True, self.c_text)
         self.screen.blit(text, position)
 
+    def moving_objects(self):
+        yield self.ship
+
+        for sub in self.submarines:
+            yield sub
+
+        for bomb in self.bombs:
+            yield bomb
+
     def draw(self):
         """
         Draw the game graphics
@@ -87,11 +96,8 @@ class Game:
 
         self.ship.draw_on(self.screen)
 
-        for sub in self.submarines:
-            sub.draw_on(self.screen)
-
-        for bomb in self.bombs:
-            bomb.draw_on(self.screen)
+        for obj in self.moving_objects():
+            obj.draw_on(self.screen)
 
         self.write_string("Bombs available: "
                           + str(self.get_available_bombs()),
@@ -204,7 +210,7 @@ class Game:
         Update the state of the game
         """
         # move all objects
-        for sub in [self.ship] + self.submarines + self.bombs:
+        for sub in self.moving_objects():
             sub.move(1/self.fps)
 
         # handle bombs hitting submarines
