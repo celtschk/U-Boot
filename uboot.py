@@ -24,6 +24,9 @@ class Game:
     # colour of the score display
     c_text = get_colour("text")
 
+    # the game's frames per second
+    fps = settings.fps
+
     def __init__(self, width, height):
         """
         Initialize the game with screen dimensions width x height
@@ -41,7 +44,6 @@ class Game:
         pygame.key.set_repeat(0)
 
         self.clock = pygame.time.Clock()
-        self.fps = settings.fps
 
         # create the ship
         self.ship = MovingObject(settings.image_files["ship"],
@@ -202,13 +204,8 @@ class Game:
         Update the state of the game
         """
         # move all objects
-        self.ship.move(1/self.fps)
-
-        for sub in self.submarines:
+        for sub in [self.ship] + self.submarines + self.bombs:
             sub.move(1/self.fps)
-
-        for bomb in self.bombs:
-            bomb.move(1/self.fps)
 
         # handle bombs hitting submarines
         self.handle_hits()
