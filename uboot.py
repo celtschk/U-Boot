@@ -1,6 +1,8 @@
 import pygame
 import random
 
+import settings
+
 # get the colour names from X11's rgb.txt
 rgbvalues = {}
 with open("rgb.txt", "r") as rgbfile:
@@ -54,7 +56,6 @@ class MovingObject:
         self.start = tuple(s + width * a for s,a in zip(start,adjust_start))
         self.end = tuple(e + width * a for e,a in zip(end,adjust_end))
 
-#        self.vspeed = tuple(speed*(e-s) for e,s in zip(self.end,self.start))
         self.repeat = repeat
 
         self.pos = self.start
@@ -127,19 +128,19 @@ class Game:
     "The game"
 
     # maximal number of simultaneous submarines
-    max_subs = 10
+    max_subs = settings.limits["submarine"]
 
     #maximal number of simultaneous bombs
-    max_bombs = 15
+    max_bombs = settings.limits["bomb"]
 
     # background (sky) colour
-    c_background = rgbvalues["sky blue"]
+    c_background = rgbvalues[settings.colours["sky"]]
 
     # water colour
-    c_water = rgbvalues["blue"]
+    c_water = rgbvalues[settings.colours["water"]]
 
     # colour of the score display
-    c_score = rgbvalues["black"]
+    c_score = rgbvalues[settings.colours["text"]]
 
     def __init__(self, width, height):
         """
@@ -147,26 +148,26 @@ class Game:
         """
         self.width = width
         self.height = height
-        self.waterline = int(0.2*height)
+        self.waterline = int(settings.sky_fraction * height)
 
         self.running = False
 
         pygame.init()
         self.screen = pygame.display.set_mode((width,height))
-        pygame.display.set_caption("U-Boot")
+        pygame.display.set_caption(settings.game_name)
         pygame.mouse.set_visible(False)
         pygame.key.set_repeat(0)
 
         self.clock = pygame.time.Clock()
-        self.fps = 60
+        self.fps = settings.fps
 
         # create the ship
-        self.ship = MovingObject("schiff.png",
+        self.ship = MovingObject(settings.image_files["ship"],
                                  start = (0, self.waterline),
                                  adjust_start = (-0.5,0),
                                  end = (self.width, self.waterline),
                                  adjust_end = (0.5,0),
-                                 speed = 0.1,
+                                 speed = settings.speeds["ship"],
                                  origin = (0.5,1),
                                  repeat = True)
 
@@ -179,7 +180,8 @@ class Game:
 
         self.score = 0
 
-        self.font = pygame.font.SysFont("Courier New", 30)
+        self.font = pygame.font.SysFont(settings.font["name"],
+                                        settings.font["size"])
 
     def write_string(self, string, position):
         """
@@ -245,10 +247,10 @@ class Game:
                 # because adding the bomb changes the cost
                 self.score -= self.get_bomb_cost();
 
-                newbomb = MovingObject("bomb.png",
+                newbomb = MovingObject(settings.image_files["bomb"],
                                        start = ship_pos,
                                        end = (ship_pos[0], self.height),
-                                       speed = self.ship.speed,
+                                       speed = settings.speeds["bomb"],
                                        origin = (0.5, 0))
                 self.bombs.append(newbomb)
 
@@ -261,9 +263,10 @@ class Game:
             min_depth = 0.1*total_depth + self.waterline
             max_depth = self.height - 20
             sub_depth = random.uniform(min_depth, max_depth)
-            sub_speed = random.uniform(0.5*ship_speed, 2*ship_speed)
+            sub_speed = random.uniform(settings.speeds["submarine_min"],
+                                       settings.speeds["submarine_max"])
 
-            newsub = MovingObject("Uboot.png",
+            newsub = MovingObject(settings.image_files["submarine"],
                                   start = (self.width, sub_depth),
                                   end = (0, sub_depth),
                                   adjust_end = (-1,0),
@@ -337,7 +340,7 @@ class Game:
             self.update_state()
 
 def main():
-    game = Game(1024,768)
+    game = Game(settings.width, settings.height)
     game.run()
 
 if __name__=='__main__':
