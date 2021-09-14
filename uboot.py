@@ -232,9 +232,5 @@ class Game:
             self.handle_events()
             self.update_state()
 
-def main():
-    game = Game(settings.width, settings.height)
-    game.run()
-
 if __name__=='__main__':
-    main()
+    Game(settings.width, settings.height).run()
