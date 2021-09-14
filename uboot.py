@@ -22,7 +22,7 @@ class Game:
     c_water = get_colour("water")
 
     # colour of the score display
-    c_score = get_colour("text")
+    c_text = get_colour("text")
 
     def __init__(self, width, height):
         """
@@ -69,7 +69,7 @@ class Game:
         """
         Write a string at a given position on screen
         """
-        text = self.font.render(string, True, self.c_score)
+        text = self.font.render(string, True, self.c_text)
         self.screen.blit(text, position)
 
     def draw(self):
