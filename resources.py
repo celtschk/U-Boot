@@ -1,4 +1,5 @@
 import settings
+import pygame
 
 # get the colour names from X11's rgb.txt
 rgbvalues = {}
@@ -25,3 +26,10 @@ def get_colour(name):
         else:
             return colour
     return rgbvalues[name]
+
+def get_sound(sound_name):
+    sound_info = settings.sounds[sound_name]
+    sound = pygame.mixer.Sound(sound_info["filename"])
+    sound.set_volume(sound_info["volume"])
+    return sound
+

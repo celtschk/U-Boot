@@ -3,14 +3,8 @@ import random
 
 # python files from this game
 import settings
-from colours import get_colour
+from resources import get_colour, get_sound
 from objects import MovingObject
-
-def get_sound(sound_name):
-    sound_info = settings.sounds[sound_name]
-    sound = pygame.mixer.Sound(sound_info["filename"])
-    sound.set_volume(sound_info["volume"])
-    return sound
 
 class Game:
     "The game"
