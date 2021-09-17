@@ -1,0 +1,11 @@
+Non-original files used:
+
+RGB database:
+    File: rgb.txt
+    Source: X11 installed by Linux Mint 20 Ulyana
+    License: MIT/X11 (as far as I can tell)
+
+Explosion sound:
+    File: Flashbang-Kibblesbob-899170896.wav
+    Source: https://soundbible.com/1793-Flashbang.html
+    License: Public Domain
