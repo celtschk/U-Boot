@@ -73,6 +73,9 @@ class Game:
         # sound effects
         self.explosion_sound = get_sound("explosion")
 
+        # The game is initially not paused
+        self.paused = False
+
     def write_string(self, string, position):
         """
         Write a string at a given position on screen
@@ -114,7 +117,13 @@ class Game:
 
         self.write_string("Score: " + str(self.score),
                           (20+self.width//2, 20))
-        
+
+        # show message if game is paused:
+        if self.paused:
+            paused_string = "--- PAUSED ---"
+            self.write_string(paused_string,
+                              (self.width//2 - 10*len(paused_string),
+                               self.height//2))
         pygame.display.flip()
 
     def get_bomb_cost(self, count=1):
@@ -196,12 +205,23 @@ class Game:
                 self.running = False
 
             if event.type == pygame.KEYDOWN:
-                # Down arrow drops a bomb
-                if event.key == pygame.K_DOWN:
-                    self.drop_bomb()
+                # Game actions are only processed if the game is not paused
+                if not self.paused:
+                    # Down arrow drops a bomb
+                    if event.key == pygame.K_DOWN:
+                        self.drop_bomb()
 
+                # Other keys are always processed
+
+                # P or Pause pauses the game
+                if event.key in {pygame.K_p, pygame.K_PAUSE}:
+                    if self.paused:
+                        pygame.mixer.music.unpause()
+                    else:
+                        pygame.mixer.music.pause()
+                    self.paused = not self.paused
                 # F toggles fullscreen display
-                elif (event.key == pygame.K_f):
+                elif event.key == pygame.K_f:
                     size = (self.width, self.height)
                     if self.screen.get_flags() & pygame.FULLSCREEN:
                         pygame.display.set_mode(size)
@@ -216,6 +236,10 @@ class Game:
         """
         Update the state of the game
         """
+        # if the game is paused, do nothing
+        if self.paused:
+            return
+
         # move all objects
         for sub in self.moving_objects():
             sub.move(1/self.fps)
