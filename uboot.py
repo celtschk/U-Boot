@@ -3,7 +3,7 @@ import random
 
 # python files from this game
 import settings
-from resources import get_colour, get_sound, load_music
+import resources
 from objects import MovingObject
 
 class Game:
@@ -16,13 +16,13 @@ class Game:
     max_bombs = settings.limits["bomb"]
 
     # background (sky) colour
-    c_background = get_colour("sky")
+    c_background = resources.get_colour("sky")
 
     # water colour
-    c_water = get_colour("water")
+    c_water = resources.get_colour("water")
 
     # colour of the score display
-    c_text = get_colour("text")
+    c_text = resources.get_colour("text")
 
     # the game's frames per second
     fps = settings.fps
@@ -68,10 +68,10 @@ class Game:
                                         settings.font["size"])
 
         # music
-        load_music("background")
+        resources.load_music("background")
 
         # sound effects
-        self.explosion_sound = get_sound("explosion")
+        self.explosion_sound = resources.get_sound("explosion")
 
         # The game is initially not paused
         self.paused = False
