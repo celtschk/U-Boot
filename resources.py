@@ -39,3 +39,16 @@ def get_sound(sound_name):
     sound.set_volume(sound_info["volume"])
     return sound
 
+def load_music(music_name):
+    """
+    Sets up pygame music from a music name.
+
+    This looks up the sound information in the settings file and sets
+    up the music to play in the background, but doesn't actually start
+    playing.
+    """
+    music_info = settings.music[music_name]
+    pygame.mixer.music.load(music_info["filename"])
+    pygame.mixer.music.set_volume(music_info["volume"])
+
+    

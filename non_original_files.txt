@@ -7,5 +7,13 @@ RGB database:
 
 Explosion sound:
     File: Flashbang-Kibblesbob-899170896.wav
+    Author: Kibblesbob (?)
     Source: https://soundbible.com/1793-Flashbang.html
     License: Public Domain
+
+Background music:
+    File: The Enemy.mp3
+    Author: Alexander Nakarada.
+    Source: https://freepd.com/epic.php
+            https://freepd.com/music/The%20Enemy.mp3
+    License: Creative Commons Zero

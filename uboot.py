@@ -3,7 +3,7 @@ import random
 
 # python files from this game
 import settings
-from resources import get_colour, get_sound
+from resources import get_colour, get_sound, load_music
 from objects import MovingObject
 
 class Game:
@@ -66,6 +66,9 @@ class Game:
 
         self.font = pygame.font.SysFont(settings.font["name"],
                                         settings.font["size"])
+
+        # music
+        load_music("background")
 
         # sound effects
         self.explosion_sound = get_sound("explosion")
@@ -232,12 +235,18 @@ class Game:
         """
         Run the game
         """
+        # start the backkground music in infinte loop
+        pygame.mixer.music.play(-1)
+        
         self.running = True
         while self.running:
             self.draw()
             self.clock.tick(60)
             self.handle_events()
             self.update_state()
+
+        # stop the background music
+        pygame.mixer.music.stop()
 
 if __name__=='__main__':
     Game(settings.width, settings.height).run()

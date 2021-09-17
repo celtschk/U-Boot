@@ -60,3 +60,10 @@ sounds = {
         "volume": 0.2
         }
     }
+
+music = {
+    "background": {
+        "filename": "The Enemy.mp3",
+        "volume": 0.1
+        }
+    }
