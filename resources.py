@@ -28,6 +28,12 @@ def get_colour(name):
     return rgbvalues[name]
 
 def get_sound(sound_name):
+    """
+    Get a pygame sound from a sound name.
+
+    This looks up the sound information in the settings file and
+    returns a pygame Sound object created from the data found there
+    """
     sound_info = settings.sounds[sound_name]
     sound = pygame.mixer.Sound(sound_info["filename"])
     sound.set_volume(sound_info["volume"])
