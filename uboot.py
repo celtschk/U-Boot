@@ -84,6 +84,9 @@ class Game:
         self.screen.blit(text, position)
 
     def moving_objects(self):
+        """
+        A generator to iterate over all moving objects
+        """
         yield self.ship
 
         for sub in self.submarines:
