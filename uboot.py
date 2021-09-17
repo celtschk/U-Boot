@@ -6,6 +6,12 @@ import settings
 from colours import get_colour
 from objects import MovingObject
 
+def get_sound(sound_name):
+    sound_info = settings.sounds[sound_name]
+    sound = pygame.mixer.Sound(sound_info["filename"])
+    sound.set_volume(sound_info["volume"])
+    return sound
+
 class Game:
     "The game"
 
@@ -66,6 +72,9 @@ class Game:
 
         self.font = pygame.font.SysFont(settings.font["name"],
                                         settings.font["size"])
+
+        # sound effects
+        self.explosion_sound = get_sound("explosion")
 
     def write_string(self, string, position):
         """
@@ -179,6 +188,7 @@ class Game:
                                       self.height * 20 + 0.5)
                     sub.deactivate()
                     bomb.deactivate()
+                    self.explosion_sound.play()
 
     def handle_events(self):
         """

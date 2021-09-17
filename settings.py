@@ -52,3 +52,11 @@ font = {
     "name": "Courier New",
     "size": 30
     }
+
+# sounds used in the game
+sounds = {
+    "explosion": {
+        "filename": "Flashbang-Kibblesbob-899170896.wav",
+        "volume": 0.2
+        }
+    }
