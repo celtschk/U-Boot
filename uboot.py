@@ -19,9 +19,6 @@ class MessageData:
         """
         Write the message at a given position on screen
         """
-#        if data is None:
-#            string = self.message
-#        else:
         string = self.message.format(**data)
 
         text = self.font.render(string, True, self.colour)
