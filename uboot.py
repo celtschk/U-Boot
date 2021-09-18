@@ -1,17 +1,11 @@
 import pygame
 import random
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 # python files from this game
 import settings
 import resources
 from objects import MovingObject
-
-@dataclass
-class DisplayData:
-    available_bombs: int
-    bomb_cost: int
-    score: int
 
 @dataclass
 class MessageData:
@@ -21,14 +15,14 @@ class MessageData:
     font: pygame.font.SysFont
     origin: tuple = (0, 0)
 
-    def write(self, screen, data = None):
+    def write(self, screen, data = {}):
         """
         Write the message at a given position on screen
         """
-        if data is None:
-            string = self.message
-        else:
-            string = self.message.format(**asdict(data))
+#        if data is None:
+#            string = self.message
+#        else:
+        string = self.message.format(**data)
 
         text = self.font.render(string, True, self.colour)
         textsize = (text.get_width(), text.get_height())
@@ -175,11 +169,11 @@ class Game:
         for obj in self.moving_objects():
             obj.draw_on(self.screen)
 
-        displaydata = DisplayData(
-            available_bombs = self.get_available_bombs(),
-            bomb_cost = self.get_bomb_cost(),
-            score = self.score
-            )
+        displaydata = {
+            "available_bombs": self.get_available_bombs(),
+            "bomb_cost": self.get_bomb_cost(),
+            "score": self.score
+            }
 
         for message in self.game_state_display:
             message.write(self.screen, displaydata)
