@@ -9,10 +9,14 @@ from objects import MovingObject
 class Game:
     "The game"
 
+    # screen dimensions
+    width = settings.width
+    height = settings.height
+
     # maximal number of simultaneous submarines
     max_subs = settings.limits["submarine"]
 
-    #maximal number of simultaneous bombs
+    # maximal number of simultaneous bombs
     max_bombs = settings.limits["bomb"]
 
     # background (sky) colour
@@ -27,18 +31,16 @@ class Game:
     # the game's frames per second
     fps = settings.fps
 
-    def __init__(self, width, height):
+    def __init__(self):
         """
         Initialize the game with screen dimensions width x height
         """
-        self.width = width
-        self.height = height
-        self.waterline = int(settings.sky_fraction * height)
+        self.waterline = int(settings.sky_fraction * self.height)
 
         self.running = False
 
         pygame.init()
-        self.screen = pygame.display.set_mode((width,height))
+        self.screen = pygame.display.set_mode((self.width,self.height))
         pygame.display.set_caption(settings.game_name)
         pygame.mouse.set_visible(False)
         pygame.key.set_repeat(0)
@@ -276,4 +278,4 @@ class Game:
         pygame.mixer.music.stop()
 
 if __name__=='__main__':
-    Game(settings.width, settings.height).run()
+    Game().run()
