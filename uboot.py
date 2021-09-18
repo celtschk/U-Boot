@@ -39,10 +39,16 @@ class Game:
     height = settings.height
 
     # maximal number of simultaneous submarines
-    max_subs = settings.limits["submarine"]
+    max_subs = settings.objects["submarine"]["max_count"]
 
     # maximal number of simultaneous bombs
-    max_bombs = settings.limits["bomb"]
+    max_bombs = settings.objects["bomb"]["max_count"]
+
+    # minimal submarime depth
+    min_depth_fraction = settings.objects["submarine"]["depth"]["min"]
+
+    # maximal submarine depth
+    max_depth_fraction = settings.objects["submarine"]["depth"]["max"]
 
     # background (sky) colour
     c_background = resources.get_colour("sky")
@@ -76,12 +82,12 @@ class Game:
         self.clock = pygame.time.Clock()
 
         # create the ship
-        self.ship = MovingObject(settings.image_files["ship"],
+        self.ship = MovingObject(settings.objects["ship"]["filename"],
                                  start = (0, self.waterline),
                                  adjust_start = (-0.5,0),
                                  end = (self.width, self.waterline),
                                  adjust_end = (0.5,0),
-                                 speed = settings.speeds["ship"],
+                                 speed = settings.objects["ship"]["speed"],
                                  origin = (0.5,1),
                                  repeat = True)
 
@@ -90,7 +96,7 @@ class Game:
         self.bombs = []
 
         # spawn a submarine on average every 3 seconds
-        self.p_spawn = settings.spawn_rates["submarine"]/self.fps
+        self.p_spawn = settings.objects["submarine"]["spawn_rate"]/self.fps
 
         self.score = 0
 
@@ -207,11 +213,12 @@ class Game:
                 # because adding the bomb changes the cost
                 self.score -= self.get_bomb_cost();
 
-                newbomb = MovingObject(settings.image_files["bomb"],
-                                       start = ship_pos,
-                                       end = (ship_pos[0], self.height),
-                                       speed = settings.speeds["bomb"],
-                                       origin = (0.5, 0))
+                newbomb = MovingObject(
+                    settings.objects["bomb"]["filename"],
+                    start = ship_pos,
+                    end = (ship_pos[0], self.height),
+                    speed = settings.objects["bomb"]["speed"],
+                    origin = (0.5, 0))
                 self.bombs.append(newbomb)
 
     def spawn_submarine(self):
@@ -220,13 +227,16 @@ class Game:
             ship_speed = self.ship.speed
 
             total_depth = self.height - self.waterline
-            min_depth = 0.1*total_depth + self.waterline
-            max_depth = self.height - 20
+            min_depth = self.min_depth_fraction*total_depth + self.waterline
+            max_depth = self.max_depth_fraction*total_depth + self.waterline
             sub_depth = random.uniform(min_depth, max_depth)
-            sub_speed = random.uniform(settings.speeds["submarine_min"],
-                                       settings.speeds["submarine_max"])
+            #sub_speed = random.uniform(settings.speeds["submarine_min"],
+            #                           settings.speeds["submarine_max"])
+            sub_speed = random.uniform(
+                settings.objects["submarine"]["speed"]["min"],
+                settings.objects["submarine"]["speed"]["max"])
 
-            newsub = MovingObject(settings.image_files["submarine"],
+            newsub = MovingObject(settings.objects["submarine"]["filename"],
                                   start = (self.width, sub_depth),
                                   end = (0, sub_depth),
                                   adjust_end = (-1,0),
