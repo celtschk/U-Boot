@@ -44,7 +44,8 @@ spawn_rates = {
 colours = {
     "sky": "sky blue",
     "water": "blue",
-    "text": "black"
+    "text": "black",
+    "pause": "white"
     }
 
 # font used in the game

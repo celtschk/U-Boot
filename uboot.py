@@ -59,8 +59,11 @@ class Game:
     # water colour
     c_water = resources.get_colour("water")
 
-    # colour of the score display
+    # colour of the game state display
     c_text = resources.get_colour("text")
+
+    # colour of the pause text display
+    c_pause = resources.get_colour("pause")
 
     # the game's frames per second
     fps = settings.fps
@@ -109,29 +112,39 @@ class Game:
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
 
-        # display messages
-        self.bomb_avail_msg = MessageData(
-            message = "Bombs available: {available_bombs}",
-            position = (20, 20),
-            colour = self.c_text,
-            font = self.font
-            )
+        # game state display
+        self.game_state_display = [
+            MessageData(
+                message = "Bombs available: {available_bombs}",
+                position = (20, 20),
+                colour = self.c_text,
+                font = self.font
+                ),
 
-        self.bomb_cost_msg = MessageData(
-            message = "Bomb cost: {bomb_cost} ",
-            position = (20, 50),
-            colour = self.c_text,
-            font = self.font
-            )
+            MessageData(
+                message = "Bomb cost: {bomb_cost} ",
+                position = (20, 50),
+                colour = self.c_text,
+                font = self.font
+                ),
 
-        self.score_msg = MessageData(
-            message = "Score: {score}",
-            position = (20+self.width//2, 20),
-            colour = self.c_text,
-            font = self.font
-            )
+            MessageData(
+                message = "Score: {score}",
+                position = (20+self.width//2, 20),
+                colour = self.c_text,
+                font = self.font
+                )
+            ]
 
-        # The game is initially not paused
+        # message for pause
+        self.paused_msg = MessageData(
+            message = "--- PAUSED ---",
+            position = (self.width//2, self.height//2),
+            colour = self.c_pause,
+            font = self.font,
+            origin = (0.5,0.5))
+            
+         # The game is initially not paused
         self.paused = False
 
     def moving_objects(self):
@@ -168,20 +181,15 @@ class Game:
             score = self.score
             )
 
-        write_message(self.screen, self.bomb_avail_msg, displaydata)
-        write_message(self.screen, self.bomb_cost_msg, displaydata)
-        write_message(self.screen, self.score_msg, displaydata)
+        for message in self.game_state_display:
+            write_message(self.screen, message, displaydata)
+#        write_message(self.screen, self.bomb_cost_msg, displaydata)
+#        write_message(self.screen, self.score_msg, displaydata)
 
         # show message if game is paused:
         if self.paused:
-            self.paused_msg = MessageData(
-                message = "--- PAUSED ---",
-                position = (self.width//2, self.height//2),
-                colour = self.c_text,
-                font = self.font,
-                origin = (0.5,0.5))
-            
             write_message(self.screen, self.paused_msg)
+
         pygame.display.flip()
 
     def get_bomb_cost(self, count=1):
