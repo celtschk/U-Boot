@@ -5,7 +5,7 @@ from dataclasses import dataclass
 # python files from this game
 import settings
 import resources
-from objects import MovingObject
+from objects import MovingObject, Animation
 
 @dataclass
 class MessageData:
@@ -91,9 +91,10 @@ class Game:
                                  origin = (0.5,1),
                                  repeat = True)
 
-        # initially there are no submarines nor bombs
+        # initially there are no submarines nor bombs nor animations
         self.submarines = []
         self.bombs = []
+        self.animations = []
 
         # spawn a submarine on average every 3 seconds
         self.p_spawn = settings.objects["submarine"]["spawn_rate"]/self.fps
@@ -172,6 +173,10 @@ class Game:
         for obj in self.moving_objects():
             obj.draw_on(self.screen)
 
+        # animations are always on top
+        for anim in self.animations:
+            anim.draw_on(self.screen)
+
         displaydata = {
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
@@ -230,8 +235,6 @@ class Game:
             min_depth = self.min_depth_fraction*total_depth + self.waterline
             max_depth = self.max_depth_fraction*total_depth + self.waterline
             sub_depth = random.uniform(min_depth, max_depth)
-            #sub_speed = random.uniform(settings.speeds["submarine_min"],
-            #                           settings.speeds["submarine_max"])
             sub_speed = random.uniform(
                 settings.objects["submarine"]["speed"]["min"],
                 settings.objects["submarine"]["speed"]["max"])
@@ -257,9 +260,15 @@ class Game:
                     subpos = sub.get_position()
                     self.score += int((subpos[1] - self.waterline) /
                                       self.height * 20 + 0.5)
+                    self.explosion_sound.play()
+                    explode = settings.animations["explosion"]
+                    self.animations.append(
+                        Animation(path_scheme = explode["images"],
+                                  frame_count = explode["frame_count"],
+                                  fps = explode["fps"],
+                                  position = bomb.get_position()))
                     sub.deactivate()
                     bomb.deactivate()
-                    self.explosion_sound.play()
 
     def handle_events(self):
         """
@@ -309,12 +318,17 @@ class Game:
         for sub in self.moving_objects():
             sub.move(1/self.fps)
 
+        # update all animations
+        for anim in self.animations:
+            anim.update(1/self.fps)
+
         # handle bombs hitting submarines
         self.handle_hits()
 
         # remove inactive objects
         self.submarines = [sub for sub in self.submarines if sub.is_active()]
         self.bombs = [bomb for bomb in self.bombs if bomb.is_active()]
+        self.animations = [explode for explode in self.animations if explode.is_active()]
 
         # spawn new submarines at random
         if len(self.submarines) < Game.max_subs:

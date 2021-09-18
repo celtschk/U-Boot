@@ -1,11 +1,16 @@
 import pygame
 
+# A storage for images, so that they aren't loaded each time
+# another object uses the same image is
+imagestore = {}
+
+def load_image(path):
+    if not path in imagestore:
+        imagestore[path] = pygame.image.load(path).convert_alpha()
+    return imagestore[path]
+
 class MovingObject:
     "This class represents any moving object in the game."
-
-    # A storage for images, so that they aren't loaded each time
-    # another object uses the same image is
-    imagestore = {}
 
     def __init__(self, path, start, end, speed,
                  origin = (0,0), repeat=False,
@@ -34,10 +39,10 @@ class MovingObject:
 
         will result in an actual starting point of (0,7).
         """
-        if not path in MovingObject.imagestore:
-            MovingObject.imagestore[path] =\
-                 pygame.image.load(path).convert_alpha()
-        self.image = MovingObject.imagestore[path]
+#        if not path in imagestore:
+#            imagestore[path] = pygame.image.load(path).convert_alpha()
+#        self.image = MovingObject.imagestore[path]
+        self.image = load_image(path)
 
         width = self.image.get_width()
 
@@ -111,3 +116,48 @@ class MovingObject:
         return pygame.Rect(pos,
                            (self.image.get_width(),
                             self.image.get_height()))
+
+class Animation:
+    """
+    This class represents an animation
+    """
+    
+    def __init__(self, path_scheme, frame_count, fps,
+                 position, origin = (0.5,0.5)):
+        """
+        Create a new animation
+
+        All images are assumed to have the same size
+        """
+        self.images = [load_image(path_scheme.format(frame = n))
+                       for n in range(frame_count)]
+
+        width = self.images[0].get_width()
+        height = self.images[0].get_height()
+
+        self.position = (int(position[0] - width * origin[0]),
+                         int(position[1] - height * origin[1]))
+
+        self.frame_count = frame_count
+        self.fps = fps
+        self.time = 0
+        self.current_frame = 0
+
+    def is_active(self):
+        return not self.current_frame is None
+
+    def deactivate(self):
+        self.current_frame = None
+        
+    def draw_on(self, surface):
+        if (self.is_active()):
+            surface.blit(self.images[self.current_frame], self.position)
+
+    def update(self, time):
+        if self.is_active():
+            self.time += time
+            frame = int(self.time * self.fps)
+            if frame >= self.frame_count:
+                self.deactivate()
+            else:
+                self.current_frame = frame

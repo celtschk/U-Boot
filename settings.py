@@ -35,6 +35,22 @@ sounds = {
         }
     }
 
+# animations used in the game
+animations = {
+    "explosion": {
+        # frame rate of the animation
+        # for best results, use a factor of the global fps
+        "fps": 10,
+
+        # total number of frames in the animation
+        "frame_count": 5,
+        
+        # image file name format string, with the frame number
+        # replaced by {frame}. The first
+        "images": "explosion_{frame}.png"
+        }
+    }
+
 music = {
     "background": {
         "filename": "The Enemy.mp3",
