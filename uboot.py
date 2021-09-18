@@ -1,10 +1,44 @@
 import pygame
 import random
+from dataclasses import dataclass, asdict
 
 # python files from this game
 import settings
 import resources
 from objects import MovingObject
+
+@dataclass
+class DisplayData:
+    available_bombs: int
+    bomb_cost: int
+    score: int
+
+@dataclass
+class MessageData:
+    message: str
+    position: tuple
+    colour: tuple
+    font: pygame.font.SysFont
+    origin: tuple = (0, 0)
+
+def write_message(screen, messagedata, data = None):
+    """
+    Write a string at a given position on screen
+    """
+    if data is None:
+        string = messagedata.message
+    else:
+        string = messagedata.message.format(**asdict(data))
+
+    text = messagedata.font.render(string, True, messagedata.colour)
+    textsize = (text.get_width(), text.get_height())
+    position = tuple(int(pos - size * orig)
+                     for pos, size, orig
+                     in zip(messagedata.position,
+                            textsize,
+                            messagedata.origin))
+
+    screen.blit(text, position)
 
 class Game:
     "The game"
@@ -75,15 +109,30 @@ class Game:
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
 
+        # display messages
+        self.bomb_avail_msg = MessageData(
+            message = "Bombs available: {available_bombs}",
+            position = (20, 20),
+            colour = self.c_text,
+            font = self.font
+            )
+
+        self.bomb_cost_msg = MessageData(
+            message = "Bomb cost: {bomb_cost} ",
+            position = (20, 50),
+            colour = self.c_text,
+            font = self.font
+            )
+
+        self.score_msg = MessageData(
+            message = "Score: {score}",
+            position = (20+self.width//2, 20),
+            colour = self.c_text,
+            font = self.font
+            )
+
         # The game is initially not paused
         self.paused = False
-
-    def write_string(self, string, position):
-        """
-        Write a string at a given position on screen
-        """
-        text = self.font.render(string, True, self.c_text)
-        self.screen.blit(text, position)
 
     def moving_objects(self):
         """
@@ -113,22 +162,26 @@ class Game:
         for obj in self.moving_objects():
             obj.draw_on(self.screen)
 
-        self.write_string("Bombs available: "
-                          + str(self.get_available_bombs()),
-                          (20, 20))
+        displaydata = DisplayData(
+            available_bombs = self.get_available_bombs(),
+            bomb_cost = self.get_bomb_cost(),
+            score = self.score
+            )
 
-        self.write_string("Bomb cost: " + str(self.get_bomb_cost()),
-                          (20,50))
-
-        self.write_string("Score: " + str(self.score),
-                          (20+self.width//2, 20))
+        write_message(self.screen, self.bomb_avail_msg, displaydata)
+        write_message(self.screen, self.bomb_cost_msg, displaydata)
+        write_message(self.screen, self.score_msg, displaydata)
 
         # show message if game is paused:
         if self.paused:
-            paused_string = "--- PAUSED ---"
-            self.write_string(paused_string,
-                              (self.width//2 - 10*len(paused_string),
-                               self.height//2))
+            self.paused_msg = MessageData(
+                message = "--- PAUSED ---",
+                position = (self.width//2, self.height//2),
+                colour = self.c_text,
+                font = self.font,
+                origin = (0.5,0.5))
+            
+            write_message(self.screen, self.paused_msg)
         pygame.display.flip()
 
     def get_bomb_cost(self, count=1):
