@@ -62,13 +62,25 @@ music = {
 objects = {
     "ship": {
         "filename": "schiff.png",
-        "speed": 0.1
+        "origin": (0.5,1),
+        "movement": {
+            "start": ("left", 0),
+            "end": ("right", 0),
+            "speed": 0.1,
+            "repeat": True
+            },
         },
     "submarine": {
         "filename": "Uboot.png",
-        "speed": {
-            "min": 0.05,
-            "max": 0.2
+        "origin": (0, 0),
+        "movement": {
+            "start": ("right", "depth"),
+            "end": ("left", "depth"),
+            "speed": {
+                "min": 0.05,
+                "max": 0.2
+                },
+            "repeat": False
             },
         "max_count": 10,
         "depth": {
@@ -79,7 +91,13 @@ objects = {
         },
     "bomb": {
         "filename": "bomb.png",
-        "speed": 0.1,
+        "origin": (0.5, 0),
+        "movement": {
+            "start": ("ship", "ship"),
+            "end": ("ship", "bottom"),
+            "speed": 0.1,
+            "repeat": False
+            },
         "max_count": 15
         }
     }
