@@ -1,35 +1,10 @@
 import pygame
 import random
-from dataclasses import dataclass
 
 # python files from this game
 import settings
 import resources
 from objects import MovingObject, Animation
-
-@dataclass
-class MessageData:
-    message: str
-    position: tuple
-    colour: tuple
-    font: pygame.font.SysFont
-    origin: tuple = (0, 0)
-
-    def write(self, screen, data = {}):
-        """
-        Write the message at a given position on screen
-        """
-        string = self.message.format(**data)
-
-        text = self.font.render(string, True, self.colour)
-        textsize = (text.get_width(), text.get_height())
-        position = tuple(int(pos - size * orig)
-                         for pos, size, orig
-                         in zip(self.position,
-                                textsize,
-                                self.origin))
-
-        screen.blit(text, position)
 
 class Game:
     "The game"
@@ -112,21 +87,21 @@ class Game:
 
         # game state display
         self.game_state_display = [
-            MessageData(
+            resources.MessageData(
                 message = "Bombs available: {available_bombs}",
                 position = (20, 20),
                 colour = self.c_text,
                 font = self.font
                 ),
 
-            MessageData(
+            resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
                 position = (20, 50),
                 colour = self.c_text,
                 font = self.font
                 ),
 
-            MessageData(
+            resources.MessageData(
                 message = "Score: {score}",
                 position = (20+self.width//2, 20),
                 colour = self.c_text,
@@ -135,7 +110,7 @@ class Game:
             ]
 
         # message for pause
-        self.paused_msg = MessageData(
+        self.paused_msg = resources.MessageData(
             message = "--- PAUSED ---",
             position = (self.width//2, self.height//2),
             colour = self.c_pause,

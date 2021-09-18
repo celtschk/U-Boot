@@ -1,5 +1,6 @@
 import settings
 import pygame
+from dataclasses import dataclass
 
 # get the colour names from X11's rgb.txt
 rgbvalues = {}
@@ -51,4 +52,27 @@ def load_music(music_name):
     pygame.mixer.music.load(music_info["filename"])
     pygame.mixer.music.set_volume(music_info["volume"])
 
+@dataclass
+class MessageData:
+    message: str
+    position: tuple
+    colour: tuple
+    font: pygame.font.SysFont
+    origin: tuple = (0, 0)
+
+    def write(self, screen, data = {}):
+        """
+        Write the message at a given position on screen
+        """
+        string = self.message.format(**data)
+
+        text = self.font.render(string, True, self.colour)
+        textsize = (text.get_width(), text.get_height())
+        position = tuple(int(pos - size * orig)
+                         for pos, size, orig
+                         in zip(self.position,
+                                textsize,
+                                self.origin))
+
+        screen.blit(text, position)
     
