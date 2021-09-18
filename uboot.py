@@ -21,24 +21,24 @@ class MessageData:
     font: pygame.font.SysFont
     origin: tuple = (0, 0)
 
-def write_message(screen, messagedata, data = None):
-    """
-    Write a string at a given position on screen
-    """
-    if data is None:
-        string = messagedata.message
-    else:
-        string = messagedata.message.format(**asdict(data))
+    def write(self, screen, data = None):
+        """
+        Write the message at a given position on screen
+        """
+        if data is None:
+            string = self.message
+        else:
+            string = self.message.format(**asdict(data))
 
-    text = messagedata.font.render(string, True, messagedata.colour)
-    textsize = (text.get_width(), text.get_height())
-    position = tuple(int(pos - size * orig)
-                     for pos, size, orig
-                     in zip(messagedata.position,
-                            textsize,
-                            messagedata.origin))
+        text = self.font.render(string, True, self.colour)
+        textsize = (text.get_width(), text.get_height())
+        position = tuple(int(pos - size * orig)
+                         for pos, size, orig
+                         in zip(self.position,
+                                textsize,
+                                self.origin))
 
-    screen.blit(text, position)
+        screen.blit(text, position)
 
 class Game:
     "The game"
@@ -182,13 +182,11 @@ class Game:
             )
 
         for message in self.game_state_display:
-            write_message(self.screen, message, displaydata)
-#        write_message(self.screen, self.bomb_cost_msg, displaydata)
-#        write_message(self.screen, self.score_msg, displaydata)
+            message.write(self.screen, displaydata)
 
         # show message if game is paused:
         if self.paused:
-            write_message(self.screen, self.paused_msg)
+            self.paused_msg.write(self.screen)
 
         pygame.display.flip()
 
