@@ -5,6 +5,10 @@ import pygame
 imagestore = {}
 
 def load_image(path):
+    """
+    Load an image, if not already loaded. Otherwise, return the
+    already loaded image.
+    """
     if not path in imagestore:
         imagestore[path] = pygame.image.load(path).convert_alpha()
     return imagestore[path]
@@ -127,7 +131,24 @@ class Animation:
         """
         Create a new animation
 
-        All images are assumed to have the same size
+        Mandatory Arguments:
+          path_scheme: format string for the file names of the
+                       images of the animation. The frame number
+                       must be given as \"{frame}\". Frame numbering
+                       starts at 0.
+
+          frame_count: number of frames.
+
+          fps:         frames per second of the animation.
+
+          position:    the coordinates where the animation is to be played
+
+        Optional arguments:
+          origin:      The point of the image which is places at position.
+
+        All images are assumed to have the same size. The origin is
+        relative to the upper left corner of the image and is given in
+        units of image width resp. image height.
         """
         self.images = [load_image(path_scheme.format(frame = n))
                        for n in range(frame_count)]
@@ -144,16 +165,28 @@ class Animation:
         self.current_frame = 0
 
     def is_active(self):
+        """
+        Returns if the animation is currently active.
+        """
         return not self.current_frame is None
 
     def deactivate(self):
+        """
+        Deactivates the animation.
+        """
         self.current_frame = None
         
     def draw_on(self, surface):
+        """
+        Draws the animation
+        """
         if (self.is_active()):
             surface.blit(self.images[self.current_frame], self.position)
 
     def update(self, time):
+        """
+        Updates the animation
+        """
         if self.is_active():
             self.time += time
             frame = int(self.time * self.fps)
