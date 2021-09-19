@@ -391,21 +391,17 @@ class Level(GameDisplay):
 class Game:
     "The game"
 
-    # screen dimensions
-    width = settings.width
-    height = settings.height
-
-    # fps
-    fps = settings.fps
-
     def __init__(self):
         """
         Initialize the game
         """
         pygame.init()
 
-        self.screen = pygame.display.set_mode((self.width,self.height))
+        self.screen = pygame.display.set_mode((settings.width,settings.height))
         self.clock = pygame.time.Clock()
+
+        # fps
+        self.fps = settings.fps
 
         pygame.display.set_caption(settings.game_name)
         pygame.mouse.set_visible(False)
