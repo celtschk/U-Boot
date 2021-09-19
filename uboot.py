@@ -469,7 +469,7 @@ class Game:
     
     def __init__(self):
         """
-        Initialize the game with screen dimensions width x height
+        Initialize the game
         """
         pygame.init()
 
