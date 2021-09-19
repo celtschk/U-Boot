@@ -20,11 +20,14 @@ class Game:
     width = settings.width
     height = settings.height
 
-    # maximal number of simultaneous submarines
-    max_subs = settings.objects["submarine"]["max_count"]
-
-    # maximal number of simultaneous bombs
-    max_bombs = settings.objects["bomb"]["max_count"]
+    # get limits and probabilities for objects
+    max_objects = {}
+    spawn_rates = {}
+    for obj_type, obj in settings.objects.items():
+        if "max_count" in obj:
+            max_objects[obj_type] = obj["max_count"]
+        if "spawn_rate" in obj:
+            spawn_rates[obj_type] = obj["spawn_rate"]
 
     # minimal submarime depth
     min_depth_fraction = settings.objects["submarine"]["depth"]["min"]
@@ -66,13 +69,8 @@ class Game:
         # create the ship
         self.ship = self.create_moving_object("ship")
 
-        # initially there are no submarines nor bombs nor animations
-        self.submarines = []
-        self.bombs = []
-        self.animations = []
-
-        # spawn a submarine on average every 3 seconds
-        self.p_spawn = settings.objects["submarine"]["spawn_rate"]/self.fps
+        # a list of all objects, initially there's only a ship
+        self.objects = [self.ship]
 
         self.score = 0
 
@@ -178,6 +176,7 @@ class Game:
         end_adjustment = (end_x["adjustment"], end_depth["adjustment"])
 
         return MovingObject(
+            object_type,
             filename,
             start = start,
             adjust_start = start_adjustment,
@@ -186,18 +185,6 @@ class Game:
             speed = get_value(movement["speed"]),
             origin = origin,
             repeat = movement["repeat"])
-
-    def moving_objects(self):
-        """
-        A generator to iterate over all moving objects
-        """
-        yield self.ship
-
-        for sub in self.submarines:
-            yield sub
-
-        for bomb in self.bombs:
-            yield bomb
 
     def draw(self):
         """
@@ -210,13 +197,11 @@ class Game:
                           self.width,
                           self.height - self.waterline))
 
-        self.ship.draw_on(self.screen)
-
-        for obj in self.moving_objects():
+        for obj in self.get_objects(Animation, inverse=True):
             obj.draw_on(self.screen)
 
         # animations are always on top
-        for anim in self.animations:
+        for anim in self.get_objects(Animation):
             anim.draw_on(self.screen)
 
         displaydata = {
@@ -234,14 +219,21 @@ class Game:
 
         pygame.display.flip()
 
+    def get_objects(self, object_type, inverse = False):
+        if type(object_type) is str:
+            condition = lambda obj: (obj.object_type == object_type) != inverse
+        elif type(object_type) is type:
+            condition = lambda obj: (type(obj) is object_type) != inverse
+        return [obj for obj in self.objects if condition(obj)]
+
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
-        l = len(self.bombs)
+        l = len(self.get_objects("bomb"))
         return sum((l+k)**2 for k in range(count))
 
     def get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
-        available_bombs = self.max_bombs - len(self.bombs)
+        available_bombs = self.max_objects["bomb"] - len(self.get_objects("bomb"))
         while self.get_bomb_cost(available_bombs) > self.score:
                available_bombs -= 1
         return available_bombs
@@ -261,21 +253,23 @@ class Game:
                 self.score -= self.get_bomb_cost();
 
                 newbomb = self.create_moving_object("bomb")
-                self.bombs.append(newbomb)
+                self.objects.append(newbomb)
 
-    def spawn_submarine(self):
-        "Possibly spawn a new submarine"
-        if random.uniform(0,1) < self.p_spawn:
-            newsub = self.create_moving_object("submarine")
-            self.submarines.append(newsub)                  
+    def spawn_objects(self):
+        "Possibly spawn new spawnable objects"
+        for obj_type, rate in self.spawn_rates.items():
+            if len(self.get_objects(obj_type)) < Game.max_objects[obj_type]:
+                if random.uniform(0,1) < rate/self.fps:
+                    newsub = self.create_moving_object(obj_type)
+                    self.objects.append(newsub)
 
     def handle_hits(self):
         """
         Check if any bomb hit any submarine, and if so, remove both
         and update score
         """
-        for sub in self.submarines:
-            for bomb in self.bombs:
+        for sub in self.get_objects("submarine"):
+            for bomb in self.get_objects("bomb"):
                 bb_sub = sub.get_bounding_box()
                 bb_bomb = bomb.get_bounding_box()
                 if bb_sub.colliderect(bb_bomb):
@@ -284,8 +278,9 @@ class Game:
                                       self.height * 20 + 0.5)
                     self.explosion_sound.play()
                     explode = settings.animations["explosion"]
-                    self.animations.append(
-                        Animation(path_scheme = explode["images"],
+                    self.objects.append(
+                        Animation(object_type = "explosion",
+                                  path_scheme = explode["images"],
                                   frame_count = explode["frame_count"],
                                   fps = explode["fps"],
                                   position = bomb.get_position()))
@@ -336,25 +331,18 @@ class Game:
         if self.paused:
             return
 
-        # move all objects
-        for sub in self.moving_objects():
-            sub.move(1/self.fps)
-
-        # update all animations
-        for anim in self.animations:
-            anim.update(1/self.fps)
+        # move all objects and advance all animations
+        for obj in self.objects:
+            obj.update(1/self.fps)
 
         # handle bombs hitting submarines
         self.handle_hits()
 
-        # remove inactive objects
-        self.submarines = [sub for sub in self.submarines if sub.is_active()]
-        self.bombs = [bomb for bomb in self.bombs if bomb.is_active()]
-        self.animations = [explode for explode in self.animations if explode.is_active()]
+        # remove inactive objects and animations
+        self.objects = [obj for obj in self.objects if obj.is_active()]
 
-        # spawn new submarines at random
-        if len(self.submarines) < Game.max_subs:
-            self.spawn_submarine()
+        # spawn new spawnable objects at random
+        self.spawn_objects()
 
     def run(self):
         """

@@ -16,13 +16,14 @@ def load_image(path):
 class MovingObject:
     "This class represents any moving object in the game."
 
-    def __init__(self, path, start, end, speed,
+    def __init__(self, object_type, path, start, end, speed,
                  origin = (0,0), repeat=False,
                  adjust_start = (0,0), adjust_end = (0,0)):
         """
         Create a new moving object.
 
         Mandatory Arguments:
+          object_type:   the name of this type of object
           path:          the file path to the image to display
           start:         the pixel at which the movement starts
           end:           the pixel at which the movement ends
@@ -43,9 +44,6 @@ class MovingObject:
 
         will result in an actual starting point of (0,7).
         """
-#        if not path in imagestore:
-#            imagestore[path] = pygame.image.load(path).convert_alpha()
-#        self.image = MovingObject.imagestore[path]
         self.image = load_image(path)
 
         width = self.image.get_width()
@@ -64,6 +62,11 @@ class MovingObject:
                      -self.image.get_height()*origin[1])
 
         self.active = True
+
+        self.object_type = object_type
+
+    def update(self, time):
+        self.move(time)
 
     def move(self, seconds):
         """
@@ -126,12 +129,13 @@ class Animation:
     This class represents an animation
     """
     
-    def __init__(self, path_scheme, frame_count, fps,
+    def __init__(self, object_type, path_scheme, frame_count, fps,
                  position, origin = (0.5,0.5)):
         """
         Create a new animation
 
         Mandatory Arguments:
+          object_type: the name of this type of object
           path_scheme: format string for the file names of the
                        images of the animation. The frame number
                        must be given as \"{frame}\". Frame numbering
@@ -163,6 +167,8 @@ class Animation:
         self.fps = fps
         self.time = 0
         self.current_frame = 0
+
+        self.object_type = object_type
 
     def is_active(self):
         """
