@@ -1,17 +1,9 @@
 import pygame
-import random
 
 # python files from this game
 import settings
 import resources
 from objects import MovingObject, Animation
-
-def get_value(value_or_range):
-    if type(value_or_range) is dict:
-        return random.uniform(value_or_range["min"],
-                              value_or_range["max"])
-    else:
-        return value_or_range
 
 class Game:
     "The game"
@@ -150,7 +142,7 @@ class Game:
                             }
                     else:
                         cache[coordinate, name_or_value] = {
-                            "pos": get_value(data[name_or_value]),
+                            "pos": resources.get_value(data[name_or_value]),
                             "adjustment": 0
                             }
             else:
@@ -182,7 +174,7 @@ class Game:
             adjust_start = start_adjustment,
             end = end,
             adjust_end = end_adjustment,
-            speed = get_value(movement["speed"]),
+            speed = resources.get_value(movement["speed"]),
             origin = origin,
             repeat = movement["repeat"])
 
@@ -259,7 +251,7 @@ class Game:
         "Possibly spawn new spawnable objects"
         for obj_type, rate in self.spawn_rates.items():
             if len(self.get_objects(obj_type)) < Game.max_objects[obj_type]:
-                if random.uniform(0,1) < rate/self.fps:
+                if resources.randomly_true(rate/self.fps):
                     newsub = self.create_moving_object(obj_type)
                     self.objects.append(newsub)
 

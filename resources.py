@@ -1,6 +1,8 @@
-import settings
 import pygame
+import random
 from dataclasses import dataclass
+
+import settings
 
 # get the colour names from X11's rgb.txt
 rgbvalues = {}
@@ -76,3 +78,23 @@ class MessageData:
 
         screen.blit(text, position)
     
+def get_value(value_or_range):
+    """
+    Get a specific or random value from a given specification.
+
+    The specification can either be the value itself, or an interval
+    given through a dictionary with the entries \"min\" and \"max\"
+    specifying respectively the minimal and maximal value of the
+    interval to uniformly choose from.
+    """
+    if type(value_or_range) is dict:
+        return random.uniform(value_or_range["min"],
+                              value_or_range["max"])
+    else:
+        return value_or_range
+
+def randomly_true(probability):
+    """
+    Return True with a given probability, False otherwise.
+    """
+    return random.uniform(0,1) < probability
