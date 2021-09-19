@@ -21,12 +21,6 @@ class Game:
         if "spawn_rate" in obj:
             spawn_rates[obj_type] = obj["spawn_rate"]
 
-    # minimal submarime depth
-    min_depth_fraction = settings.objects["submarine"]["depth"]["min"]
-
-    # maximal submarine depth
-    max_depth_fraction = settings.objects["submarine"]["depth"]["max"]
-
     # background (sky) colour
     c_background = resources.get_colour("sky")
 
