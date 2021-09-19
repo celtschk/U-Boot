@@ -80,13 +80,15 @@ class Menu(GameDisplay):
     Class representing a menu.
     """
     def __init__(self, screen, clock, fps,
-                 menuspec, c_background, c_text, c_highlight, font):
+                 menuspec, c_background, c_text, c_highlight, font,
+                 params = {}):
         super().__init__(screen, clock, fps)
         self.menuspec = menuspec
         self.c_background = c_background
         self.c_text = c_text
         self.c_highlight = c_highlight
         self.font = font
+        self.params = params
         self.selection = 0
 
     def draw(self):
@@ -105,7 +107,7 @@ class Menu(GameDisplay):
                 colour = self.c_text
 
             text = resources.MessageData(
-                message = option["text"],
+                message = option["text"].format(**self.params),
                 position = (center_x, current_line),
                 colour = colour,
                 font = self.font,
@@ -486,8 +488,16 @@ class Game:
 
         self.main_menu = [
             { "text": "Play", "action": "play" },
+            { "text": "Options", "action": "options" },
             { "text": "Quit", "action": "quit" }
             ]
+
+        self.options_menu = [
+            { "text": "{allow} music", "action": "music" },
+            { "text": "Return to main menu", "action": "menu" }
+            ]
+
+        self.play_music = True
 
     def run(self):
         """
@@ -495,21 +505,30 @@ class Game:
         """
         action = "menu"
         while action != "quit":
-            if action == "menu":
+            if action == "menu" or action == "options":
+                if action == "menu":
+                    displayed_menu = self.main_menu
+                elif action == "options":
+                    displayed_menu = self.options_menu
                 menu = Menu(self.screen, self.clock, self.fps,
-                            self.main_menu,
+                            displayed_menu,
                             resources.get_colour("menu background"),
                             resources.get_colour("menu option"),
                             resources.get_colour("menu highlight"),
-                            self.font)
+                            self.font,
+                            {"allow": ["Enable", "Disable"][self.play_music]})
                 menu.execute()
                 if menu.terminated():
                     action = "quit"
                 else:
                     action = menu.get_selected_action()
+            elif action == "music":
+                self.play_music = not self.play_music
+                action = "options"
             elif action == "play":
                 # start the backkground music in infinte loop
-                pygame.mixer.music.play(-1)
+                if self.play_music:
+                    pygame.mixer.music.play(-1)
 
                 # play the game
                 level = Level(self.screen,
@@ -519,7 +538,8 @@ class Game:
                 level.execute()
 
                 # stop the background music
-                pygame.mixer.music.stop()
+                if self.play_music:
+                    pygame.mixer.music.stop()
 
                 if level.terminated():
                     # quit the game on request
