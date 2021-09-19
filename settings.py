@@ -18,7 +18,9 @@ colours = {
     "sky": "sky blue",
     "water": "blue",
     "text": "black",
-    "pause": "white"
+    "pause": "white",
+    "menu option": "white",
+    "menu highlight": "yellow"
     }
 
 # font used in the game

@@ -5,7 +5,146 @@ import settings
 import resources
 from objects import MovingObject, Animation
 
-class Game:
+class GameDisplay:
+    """
+    Base class containing the logic of any screen the user may
+    interact with, whether it is the gameplay or a menu.
+    """
+    def __init__(self, screen, clock, fps):
+        """
+        Initializes the GameDisplay object
+        """
+        self.screen = screen
+        self.clock = clock
+        self.fps = fps
+        self.running = False
+        self.quit_game = False
+
+    def draw(self):
+        """
+        Draws the object.
+
+        To be supplied by the derived class.
+        """
+        raise NotImplementedError("Must be supplied by the derived class")
+
+    def handle_events(self):
+        """
+        Handles the events.
+
+        To be supplied by the derived clas.
+        """
+        raise NotImplementedError("Must be supplied by the derived class")
+
+    def update_state(self):
+        """
+        Updates the state.
+
+        Does nothing in the base class. Can, but does not need to be
+        overwritten by the derived class.
+        """
+        pass
+
+    def execute(self):
+        """
+        The main loop
+        """
+        self.running = True
+        while self.running:
+            self.draw()
+            self.clock.tick(self.fps)
+            self.handle_events()
+            self.update_state()
+
+    def quit(self):
+        """
+        Quit the display, but not necessarily the game
+        """
+        self.running = False
+
+    def terminate(self):
+        """
+        Quit the game
+        """
+        self.quit()
+        self.quit_game = True
+
+    def terminated(self):
+        """
+        Returns whether the terminate function was called.
+        """
+        return self.quit_game
+
+class Menu(GameDisplay):
+    """
+    Class representing a menu.
+    """
+    def __init__(self, screen, clock, fps,
+                 menuspec, c_text, c_highlight, font):
+        super().__init__(screen, clock, fps)
+        self.menuspec = menuspec
+        self.c_text = c_text
+        self.c_highlight = c_highlight
+        self.font = font
+        self.selection = 0
+
+    def draw(self):
+        line_height = 50
+        center_x = self.screen.get_width()//2
+        center_y = self.screen.get_height()//2
+
+        current_line = center_y - (len(self.menuspec)-1)*line_height/2
+
+        for index, option in enumerate(self.menuspec):
+            if index == self.selection:
+                colour = self.c_highlight
+            else:
+                colour = self.c_text
+
+            text = resources.MessageData(
+                message = option["text"],
+                position = (center_x, current_line),
+                colour = colour,
+                font = self.font,
+                origin = (0.5,0.5) # centered
+                )
+
+            text.write(self.screen)
+
+            current_line += line_height
+
+        pygame.display.flip()
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.terminate()
+
+            if event.type == pygame.KEYDOWN:
+                # Up and down navigate the menu
+                if event.key == pygame.K_UP:
+                    if self.selection == 0:
+                        self.selection = len(self.menuspec)
+                    self.selection -= 1
+                elif event.key == pygame.K_DOWN:
+                    self.selection += 1
+                    if self.selection == len(self.menuspec):
+                        self.selection = 0
+
+                # Enter selects an option, thus quits the menu
+                elif event.key == pygame.K_RETURN:
+                    self.quit()
+
+    def get_selected_action(self):
+        """
+        Get the selected action, or None if a pygame.QUIT event was
+        received
+        """
+        if self.terminated():
+            return None
+        return self.menuspec[self.selection]["action"]
+
+class Game(GameDisplay):
     "The game"
 
     # screen dimensions
@@ -103,6 +242,11 @@ class Game:
             
          # The game is initially not paused
         self.paused = False
+
+        self.main_menu = [
+            { "text": "Play", "action": "play" },
+            { "text": "Quit", "action": "quit" }
+            ]
 
     def create_moving_object(self, object_type):
         """
@@ -334,18 +478,32 @@ class Game:
         """
         Run the game
         """
-        # start the backkground music in infinte loop
-        pygame.mixer.music.play(-1)
-        
-        self.running = True
-        while self.running:
-            self.draw()
-            self.clock.tick(60)
-            self.handle_events()
-            self.update_state()
+        action = "menu"
+        while action != "quit":
+            if action == "menu":
+                menu = Menu(self.screen, self.clock, self.fps,
+                            self.main_menu,
+                            resources.get_colour("menu option"),
+                            resources.get_colour("menu highlight"),
+                            self.font)
+                menu.execute()
+                if menu.terminated():
+                    action = "quit"
+                else:
+                    action = menu.get_selected_action()
+            elif action == "play":
+                # start the backkground music in infinte loop
+                pygame.mixer.music.play(-1)
 
-        # stop the background music
-        pygame.mixer.music.stop()
+                # play the game
+                self.execute()
+
+                # stop the background music
+                pygame.mixer.music.stop()
+
+                # return to the menu
+                action = "menu"
+
 
 if __name__=='__main__':
     Game().run()
