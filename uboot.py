@@ -4,16 +4,16 @@ import pygame
 import settings
 import resources
 from objects import MovingObject, Animation
-from gamedisplay import GameDisplay
+from gamedisplay import DisplayInfo, GameDisplay
 
 class Menu(GameDisplay):
     """
     Class representing a menu.
     """
-    def __init__(self, screen, clock, fps,
+    def __init__(self, display_info,
                  menuspec, c_background, c_text, c_highlight, font,
                  params = {}):
-        super().__init__(screen, clock, fps)
+        super().__init__(display_info)
         self.menuspec = menuspec
         self.c_background = c_background
         self.c_text = c_text
@@ -84,11 +84,11 @@ class Menu(GameDisplay):
 # separate out the class
 class Level(GameDisplay):
     "A game level"
-    def __init__(self, screen, clock, fps, font):
-        super().__init__(screen, clock, fps)
+    def __init__(self, display_info, font):
+        super().__init__(display_info)
         
-        self.width = screen.get_width()
-        self.height = screen.get_height()
+        self.width = display_info.screen.get_width()
+        self.height = display_info.screen.get_height()
 
         self.font = font
         
@@ -397,11 +397,12 @@ class Game:
         """
         pygame.init()
 
-        self.screen = pygame.display.set_mode((settings.width,settings.height))
-        self.clock = pygame.time.Clock()
-
-        # fps
-        self.fps = settings.fps
+        self.display_info = DisplayInfo(
+            screen = pygame.display.set_mode((settings.width,
+                                              settings.height)),
+            clock = pygame.time.Clock(),
+            fps = settings.fps
+            )
 
         pygame.display.set_caption(settings.game_name)
         pygame.mouse.set_visible(False)
@@ -437,7 +438,7 @@ class Game:
                     displayed_menu = self.main_menu
                 elif action == "options":
                     displayed_menu = self.options_menu
-                menu = Menu(self.screen, self.clock, self.fps,
+                menu = Menu(self.display_info,
                             displayed_menu,
                             resources.get_colour("menu background"),
                             resources.get_colour("menu option"),
@@ -458,10 +459,7 @@ class Game:
                     pygame.mixer.music.play(-1)
 
                 # play the game
-                level = Level(self.screen,
-                              self.clock,
-                              self.fps,
-                              self.font)
+                level = Level(self.display_info, self.font)
                 level.execute()
 
                 # stop the background music

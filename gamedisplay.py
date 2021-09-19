@@ -1,17 +1,24 @@
 import pygame
+from dataclasses import dataclass
+
+@dataclass
+class DisplayInfo:
+    screen: pygame.Surface
+    clock: pygame.time.Clock
+    fps: float
 
 class GameDisplay:
     """
     Base class containing the logic of any screen the user may
     interact with, whether it is the gameplay or a menu.
     """
-    def __init__(self, screen, clock, fps):
+    def __init__(self, display_info: DisplayInfo):
         """
         Initializes the GameDisplay object
         """
-        self.screen = screen
-        self.clock = clock
-        self.fps = fps
+        self.screen = display_info.screen
+        self.clock = display_info.clock
+        self.fps = display_info.fps
         self.running = False
         self.quit_game = False
 
