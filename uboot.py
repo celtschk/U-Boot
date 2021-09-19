@@ -80,15 +80,18 @@ class Menu(GameDisplay):
     Class representing a menu.
     """
     def __init__(self, screen, clock, fps,
-                 menuspec, c_text, c_highlight, font):
+                 menuspec, c_background, c_text, c_highlight, font):
         super().__init__(screen, clock, fps)
         self.menuspec = menuspec
+        self.c_background = c_background
         self.c_text = c_text
         self.c_highlight = c_highlight
         self.font = font
         self.selection = 0
 
     def draw(self):
+        self.screen.fill(self.c_background)
+
         line_height = 50
         center_x = self.screen.get_width()//2
         center_y = self.screen.get_height()//2
@@ -144,52 +147,40 @@ class Menu(GameDisplay):
             return None
         return self.menuspec[self.selection]["action"]
 
-class Game(GameDisplay):
-    "The game"
+# Currently there's only one game level. Nevertheless, it makes sense to
+# separate out the class
+class Level(GameDisplay):
+    "A game level"
+    def __init__(self, screen, clock, fps, font):
+        super().__init__(screen, clock, fps)
+        
+        self.width = screen.get_width()
+        self.height = screen.get_height()
 
-    # screen dimensions
-    width = settings.width
-    height = settings.height
+        self.font = font
+        
+        # get limits and probabilities for objects
+        self.max_objects = {}
+        self.spawn_rates = {}
+        for obj_type, obj in settings.objects.items():
+            if "max_count" in obj:
+                self.max_objects[obj_type] = obj["max_count"]
+            if "spawn_rate" in obj:
+                self.spawn_rates[obj_type] = obj["spawn_rate"]
 
-    # get limits and probabilities for objects
-    max_objects = {}
-    spawn_rates = {}
-    for obj_type, obj in settings.objects.items():
-        if "max_count" in obj:
-            max_objects[obj_type] = obj["max_count"]
-        if "spawn_rate" in obj:
-            spawn_rates[obj_type] = obj["spawn_rate"]
+        # background (sky) colour
+        self.c_background = resources.get_colour("sky")
 
-    # background (sky) colour
-    c_background = resources.get_colour("sky")
+        # water colour
+        self.c_water = resources.get_colour("water")
 
-    # water colour
-    c_water = resources.get_colour("water")
+        # colour of the game state display
+        self.c_text = resources.get_colour("text")
 
-    # colour of the game state display
-    c_text = resources.get_colour("text")
+        # colour of the pause text display
+        self.c_pause = resources.get_colour("pause")
 
-    # colour of the pause text display
-    c_pause = resources.get_colour("pause")
-
-    # the game's frames per second
-    fps = settings.fps
-
-    def __init__(self):
-        """
-        Initialize the game with screen dimensions width x height
-        """
         self.waterline = int(settings.sky_fraction * self.height)
-
-        self.running = False
-
-        pygame.init()
-        self.screen = pygame.display.set_mode((self.width,self.height))
-        pygame.display.set_caption(settings.game_name)
-        pygame.mouse.set_visible(False)
-        pygame.key.set_repeat(0)
-
-        self.clock = pygame.time.Clock()
 
         # create the ship
         self.ship = self.create_moving_object("ship")
@@ -198,12 +189,6 @@ class Game(GameDisplay):
         self.objects = [self.ship]
 
         self.score = 0
-
-        self.font = pygame.font.SysFont(settings.font["name"],
-                                        settings.font["size"])
-
-        # music
-        resources.load_music("background")
 
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
@@ -242,11 +227,6 @@ class Game(GameDisplay):
             
          # The game is initially not paused
         self.paused = False
-
-        self.main_menu = [
-            { "text": "Play", "action": "play" },
-            { "text": "Quit", "action": "quit" }
-            ]
 
     def create_moving_object(self, object_type):
         """
@@ -320,8 +300,8 @@ class Game(GameDisplay):
         """
         Draw the game graphics
         """
-        self.screen.fill(Game.c_background)
-        pygame.draw.rect(self.screen, Game.c_water,
+        self.screen.fill(self.c_background)
+        pygame.draw.rect(self.screen, self.c_water,
                          (0,
                           self.waterline,
                           self.width,
@@ -388,7 +368,7 @@ class Game(GameDisplay):
     def spawn_objects(self):
         "Possibly spawn new spawnable objects"
         for obj_type, rate in self.spawn_rates.items():
-            if len(self.get_objects(obj_type)) < Game.max_objects[obj_type]:
+            if len(self.get_objects(obj_type)) < self.max_objects[obj_type]:
                 if resources.randomly_true(rate/self.fps):
                     newsub = self.create_moving_object(obj_type)
                     self.objects.append(newsub)
@@ -422,8 +402,9 @@ class Game(GameDisplay):
         Handle all events
         """
         for event in pygame.event.get():
+            # A pygame.QUIT event always terminates the game completely
             if event.type == pygame.QUIT:
-                self.running = False
+                self.terminate()
 
             if event.type == pygame.KEYDOWN:
                 # Game actions are only processed if the game is not paused
@@ -449,9 +430,9 @@ class Game(GameDisplay):
                     else:
                         pygame.display.set_mode(size, pygame.FULLSCREEN)
 
-                # Q quits the game
+                # Q quits the game and returns to the menu
                 elif event.key == pygame.K_q:
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                    self.quit()
         
     def update_state(self):
         """
@@ -474,6 +455,40 @@ class Game(GameDisplay):
         # spawn new spawnable objects at random
         self.spawn_objects()
 
+class Game:
+    "The game"
+
+    # screen dimensions
+    width = settings.width
+    height = settings.height
+
+    # fps
+    fps = settings.fps
+    
+    def __init__(self):
+        """
+        Initialize the game with screen dimensions width x height
+        """
+        pygame.init()
+
+        self.screen = pygame.display.set_mode((self.width,self.height))
+        self.clock = pygame.time.Clock()
+
+        pygame.display.set_caption(settings.game_name)
+        pygame.mouse.set_visible(False)
+        pygame.key.set_repeat(0)
+
+        self.font = pygame.font.SysFont(settings.font["name"],
+                                        settings.font["size"])
+
+        # music
+        resources.load_music("background")
+
+        self.main_menu = [
+            { "text": "Play", "action": "play" },
+            { "text": "Quit", "action": "quit" }
+            ]
+
     def run(self):
         """
         Run the game
@@ -483,6 +498,7 @@ class Game(GameDisplay):
             if action == "menu":
                 menu = Menu(self.screen, self.clock, self.fps,
                             self.main_menu,
+                            resources.get_colour("menu background"),
                             resources.get_colour("menu option"),
                             resources.get_colour("menu highlight"),
                             self.font)
@@ -496,13 +512,21 @@ class Game(GameDisplay):
                 pygame.mixer.music.play(-1)
 
                 # play the game
-                self.execute()
+                level = Level(self.screen,
+                              self.clock,
+                              self.fps,
+                              self.font)
+                level.execute()
 
                 # stop the background music
                 pygame.mixer.music.stop()
 
-                # return to the menu
-                action = "menu"
+                if level.terminated():
+                    # quit the game on request
+                    action = "quit"
+                else:
+                    # return to the menu
+                    action = "menu"
 
 
 if __name__=='__main__':

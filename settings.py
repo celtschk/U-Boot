@@ -19,8 +19,9 @@ colours = {
     "water": "blue",
     "text": "black",
     "pause": "white",
+    "menu background": "dark blue",
     "menu option": "white",
-    "menu highlight": "yellow"
+    "menu highlight": "red"
     }
 
 # font used in the game
