@@ -2,6 +2,8 @@
 
 # Name of the game
 game_name = "U-Boot"
+game_version = "0.1"
+game_author = "celtschk"
 
 # screen resolution/window size
 width = 1024
@@ -104,3 +106,6 @@ objects = {
         "max_count": 15
         }
     }
+
+#save_file = "uboot.save"
+save_file = "/home/ce/test/savefile.shelve"

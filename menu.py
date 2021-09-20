@@ -6,10 +6,10 @@ class Menu(GameDisplay):
     """
     Class representing a menu.
     """
-    def __init__(self, display_info,
+    def __init__(self, game,
                  menuspec, c_background, c_text, c_highlight, font,
                  params = {}):
-        super().__init__(display_info)
+        super().__init__(game)
         self.menuspec = menuspec
         self.c_background = c_background
         self.c_text = c_text
@@ -19,11 +19,12 @@ class Menu(GameDisplay):
         self.selection = 0
 
     def draw(self):
-        self.screen.fill(self.c_background)
+        screen = self.game.screen
+        screen.fill(self.c_background)
 
         line_height = 50
-        center_x = self.screen.get_width()//2
-        center_y = self.screen.get_height()//2
+        center_x = screen.get_width()//2
+        center_y = screen.get_height()//2
 
         current_line = center_y - (len(self.menuspec)-1)*line_height/2
 
@@ -41,7 +42,7 @@ class Menu(GameDisplay):
                 origin = (0.5,0.5) # centered
                 )
 
-            text.write(self.screen)
+            text.write(screen)
 
             current_line += line_height
 

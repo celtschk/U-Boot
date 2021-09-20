@@ -1,9 +1,9 @@
 import pygame
+import shelve
 
 # python files from this game
 import settings
 import resources
-from gamedisplay import DisplayInfo
 from menu import Menu
 from level import Level
 
@@ -16,12 +16,10 @@ class Game:
         """
         pygame.init()
 
-        self.display_info = DisplayInfo(
-            screen = pygame.display.set_mode((settings.width,
-                                              settings.height)),
-            clock = pygame.time.Clock(),
-            fps = settings.fps
-            )
+        self.screen = pygame.display.set_mode((settings.width,
+                                               settings.height))
+        self.clock = pygame.time.Clock()
+        self.fps = settings.fps
 
         pygame.display.set_caption(settings.game_name)
         pygame.mouse.set_visible(False)
@@ -34,7 +32,8 @@ class Game:
         resources.load_music("background")
 
         self.main_menu = [
-            { "text": "Play", "action": "play" },
+            { "text": "Play new game", "action": "play" },
+            { "text": "Resume saved game", "action": "resume" },
             { "text": "Options", "action": "options" },
             { "text": "Quit", "action": "quit" }
             ]
@@ -46,7 +45,17 @@ class Game:
 
         self.play_music = True
 
-    def run(self):
+    def toggle_fullscreen(self):
+        """
+        toggle between fullscreen and windowed
+        """
+        size = (self.screen.get_width(), self.screen.get_height())
+        if self.screen.get_flags() & pygame.FULLSCREEN:
+            pygame.display.set_mode(size)
+        else:
+            pygame.display.set_mode(size, pygame.FULLSCREEN)
+
+    def run(self, debug = None):
         """
         Run the game
         """
@@ -57,7 +66,7 @@ class Game:
                     displayed_menu = self.main_menu
                 elif action == "options":
                     displayed_menu = self.options_menu
-                menu = Menu(self.display_info,
+                menu = Menu(self,
                             displayed_menu,
                             resources.get_colour("menu background"),
                             resources.get_colour("menu option"),
@@ -72,13 +81,23 @@ class Game:
             elif action == "music":
                 self.play_music = not self.play_music
                 action = "options"
-            elif action == "play":
+            elif action == "play" or action == "resume":
                 # start the backkground music in infinte loop
                 if self.play_music:
                     pygame.mixer.music.play(-1)
 
                 # play the game
-                level = Level(self.display_info, self.font)
+                if action == "play":
+                    level = Level(self, self.font)
+                elif action == "resume":
+                    save_file = resources.get_save_file()
+                    with shelve.open(str(save_file)) as savefile:
+                        level = savefile["game"]
+                        level.set_game(self)
+
+                if debug:
+                    debug["level"] = level
+
                 level.execute()
 
                 # stop the background music

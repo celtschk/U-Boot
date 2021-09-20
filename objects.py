@@ -44,6 +44,7 @@ class MovingObject:
 
         will result in an actual starting point of (0,7).
         """
+        self.image_path = path  # for serialization
         self.image = load_image(path)
 
         width = self.image.get_width()
@@ -65,18 +66,31 @@ class MovingObject:
 
         self.object_type = object_type
 
-    def update(self, time):
-        self.move(time)
+    def __getstate__(self):
+        """
+        Serialize the object for pickle
+        """
+        # omit image from saved state
+        state = self.__dict__.copy()
+        state.pop("image")
+        return state
 
-    def move(self, seconds):
+    def __setstate__(self, state):
+        """
+        Deserialize the object for pickle
+        """
+        self.__dict__.update(state)
+        self.image = load_image(self.image_path)
+
+    def update(self, time):
         """
         Move the object.
 
         Arguments:
-          seconds: The number of seconds passed.
+          time: The time passed in seconds.
         """
         if self.active:
-            self.dist += self.speed * seconds
+            self.dist += self.speed * time
             if self.dist > 1:
                 if self.repeat:
                     self.dist = 0
@@ -154,6 +168,8 @@ class Animation:
         relative to the upper left corner of the image and is given in
         units of image width resp. image height.
         """
+        # store path scheme for serialization
+        self.path_scheme = path_scheme
         self.images = [load_image(path_scheme.format(frame = n))
                        for n in range(frame_count)]
 
@@ -169,6 +185,17 @@ class Animation:
         self.current_frame = 0
 
         self.object_type = object_type
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop("images")
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.images = [load_image(self.path_scheme.format(frame = n))
+                       for n in range(self.frame_count)]
+        
 
     def is_active(self):
         """

@@ -1,5 +1,8 @@
 import pygame
 import random
+import appdirs
+import pathlib
+
 from dataclasses import dataclass
 
 import settings
@@ -98,3 +101,18 @@ def randomly_true(probability):
     Return True with a given probability, False otherwise.
     """
     return random.uniform(0,1) < probability
+
+def get_save_file():
+    """
+    Get the name of the game save file
+    """
+    user_data_dir = pathlib.Path(appdirs.user_data_dir(
+        appname = settings.game_name,
+        appauthor = settings.game_author,
+        version = settings.game_version
+        ))
+
+    # ensure the directory exists
+    user_data_dir.mkdir(parents=True, exist_ok=True)
+
+    return user_data_dir/settings.save_file

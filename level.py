@@ -1,4 +1,6 @@
 import pygame
+import shelve
+
 import settings
 import resources
 from gamedisplay import GameDisplay
@@ -8,14 +10,12 @@ from objects import MovingObject, Animation
 # separate out the class
 class Level(GameDisplay):
     "A game level"
-    def __init__(self, display_info, font):
-        super().__init__(display_info)
-        
-        self.width = display_info.screen.get_width()
-        self.height = display_info.screen.get_height()
+    def __init__(self, game, font):
+        super().__init__(game)
 
-        self.font = font
-        
+        self.width = game.screen.get_width()
+        self.height = game.screen.get_height()
+
         # get limits and probabilities for objects
         self.max_objects = {}
         self.spawn_rates = {}
@@ -47,30 +47,54 @@ class Level(GameDisplay):
 
         self.score = 0
 
-        # sound effects
-        self.explosion_sound = resources.get_sound("explosion")
+        # The game is initially not paused
+        self.paused = False
 
-        # game state display
+        self.init_resources()
+
+    def __getstate__(self):
+        """
+        Serialize the level
+        """
+        state = self.__dict__.copy()
+        state.pop("game")
+        state.pop("game_state_display")
+        state.pop("paused_msg")
+        state.pop("explosion_sound")
+        return state
+
+    # the inherited __setstate__ should work fine
+
+    def set_game(self, game):
+        super().set_game(game)
+        self.init_resources()
+
+    def init_resources(self):
+        """
+        initialize all messages
+
+        This is called both from __init__ and from set_game()
+        """
         self.game_state_display = [
             resources.MessageData(
                 message = "Bombs available: {available_bombs}",
                 position = (20, 20),
                 colour = self.c_text,
-                font = self.font
+                font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
                 position = (20, 50),
                 colour = self.c_text,
-                font = self.font
+                font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Score: {score}",
                 position = (20+self.width//2, 20),
                 colour = self.c_text,
-                font = self.font
+                font = self.game.font
                 )
             ]
 
@@ -79,11 +103,11 @@ class Level(GameDisplay):
             message = "--- PAUSED ---",
             position = (self.width//2, self.height//2),
             colour = self.c_pause,
-            font = self.font,
+            font = self.game.font,
             origin = (0.5,0.5))
-            
-         # The game is initially not paused
-        self.paused = False
+
+        # sound effects
+        self.explosion_sound = resources.get_sound("explosion")
 
     def create_moving_object(self, object_type):
         """
@@ -157,19 +181,20 @@ class Level(GameDisplay):
         """
         Draw the game graphics
         """
-        self.screen.fill(self.c_background)
-        pygame.draw.rect(self.screen, self.c_water,
+        screen = self.game.screen
+        screen.fill(self.c_background)
+        pygame.draw.rect(screen, self.c_water,
                          (0,
                           self.waterline,
                           self.width,
                           self.height - self.waterline))
 
         for obj in self.get_objects(Animation, inverse=True):
-            obj.draw_on(self.screen)
+            obj.draw_on(screen)
 
         # animations are always on top
         for anim in self.get_objects(Animation):
-            anim.draw_on(self.screen)
+            anim.draw_on(screen)
 
         displaydata = {
             "available_bombs": self.get_available_bombs(),
@@ -178,11 +203,11 @@ class Level(GameDisplay):
             }
 
         for message in self.game_state_display:
-            message.write(self.screen, displaydata)
+            message.write(screen, displaydata)
 
         # show message if game is paused:
         if self.paused:
-            self.paused_msg.write(self.screen)
+            self.paused_msg.write(screen)
 
         pygame.display.flip()
 
@@ -226,7 +251,7 @@ class Level(GameDisplay):
         "Possibly spawn new spawnable objects"
         for obj_type, rate in self.spawn_rates.items():
             if len(self.get_objects(obj_type)) < self.max_objects[obj_type]:
-                if resources.randomly_true(rate/self.fps):
+                if resources.randomly_true(rate/self.game.fps):
                     newsub = self.create_moving_object(obj_type)
                     self.objects.append(newsub)
 
@@ -281,15 +306,18 @@ class Level(GameDisplay):
                     self.paused = not self.paused
                 # F toggles fullscreen display
                 elif event.key == pygame.K_f:
-                    size = (self.width, self.height)
-                    if self.screen.get_flags() & pygame.FULLSCREEN:
-                        pygame.display.set_mode(size)
-                    else:
-                        pygame.display.set_mode(size, pygame.FULLSCREEN)
+                    self.game.toggle_fullscreen()
 
                 # Q quits the game and returns to the menu
                 elif event.key == pygame.K_q:
                     self.quit()
+
+                # S shelves this level
+                elif event.key == pygame.K_s:
+                    save_file = resources.get_save_file()
+                    with shelve.open(str(save_file), "c") as savefile:
+                        savefile["game"] = self
+                        self.quit()
 
     def update_state(self):
         """
@@ -301,7 +329,7 @@ class Level(GameDisplay):
 
         # move all objects and advance all animations
         for obj in self.objects:
-            obj.update(1/self.fps)
+            obj.update(1/self.game.fps)
 
         # handle bombs hitting submarines
         self.handle_hits()
