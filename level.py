@@ -19,10 +19,13 @@ class Level(GameDisplay):
         self.height = game.screen.get_height()
 
         # get limits and probabilities for objects
+        self.num_objects = {}
         self.max_objects = {}
         self.spawn_rates = {}
         for obj_type, obj in settings.objects.items():
             if "max_count" in obj:
+                # initially, none of those objects exist
+                self.num_objects[obj_type] = 0
                 self.max_objects[obj_type] = obj["max_count"]
             if "spawn_rate" in obj:
                 self.spawn_rates[obj_type] = obj["spawn_rate"]
@@ -230,7 +233,8 @@ class Level(GameDisplay):
 
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
-        l = len(self.get_objects("bomb"))
+        #l = len(self.get_objects("bomb"))
+        l = self.num_objects["bomb"]
         return sum((l+k)**2 for k in range(count))
 
 
@@ -257,6 +261,7 @@ class Level(GameDisplay):
                 self.score -= self.get_bomb_cost();
 
                 newbomb = self.create_moving_object("bomb")
+                self.num_objects["bomb"] += 1
                 self.objects.append(newbomb)
 
 
@@ -266,6 +271,7 @@ class Level(GameDisplay):
             if len(self.get_objects(obj_type)) < self.max_objects[obj_type]:
                 if resources.randomly_true(rate/self.game.fps):
                     newsub = self.create_moving_object(obj_type)
+                    self.num_objects[obj_type] += 1
                     self.objects.append(newsub)
 
 
@@ -351,7 +357,20 @@ class Level(GameDisplay):
         self.handle_hits()
 
         # remove inactive objects and animations
-        self.objects = [obj for obj in self.objects if obj.is_active()]
+        remaining_objects = []
+        for obj in self.objects:
+            if obj.is_active():
+                remaining_objects.append(obj)
+            else:
+                if obj.object_type in self.num_objects:
+                    self.num_objects[obj.object_type] -= 1
+        self.objects = remaining_objects
+        #self.objects = [obj for obj in self.objects if obj.is_active()]
+
+        for obj_type in self.num_objects:
+            actual_count = len(self.get_objects(obj_type))
+            bookkeeping_count = self.num_objects[obj_type]
+            assert actual_count == bookkeeping_count, "count error"
 
         # spawn new spawnable objects at random
         self.spawn_objects()
