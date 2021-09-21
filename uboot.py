@@ -45,6 +45,7 @@ class Game:
 
         self.play_music = True
 
+
     def toggle_fullscreen(self):
         """
         toggle between fullscreen and windowed
@@ -54,6 +55,7 @@ class Game:
             pygame.display.set_mode(size)
         else:
             pygame.display.set_mode(size, pygame.FULLSCREEN)
+
 
     def run(self, debug = None):
         """

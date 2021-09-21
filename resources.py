@@ -16,6 +16,7 @@ with open("rgb.txt", "r") as rgbfile:
         rgb, name = line.split('\t\t')
         rgbvalues[name.strip()] = tuple(int(value) for value in rgb.split())
 
+
 def get_colour(name):
     """
     Get the rgb values of a named colour.
@@ -33,6 +34,7 @@ def get_colour(name):
             return colour
     return rgbvalues[name]
 
+
 def get_sound(sound_name):
     """
     Get a pygame sound from a sound name.
@@ -44,6 +46,7 @@ def get_sound(sound_name):
     sound = pygame.mixer.Sound(sound_info["filename"])
     sound.set_volume(sound_info["volume"])
     return sound
+
 
 def load_music(music_name):
     """
@@ -57,6 +60,8 @@ def load_music(music_name):
     pygame.mixer.music.load(music_info["filename"])
     pygame.mixer.music.set_volume(music_info["volume"])
 
+
+
 @dataclass
 class MessageData:
     message: str
@@ -64,6 +69,7 @@ class MessageData:
     colour: tuple
     font: pygame.font.SysFont
     origin: tuple = (0, 0)
+
 
     def write(self, screen, data = {}):
         """
@@ -80,7 +86,8 @@ class MessageData:
                                 self.origin))
 
         screen.blit(text, position)
-    
+
+
 def get_value(value_or_range):
     """
     Get a specific or random value from a given specification.
@@ -96,11 +103,13 @@ def get_value(value_or_range):
     else:
         return value_or_range
 
+
 def randomly_true(probability):
     """
     Return True with a given probability, False otherwise.
     """
     return random.uniform(0,1) < probability
+
 
 def get_save_file():
     """

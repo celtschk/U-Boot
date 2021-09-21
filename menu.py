@@ -2,10 +2,12 @@ import pygame
 import resources
 from gamedisplay import GameDisplay
 
+
 class Menu(GameDisplay):
     """
     Class representing a menu.
     """
+
     def __init__(self, game,
                  menuspec, c_background, c_text, c_highlight, font,
                  params = {}):
@@ -17,6 +19,7 @@ class Menu(GameDisplay):
         self.font = font
         self.params = params
         self.selection = 0
+
 
     def draw(self):
         screen = self.game.screen
@@ -48,6 +51,7 @@ class Menu(GameDisplay):
 
         pygame.display.flip()
 
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -67,6 +71,7 @@ class Menu(GameDisplay):
                 # Enter selects an option, thus quits the menu
                 elif event.key == pygame.K_RETURN:
                     self.quit()
+
 
     def get_selected_action(self):
         """

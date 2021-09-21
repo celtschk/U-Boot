@@ -4,6 +4,7 @@ import pygame
 # another object uses the same image is
 imagestore = {}
 
+
 def load_image(path):
     """
     Load an image, if not already loaded. Otherwise, return the
@@ -12,6 +13,7 @@ def load_image(path):
     if not path in imagestore:
         imagestore[path] = pygame.image.load(path).convert_alpha()
     return imagestore[path]
+
 
 class MovingObject:
     "This class represents any moving object in the game."
@@ -66,6 +68,7 @@ class MovingObject:
 
         self.object_type = object_type
 
+
     def __getstate__(self):
         """
         Serialize the object for pickle
@@ -75,12 +78,14 @@ class MovingObject:
         state.pop("image")
         return state
 
+
     def __setstate__(self, state):
         """
         Deserialize the object for pickle
         """
         self.__dict__.update(state)
         self.image = load_image(self.image_path)
+
 
     def update(self, time):
         """
@@ -97,6 +102,7 @@ class MovingObject:
                 else:
                     self.active = False
 
+
     def get_position(self, displace = False):
         """
         Return the current position of the object.
@@ -110,6 +116,7 @@ class MovingObject:
         return tuple(int(s + self.dist*(e-s) + (d if displace else 0))
                      for e, s, d in zip(self.end, self.start, self.disp))
 
+
     def draw_on(self, surface):
         """
         Draw the object on a pygame surface, if active
@@ -117,17 +124,20 @@ class MovingObject:
         if self.is_active():
             surface.blit(self.image, self.get_position(True))
 
+
     def is_active(self):
         """
         Returns true if the object is active, False otherwise
         """
         return self.active
 
+
     def deactivate(self):
         """
         Set the object's state to not active.
         """
         self.active = False
+
 
     def get_bounding_box(self):
         """
@@ -138,11 +148,13 @@ class MovingObject:
                            (self.image.get_width(),
                             self.image.get_height()))
 
+
+
 class Animation:
     """
     This class represents an animation
     """
-    
+
     def __init__(self, object_type, path_scheme, frame_count, fps,
                  position, origin = (0.5,0.5)):
         """
@@ -186,16 +198,18 @@ class Animation:
 
         self.object_type = object_type
 
+
     def __getstate__(self):
         state = self.__dict__.copy()
         state.pop("images")
         return state
 
+
     def __setstate__(self, state):
         self.__dict__.update(state)
         self.images = [load_image(self.path_scheme.format(frame = n))
                        for n in range(self.frame_count)]
-        
+
 
     def is_active(self):
         """
@@ -203,18 +217,21 @@ class Animation:
         """
         return not self.current_frame is None
 
+
     def deactivate(self):
         """
         Deactivates the animation.
         """
         self.current_frame = None
-        
+
+
     def draw_on(self, surface):
         """
         Draws the animation
         """
         if (self.is_active()):
             surface.blit(self.images[self.current_frame], self.position)
+
 
     def update(self, time):
         """

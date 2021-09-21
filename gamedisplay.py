@@ -13,6 +13,7 @@ class GameDisplay:
         self.running = False
         self.quit_game = False
 
+
     # the game is not part of the object
     def __getstate__(self):
         """
@@ -22,6 +23,7 @@ class GameDisplay:
         state.pop("game")
         return state
 
+
     def __setstate__(self, state):
         """
         Deserialize the game display
@@ -30,11 +32,13 @@ class GameDisplay:
         """
         self.__dict__.update(state)
 
+
     def set_game(self, game):
         """
         Set the game back reference
         """
         self.game = game
+
 
     def draw(self):
         """
@@ -44,6 +48,7 @@ class GameDisplay:
         """
         raise NotImplementedError("Must be supplied by the derived class")
 
+
     def handle_events(self):
         """
         Handles the events.
@@ -51,6 +56,7 @@ class GameDisplay:
         To be supplied by the derived clas.
         """
         raise NotImplementedError("Must be supplied by the derived class")
+
 
     def update_state(self):
         """
@@ -60,6 +66,7 @@ class GameDisplay:
         overwritten by the derived class.
         """
         pass
+
 
     def execute(self):
         """
@@ -72,11 +79,13 @@ class GameDisplay:
             self.handle_events()
             self.update_state()
 
+
     def quit(self):
         """
         Quit the display, but not necessarily the game
         """
         self.running = False
+
 
     def terminate(self):
         """
@@ -84,6 +93,7 @@ class GameDisplay:
         """
         self.quit()
         self.quit_game = True
+
 
     def terminated(self):
         """

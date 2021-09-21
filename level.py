@@ -6,10 +6,12 @@ import resources
 from gamedisplay import GameDisplay
 from objects import MovingObject, Animation
 
+
 # Currently there's only one game level. Nevertheless, it makes sense to
 # separate out the class
 class Level(GameDisplay):
     "A game level"
+
     def __init__(self, game, font):
         super().__init__(game)
 
@@ -52,6 +54,7 @@ class Level(GameDisplay):
 
         self.init_resources()
 
+
     def __getstate__(self):
         """
         Serialize the level
@@ -63,11 +66,14 @@ class Level(GameDisplay):
         state.pop("explosion_sound")
         return state
 
+
     # the inherited __setstate__ should work fine
+
 
     def set_game(self, game):
         super().set_game(game)
         self.init_resources()
+
 
     def init_resources(self):
         """
@@ -108,6 +114,7 @@ class Level(GameDisplay):
 
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
+
 
     def create_moving_object(self, object_type):
         """
@@ -177,6 +184,7 @@ class Level(GameDisplay):
             origin = origin,
             repeat = movement["repeat"])
 
+
     def draw(self):
         """
         Draw the game graphics
@@ -211,6 +219,7 @@ class Level(GameDisplay):
 
         pygame.display.flip()
 
+
     def get_objects(self, object_type, inverse = False):
         if type(object_type) is str:
             condition = lambda obj: (obj.object_type == object_type) != inverse
@@ -218,10 +227,12 @@ class Level(GameDisplay):
             condition = lambda obj: (type(obj) is object_type) != inverse
         return [obj for obj in self.objects if condition(obj)]
 
+
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
         l = len(self.get_objects("bomb"))
         return sum((l+k)**2 for k in range(count))
+
 
     def get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
@@ -229,6 +240,7 @@ class Level(GameDisplay):
         while self.get_bomb_cost(available_bombs) > self.score:
                available_bombs -= 1
         return available_bombs
+
 
     def drop_bomb(self):
         "Drop a bomb, if possible"
@@ -247,6 +259,7 @@ class Level(GameDisplay):
                 newbomb = self.create_moving_object("bomb")
                 self.objects.append(newbomb)
 
+
     def spawn_objects(self):
         "Possibly spawn new spawnable objects"
         for obj_type, rate in self.spawn_rates.items():
@@ -254,6 +267,7 @@ class Level(GameDisplay):
                 if resources.randomly_true(rate/self.game.fps):
                     newsub = self.create_moving_object(obj_type)
                     self.objects.append(newsub)
+
 
     def handle_hits(self):
         """
@@ -278,6 +292,7 @@ class Level(GameDisplay):
                                   position = bomb.get_position()))
                     sub.deactivate()
                     bomb.deactivate()
+
 
     def handle_events(self):
         """
@@ -318,6 +333,7 @@ class Level(GameDisplay):
                     with shelve.open(str(save_file), "c") as savefile:
                         savefile["game"] = self
                         self.quit()
+
 
     def update_state(self):
         """
