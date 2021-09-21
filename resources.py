@@ -2,37 +2,65 @@ import pygame
 import random
 import appdirs
 import pathlib
-
 from dataclasses import dataclass
+from collections import OrderedDict
 
 import settings
 
-# get the colour names from X11's rgb.txt
-rgbvalues = {}
-with open("rgb.txt", "r") as rgbfile:
-    for line in rgbfile:
-        if line == "" or line[0] == '!':
-            continue
-        rgb, name = line.split('\t\t')
-        rgbvalues[name.strip()] = tuple(int(value) for value in rgb.split())
+def subset_or_none(d1, d2):
+    """
+    If the keys of d2 are a subset of the keys of d1,
+    return a copy of d1 updated with the values of d2,
+    otherwise return an empty dict of the same type as d1
+    """
+    d = d1.copy()
+    d.update(d2)
+    if d.keys() == d1.keys():
+        return d
+    else:
+        return d.__class__()
 
 
 def get_colour(name):
     """
     Get the rgb values of a named colour.
 
-    The name is looked up in the settings, or failing that, in the rgb
-    database. If the settings give a string as colour, that string is
-    again looked up, otherwise the result is assumed to be a valid
-    colour representation and returned.
+    The name is looked up in the settings. If the settings give a
+    string as colour, that string is again looked up. Otherwise, it is
+    passed to pygame.Color as follows:
+
+      * If it is an integer, it is passed as red, green, blue,
+        making it a grey level.
+
+      * If it is a tuple, it is interpolated to pygame.Color, thus
+        it must be a valid argument list. With color names, this
+        can be used to bypass further name lookup.
+
+      * If it is a dictionary, the following keys are recognized:
+
+        \"red\", \"green\", \"blue\", \"alpha\"
+
+        If some, but not all are present, the remaining ones are
+        set to zero (red, green, blue) or 255 (alpha).
     """
     while name in settings.colours:
         colour = settings.colours[name]
         if type(colour) is str:
             name = colour
+        elif type(colour) is int:
+            return pygame.Color(colour, colour, colour)
+        elif type(colour) is tuple:
+            return pygame.Color(*colour)
+        elif type(colour) is dict:
+            rgbdefaults = {"red": 0, "green": 0, "blue": 0, "alpha": 255}
+            rgb = subset_or_none(rgbdefaults, colour)
+            if rgb:
+                return pygame.Color(*rgb.values())
+            else:
+                raise ValueError("invalid argument")
         else:
-            return colour
-    return rgbvalues[name]
+            raise ValueError("invalid argument")
+    return pygame.Color(name)
 
 
 def get_sound(sound_name):
