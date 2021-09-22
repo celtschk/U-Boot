@@ -3,7 +3,6 @@ import random
 import appdirs
 import pathlib
 from dataclasses import dataclass
-from collections import OrderedDict
 
 import settings
 
@@ -21,6 +20,51 @@ def subset_or_none(d1, d2):
         return d.__class__()
 
 
+# Helper functions to create pygame.Color objects
+# these are used because pygame.Color does not support named
+# arguments for the colours, and furthermore some colour models
+# are only available through direct assignment of properties
+def rgb(red, green, blue):
+    """
+    Returns a Color object with the specified rgb values
+    """
+    return pygame.Color(red, green, blue)
+
+
+def greyscale(grey):
+    """
+    Returns a Color object corresponding to zjr specified grey value
+    """
+    return pygame.Color(grey, grey, grey)
+
+
+# This function is separate from greyscale because of the different
+# argument name
+def grayscale(gray):
+    """
+    Returns a Color object corresponding to zjr specified grey value
+    """
+    return pygame.Color(gray, gray, gray)
+
+
+def hsv(hue, saturation, value):
+    """
+    Returns a Color object with the specified hsv values
+    """
+    colour = pygame.Color(0)
+    colour.hsva = (hue, saturation, value, 100)
+    return colour
+
+
+def hsl(hue, saturation, lightness):
+    """
+    Returns a Color object with the specified hsl values
+    """
+    colour = pygame.Color(0)
+    colour.hsla = (hue, saturation, lightness, 100)
+    return colour
+
+
 def get_colour(name):
     """
     Get the rgb values of a named colour.
@@ -32,34 +76,73 @@ def get_colour(name):
       * If it is an integer, it is passed as red, green, blue,
         making it a grey level.
 
-      * If it is a tuple, it is interpolated to pygame.Color, thus
-        it must be a valid argument list. With color names, this
-        can be used to bypass further name lookup.
+      * If it is a tuple, it is interpolated to pygame.Color, thus it
+        must be a valid argument list. With color names, this can be
+        used to bypass further name lookup. It also is the only way to
+        get an alpha value (because of pygame's inconsistent ranges
+        for alpha values in different colour models this option is
+        omitted otherwise)
 
-      * If it is a dictionary, the following keys are recognized:
+      * If it is a dictionary, the following key sets are recognized;
+        the first set that fits is chosen. If a key is missing, the
+        specified default value is used.
 
-        \"red\", \"green\", \"blue\", \"alpha\"
+          * { "red": 0, "green": 0, "blue": 0 }
 
-        If some, but not all are present, the remaining ones are
-        set to zero (red, green, blue) or 255 (alpha).
+            If some, but not all are present, the remaining ones are
+            set to zero (red, green, blue). The values have to be in
+            the range [0, 255].
+
+          * { "grey": 0 } or { "gray": 0 }
+
+            Those two are equivalent. { "grey": value } is equivalent
+            to { "red": value, "green": value, "blue": value }.
+            The value has to be in the range [0,255].
+
+          * { "hue": 0, "saturation": 100, "value": 100 }
+
+            This uses the pygame hsv implementation.
+
+          * { "hue": 0 , "saturation": 100, "lightness": 50 }
+
+            This uses the pygame hsl implementation. Actually
+            because of being preceded by hsv, the lightness
+            default value is inaccessible.
     """
+    previous_names = { name }
+
     while name in settings.colours:
         colour = settings.colours[name]
+
         if type(colour) is str:
+            # prevent endless loop
+            if colour in previous_names:
+                raise ValueError("recursive colour specification")
+            previous_names.add(colour)
             name = colour
+
         elif type(colour) is int:
             return pygame.Color(colour, colour, colour)
+
         elif type(colour) is tuple:
             return pygame.Color(*colour)
+
         elif type(colour) is dict:
-            rgbdefaults = {"red": 0, "green": 0, "blue": 0, "alpha": 255}
-            rgb = subset_or_none(rgbdefaults, colour)
-            if rgb:
-                return pygame.Color(*rgb.values())
-            else:
-                raise ValueError("invalid argument")
-        else:
-            raise ValueError("invalid argument")
+            colour_options = [
+                ({"red": 0, "green": 0, "blue": 0}, rgb),
+                ({"grey": 0}, greyscale),
+                ({"gray": 0}, grayscale),
+                ({"hue": 0, "saturation": 100, "value": 100}, hsv),
+                ({"hue": 0, "saturation": 100, "lightness": 50}, hsl)
+                ]
+
+            for model, function in colour_options:
+                full_colour = subset_or_none(model, colour)
+                if full_colour:
+                    return function(**full_colour)
+
+            raise ValueError("invalid colour specification")
+
     return pygame.Color(name)
 
 
