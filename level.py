@@ -280,6 +280,9 @@ class Level(GameDisplay):
 
 
     def create_animation(self, animation_type, position):
+        """
+        Create an animation of given type at a specific position.
+        """
         animation = settings.animations[animation_type]
         self.game_objects[animation_type]["list"].append(
             Animation(path_scheme = animation["images"],

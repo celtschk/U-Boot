@@ -6,6 +6,21 @@ from dataclasses import dataclass
 
 import settings
 
+# A storage for images, so that they aren't loaded each time
+# another object uses the same image is
+imagestore = {}
+
+
+def load_image(path):
+    """
+    Load an image, if not already loaded. Otherwise, return the
+    already loaded image.
+    """
+    if not path in imagestore:
+        imagestore[path] = pygame.image.load(path).convert_alpha()
+    return imagestore[path]
+
+
 def subset_or_none(d1, d2):
     """
     If the keys of d2 are a subset of the keys of d1,
@@ -18,51 +33,6 @@ def subset_or_none(d1, d2):
         return d
     else:
         return d.__class__()
-
-
-# Helper functions to create pygame.Color objects
-# these are used because pygame.Color does not support named
-# arguments for the colours, and furthermore some colour models
-# are only available through direct assignment of properties
-def rgb(red, green, blue):
-    """
-    Returns a Color object with the specified rgb values
-    """
-    return pygame.Color(red, green, blue)
-
-
-def greyscale(grey):
-    """
-    Returns a Color object corresponding to zjr specified grey value
-    """
-    return pygame.Color(grey, grey, grey)
-
-
-# This function is separate from greyscale because of the different
-# argument name
-def grayscale(gray):
-    """
-    Returns a Color object corresponding to zjr specified grey value
-    """
-    return pygame.Color(gray, gray, gray)
-
-
-def hsv(hue, saturation, value):
-    """
-    Returns a Color object with the specified hsv values
-    """
-    colour = pygame.Color(0)
-    colour.hsva = (hue, saturation, value, 100)
-    return colour
-
-
-def hsl(hue, saturation, lightness):
-    """
-    Returns a Color object with the specified hsl values
-    """
-    colour = pygame.Color(0)
-    colour.hsla = (hue, saturation, lightness, 100)
-    return colour
 
 
 def get_colour(name):
@@ -109,6 +79,53 @@ def get_colour(name):
             because of being preceded by hsv, the lightness
             default value is inaccessible.
     """
+
+    # Helper functions to create pygame.Color objects
+    # these are used because pygame.Color does not support named
+    # arguments for the colours, and furthermore some colour models
+    # are only available through direct assignment of properties
+    def rgb(red, green, blue):
+        """
+        Returns a Color object with the specified rgb values
+        """
+        return pygame.Color(red, green, blue)
+
+
+    def greyscale(grey):
+        """
+        Returns a Color object corresponding to zjr specified grey value
+        """
+        return pygame.Color(grey, grey, grey)
+
+
+    # This function is separate from greyscale because of the different
+    # argument name
+    def grayscale(gray):
+        """
+        Returns a Color object corresponding to zjr specified grey value
+        """
+        return pygame.Color(gray, gray, gray)
+
+
+    def hsv(hue, saturation, value):
+        """
+        Returns a Color object with the specified hsv values
+        """
+        colour = pygame.Color(0)
+        colour.hsva = (hue, saturation, value, 100)
+        return colour
+
+
+    def hsl(hue, saturation, lightness):
+        """
+        Returns a Color object with the specified hsl values
+        """
+        colour = pygame.Color(0)
+        colour.hsla = (hue, saturation, lightness, 100)
+        return colour
+
+    # ------------------------------------------------------------
+    # the main function code of get_colour
     previous_names = { name }
 
     while name in settings.colours:

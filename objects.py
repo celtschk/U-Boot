@@ -1,19 +1,6 @@
 import pygame
 
-# A storage for images, so that they aren't loaded each time
-# another object uses the same image is
-imagestore = {}
-
-
-def load_image(path):
-    """
-    Load an image, if not already loaded. Otherwise, return the
-    already loaded image.
-    """
-    if not path in imagestore:
-        imagestore[path] = pygame.image.load(path).convert_alpha()
-    return imagestore[path]
-
+import resources
 
 class MovingObject:
     "This class represents any moving object in the game."
@@ -46,7 +33,7 @@ class MovingObject:
         will result in an actual starting point of (0,7).
         """
         self.image_path = path  # for serialization
-        self.image = load_image(path)
+        self.image = resources.load_image(path)
 
         width = self.image.get_width()
 
@@ -81,7 +68,7 @@ class MovingObject:
         Deserialize the object for pickle
         """
         self.__dict__.update(state)
-        self.image = load_image(self.image_path)
+        self.image = resources.load_image(self.image_path)
 
 
     def update(self, time):
@@ -178,7 +165,7 @@ class Animation:
         """
         # store path scheme for serialization
         self.path_scheme = path_scheme
-        self.images = [load_image(path_scheme.format(frame = n))
+        self.images = [resources.load_image(path_scheme.format(frame = n))
                        for n in range(frame_count)]
 
         width = self.images[0].get_width()
