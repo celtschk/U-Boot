@@ -18,17 +18,34 @@ class Level(GameDisplay):
         self.width = game.screen.get_width()
         self.height = game.screen.get_height()
 
+        self.waterline = int(settings.sky_fraction * self.height)
+
+        # objects dictonary
+        self.game_objects = {}
+
+        # set of spawnable object types
+        self.spawnables = set()
+
         # get limits and probabilities for objects
-        self.num_objects = {}
-        self.max_objects = {}
-        self.spawn_rates = {}
         for obj_type, obj in settings.objects.items():
+            # record object info in objects dictionary
+            object_info = self.game_objects[obj_type] = { "list": [] }
+
             if "max_count" in obj:
-                # initially, none of those objects exist
-                self.num_objects[obj_type] = 0
-                self.max_objects[obj_type] = obj["max_count"]
+                # initially, none of those objects exis
+                object_info["max_count"] = obj["max_count"]
+
             if "spawn_rate" in obj:
-                self.spawn_rates[obj_type] = obj["spawn_rate"]
+                object_info["spawn_rate"] = obj["spawn_rate"]
+                self.spawnables.add(obj_type)
+
+        # create the ship
+        self.ship = self.create_moving_object("ship")
+        self.game_objects["ship"] = { "list": [self.ship] }
+
+        # setup storage for animations
+        for animation_type in settings.animations:
+            self.game_objects[animation_type] = { "list": [] }
 
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
@@ -41,14 +58,6 @@ class Level(GameDisplay):
 
         # colour of the pause text display
         self.c_pause = resources.get_colour("pause")
-
-        self.waterline = int(settings.sky_fraction * self.height)
-
-        # create the ship
-        self.ship = self.create_moving_object("ship")
-
-        # a list of all objects, initially there's only a ship
-        self.objects = [self.ship]
 
         self.score = 0
 
@@ -177,7 +186,6 @@ class Level(GameDisplay):
         end_adjustment = (end_x["adjustment"], end_depth["adjustment"])
 
         return MovingObject(
-            object_type,
             filename,
             start = start,
             adjust_start = start_adjustment,
@@ -200,12 +208,9 @@ class Level(GameDisplay):
                           self.width,
                           self.height - self.waterline))
 
-        for obj in self.get_objects(Animation, inverse=True):
-            obj.draw_on(screen)
-
-        # animations are always on top
-        for anim in self.get_objects(Animation):
-            anim.draw_on(screen)
+        for obj_data in self.game_objects.values():
+            for obj in obj_data["list"]:
+                obj.draw_on(screen)
 
         displaydata = {
             "available_bombs": self.get_available_bombs(),
@@ -223,26 +228,23 @@ class Level(GameDisplay):
         pygame.display.flip()
 
 
-    def get_objects(self, object_type, inverse = False):
-        if type(object_type) is str:
-            condition = lambda obj: (obj.object_type == object_type) != inverse
-        elif type(object_type) is type:
-            condition = lambda obj: (type(obj) is object_type) != inverse
-        return [obj for obj in self.objects if condition(obj)]
-
-
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
-        #l = len(self.get_objects("bomb"))
-        l = self.num_objects["bomb"]
+        l = len(self.game_objects["bomb"]["list"])
         return sum((l+k)**2 for k in range(count))
 
 
     def get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
-        available_bombs = self.max_objects["bomb"] - len(self.get_objects("bomb"))
+
+        max_bombs = self.game_objects["bomb"]["max_count"]
+        existing_bombs = len(self.game_objects["bomb"]["list"])
+
+        available_bombs = max_bombs - existing_bombs
+
         while self.get_bomb_cost(available_bombs) > self.score:
                available_bombs -= 1
+
         return available_bombs
 
 
@@ -261,18 +263,29 @@ class Level(GameDisplay):
                 self.score -= self.get_bomb_cost();
 
                 newbomb = self.create_moving_object("bomb")
-                self.num_objects["bomb"] += 1
-                self.objects.append(newbomb)
+                self.game_objects["bomb"]["list"].append(newbomb)
 
 
     def spawn_objects(self):
         "Possibly spawn new spawnable objects"
-        for obj_type, rate in self.spawn_rates.items():
-            if len(self.get_objects(obj_type)) < self.max_objects[obj_type]:
+        for obj_type in self.spawnables:
+            max_objects = self.game_objects[obj_type]["max_count"]
+            existing_objects = len(self.game_objects[obj_type]["list"])
+            rate = self.game_objects[obj_type]["spawn_rate"]
+
+            if existing_objects < max_objects:
                 if resources.randomly_true(rate/self.game.fps):
                     newsub = self.create_moving_object(obj_type)
-                    self.num_objects[obj_type] += 1
-                    self.objects.append(newsub)
+                    self.game_objects[obj_type]["list"].append(newsub)
+
+
+    def create_animation(self, animation_type, position):
+        animation = settings.animations[animation_type]
+        self.game_objects[animation_type]["list"].append(
+            Animation(path_scheme = animation["images"],
+                      frame_count = animation["frame_count"],
+                      fps = animation["fps"],
+                      position = position))
 
 
     def handle_hits(self):
@@ -280,8 +293,8 @@ class Level(GameDisplay):
         Check if any bomb hit any submarine, and if so, remove both
         and update score
         """
-        for sub in self.get_objects("submarine"):
-            for bomb in self.get_objects("bomb"):
+        for sub in self.game_objects["submarine"]["list"]:
+            for bomb in self.game_objects["bomb"]["list"]:
                 bb_sub = sub.get_bounding_box()
                 bb_bomb = bomb.get_bounding_box()
                 if bb_sub.colliderect(bb_bomb):
@@ -289,13 +302,7 @@ class Level(GameDisplay):
                     self.score += int((subpos[1] - self.waterline) /
                                       self.height * 20 + 0.5)
                     self.explosion_sound.play()
-                    explode = settings.animations["explosion"]
-                    self.objects.append(
-                        Animation(object_type = "explosion",
-                                  path_scheme = explode["images"],
-                                  frame_count = explode["frame_count"],
-                                  fps = explode["fps"],
-                                  position = bomb.get_position()))
+                    self.create_animation("explosion", bomb.get_position())
                     sub.deactivate()
                     bomb.deactivate()
 
@@ -350,27 +357,16 @@ class Level(GameDisplay):
             return
 
         # move all objects and advance all animations
-        for obj in self.objects:
-            obj.update(1/self.game.fps)
+        for obj_data in self.game_objects.values():
+            for obj in obj_data["list"]:
+                obj.update(1/self.game.fps)
 
         # handle bombs hitting submarines
         self.handle_hits()
 
         # remove inactive objects and animations
-        remaining_objects = []
-        for obj in self.objects:
-            if obj.is_active():
-                remaining_objects.append(obj)
-            else:
-                if obj.object_type in self.num_objects:
-                    self.num_objects[obj.object_type] -= 1
-        self.objects = remaining_objects
-        #self.objects = [obj for obj in self.objects if obj.is_active()]
-
-        for obj_type in self.num_objects:
-            actual_count = len(self.get_objects(obj_type))
-            bookkeeping_count = self.num_objects[obj_type]
-            assert actual_count == bookkeeping_count, "count error"
+        for object in self.game_objects.values():
+            object["list"] = [obj for obj in object["list"] if obj.is_active()]
 
         # spawn new spawnable objects at random
         self.spawn_objects()
