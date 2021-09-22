@@ -90,7 +90,7 @@ class Game:
 
                 # play the game
                 if action == "play":
-                    level = Level(self, self.font)
+                    level = Level(self)
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:

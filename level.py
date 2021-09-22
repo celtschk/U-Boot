@@ -12,7 +12,7 @@ from objects import MovingObject, Animation
 class Level(GameDisplay):
     "A game level"
 
-    def __init__(self, game, font):
+    def __init__(self, game):
         super().__init__(game)
 
         self.width = game.screen.get_width()
