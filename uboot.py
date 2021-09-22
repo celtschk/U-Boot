@@ -25,6 +25,9 @@ class Game:
         pygame.mouse.set_visible(False)
         pygame.key.set_repeat(0)
 
+        # try to load all resources, for early failing
+        resources.try_load_all()
+
         self.font = pygame.font.SysFont(settings.font["name"],
                                         settings.font["size"])
 

@@ -253,3 +253,32 @@ def get_save_file():
     user_data_dir.mkdir(parents=True, exist_ok=True)
 
     return user_data_dir/settings.save_file
+
+
+def try_load_all():
+    """
+    This function tries to load all resources that will be used in the
+    game, so that errors can be caught right away rather than in the
+    middle of the game.
+    """
+
+    # load all the images for objects
+    for object in settings.objects.values():
+        load_image(object["filename"])
+
+    # load all the images for animations
+    for animation in settings.animations.values():
+        for n in range(animation["frame_count"]):
+            load_image(animation["images"].format(frame=n))
+
+    # load all the sounds
+    for sound in settings.sounds.keys():
+        get_sound(sound)
+
+    # load all the music
+    for music in settings.music.keys():
+        load_music(music)
+
+    # try to resolve all colours
+    for colour in settings.colours:
+        get_colour(colour)
