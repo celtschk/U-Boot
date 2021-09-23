@@ -197,6 +197,7 @@ class MessageData:
     colour: tuple
     font: pygame.font.SysFont
     origin: tuple = (0, 0)
+    cache: tuple = (None, None)
 
 
     def write(self, screen, data = {}):
@@ -205,7 +206,13 @@ class MessageData:
         """
         string = self.message.format(**data)
 
-        text = self.font.render(string, True, self.colour)
+        # avoid re-rendering if the text didn't change
+        if string == self.cache[0]:
+            text = self.cache[1]
+        else:
+            text = self.font.render(string, True, self.colour)
+            self.cache = (string, text)
+
         textsize = (text.get_width(), text.get_height())
         position = tuple(int(pos - size * orig)
                          for pos, size, orig
