@@ -138,9 +138,9 @@ class Level(GameDisplay):
 
         # y coordinates (1) are actually depths
         cache = {
-            (0, "left"): { "pos": 0, "adjustment": origin[0] - 1 },
-            (0, "right"): { "pos": self.width, "adjustment": origin[0] },
-            (1, "bottom"): { "pos": 1, "adjustment": 0 }
+            (0, "left"): 0 ,
+            (0, "right"):  self.width ,
+            (1, "bottom"): 1
             }
 
         # the ship might not yet exist, therefore only use
@@ -150,25 +150,25 @@ class Level(GameDisplay):
                 if not (coordinate, name_or_value) in cache:
                     if name_or_value == "ship":
                         shippos = self.ship.get_position()
-                        cache[0,"ship"] = {
-                            "pos": shippos[0],
-                            "adjustment": 0
-                            }
-                        cache[1,"ship"] = {
-                            "pos": 0,
-                            "adjustment": 0
-                            }
+                        cache[0,"ship"] = shippos[0]
+                        cache[1,"ship"] = 0
                     else:
-                        cache[coordinate, name_or_value] = {
-                            "pos": resources.get_value(data[name_or_value]),
-                            "adjustment": 0
-                            }
+                        cache[coordinate, name_or_value] = \
+                            resources.get_value(data[name_or_value])
+
             else:
-                return { "pos": name_or_value, "adjustment": 0 }
+                return name_or_value
 
             return cache[coordinate, name_or_value]
 
         movement = data["movement"]
+
+        if movement["start"][0] == "left":
+            start_adjustment = (origin[0] - 1, 0)
+        elif movement["start"][0] == "right":
+            start_adjustment = (origin[0], 0)
+        else:
+            start_adjustment = (0, 0)
 
         def y_from_depth(depth):
             return depth*(self.height - self.waterline) + self.waterline
@@ -176,21 +176,19 @@ class Level(GameDisplay):
         start_x = get_boundary_data(0, movement["start"][0])
         start_depth = get_boundary_data(1, movement["start"][1])
 
-        start = (start_x["pos"], y_from_depth(start_depth["pos"]))
-        start_adjustment = (start_x["adjustment"], start_depth["adjustment"])
+        start = (start_x, y_from_depth(start_depth))
 
         end_x = get_boundary_data(0, movement["end"][0])
         end_depth = get_boundary_data(1, movement["end"][1])
 
-        end = (end_x["pos"], y_from_depth(end_depth["pos"]))
-        end_adjustment = (end_x["adjustment"], end_depth["adjustment"])
+        end = (end_x, y_from_depth(end_depth))
 
         return MovingObject(
             filename,
             start = start,
             adjust_start = start_adjustment,
             end = end,
-            adjust_end = end_adjustment,
+            movement_region = self.game.screen.get_rect(),
             speed = resources.get_value(movement["speed"]),
             origin = origin,
             repeat = movement["repeat"])

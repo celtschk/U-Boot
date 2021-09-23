@@ -6,22 +6,24 @@ class MovingObject:
     "This class represents any moving object in the game."
 
     def __init__(self, path, start, end, speed,
+                 movement_region,# =
+                     #pygame.Rect(0,0,settings.width,settings.height),
                  origin = (0,0), repeat=False,
-                 adjust_start = (0,0), adjust_end = (0,0)):
+                 adjust_start = (0,0)):
         """
         Create a new moving object.
 
         Mandatory Arguments:
-          path:          the file path to the image to display
-          start:         the pixel at which the movement starts
-          end:           the pixel at which the movement ends
-          speed:         the fraction of the distance to move per second
+          path:             the file path to the image to display
+          start:            the pixel at which the movement starts
+          end:              the pixel at which the movement ends
+          speed:            the fraction of the distance to move per second
+          movement_region:  The region in which the object may move.
 
         Optional arguments:
-          origin:        which point of the image to use for placement
-          repeat:        whether to repeat the movement
-          adjust_start:  adjustment of the start position
-          adjust_end:    adjustment of the end position
+          origin:           which point of the image to use for placement
+          repeat:           whether to repeat the movement
+          adjust_start:     adjustment of the start position
 
         All coordinates in the optional arguments are in units of
         image width or image height, as opposed to pixel coordinates
@@ -31,6 +33,12 @@ class MovingObject:
            start = (5,5), adjust_start = (-1,0.5)
 
         will result in an actual starting point of (0,7).
+
+        If the object completely leaves the movement region (that is,
+        its bounding box no longer intersects the movement region),
+        its current movement ends and it is either deactivated or
+        set back to the start position, depending on the value of
+        repeat.
         """
         self.image_path = path  # for serialization
         self.image = resources.load_image(path)
@@ -38,18 +46,19 @@ class MovingObject:
         width = self.image.get_width()
 
         self.start = tuple(s + width * a for s,a in zip(start,adjust_start))
-        self.end = tuple(e + width * a for e,a in zip(end,adjust_end))
 
         self.repeat = repeat
 
         self.pos = self.start
 
         self.speed = speed
-        self.dist = 0
+        self.velocity = (speed * (end[0] - self.start[0]),
+                         speed * (end[1] - self.start[1]))
 
         self.disp = (-self.image.get_width()*origin[0],
                      -self.image.get_height()*origin[1])
 
+        self.movement_region = movement_region
         self.active = True
 
 
@@ -78,11 +87,20 @@ class MovingObject:
         Arguments:
           time: The time passed in seconds.
         """
+
+        # test if the object is inside the movement region before the
+        # movement occurs
+        def inside():
+            return self.movement_region.colliderect(self.get_bounding_box())
+
         if self.active:
-            self.dist += self.speed * time
-            if self.dist > 1:
+            inside_before = inside()
+
+            self.pos = (self.pos[0] + self.velocity[0] * time,
+                        self.pos[1] + self.velocity[1] * time)
+            if inside_before and not inside():
                 if self.repeat:
-                    self.dist = 0
+                    self.pos = self.start
                 else:
                     self.active = False
 
@@ -97,8 +115,11 @@ class MovingObject:
 
         Return value: The pixel coordinates of the object.
         """
-        return tuple(int(s + self.dist*(e-s) + (d if displace else 0))
-                     for e, s, d in zip(self.end, self.start, self.disp))
+        if displace:
+            return (self.pos[0] + self.disp[0],
+                    self.pos[1] + self.disp[1])
+        else:
+            return self.pos
 
 
     def draw_on(self, surface):
@@ -127,7 +148,7 @@ class MovingObject:
         """
         Get the bounding box of the objects representation on screen
         """
-        pos = self.get_position()
+        pos = self.get_position(True)
         return pygame.Rect(pos,
                            (self.image.get_width(),
                             self.image.get_height()))
@@ -188,7 +209,7 @@ class Animation:
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.images = [load_image(self.path_scheme.format(frame = n))
+        self.images = [resources.load_image(self.path_scheme.format(frame = n))
                        for n in range(self.frame_count)]
 
 
