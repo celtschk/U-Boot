@@ -5,9 +5,8 @@ import resources
 class MovingObject:
     "This class represents any moving object in the game."
 
-    def __init__(self, path, start, end, speed,
-                 movement_region,# =
-                     #pygame.Rect(0,0,settings.width,settings.height),
+    def __init__(self, path, start, velocity,
+                 movement_region,
                  origin = (0,0), repeat=False,
                  adjust_start = (0,0)):
         """
@@ -16,8 +15,9 @@ class MovingObject:
         Mandatory Arguments:
           path:             the file path to the image to display
           start:            the pixel at which the movement starts
-          end:              the pixel at which the movement ends
-          speed:            the fraction of the distance to move per second
+          velocity:         the velocity of the object (pixels/second)
+          #end:              the pixel at which the movement ends
+          #speed:            the fraction of the distance to move per second
           movement_region:  The region in which the object may move.
 
         Optional arguments:
@@ -51,9 +51,7 @@ class MovingObject:
 
         self.pos = self.start
 
-        self.speed = speed
-        self.velocity = (speed * (end[0] - self.start[0]),
-                         speed * (end[1] - self.start[1]))
+        self.velocity = velocity
 
         self.disp = (-self.image.get_width()*origin[0],
                      -self.image.get_height()*origin[1])

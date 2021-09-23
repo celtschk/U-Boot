@@ -163,33 +163,39 @@ class Level(GameDisplay):
 
         movement = data["movement"]
 
-        if movement["start"][0] == "left":
+        start = movement["start"]
+        if start[0] == "left":
+            start_x = 0
             start_adjustment = (origin[0] - 1, 0)
-        elif movement["start"][0] == "right":
+        elif start[0] == "right":
+            start_x = self.width
             start_adjustment = (origin[0], 0)
         else:
+            if start[0] == "ship":
+                start_x = self.ship.get_position()[0]
+            elif isinstance(start[0],str):
+                start_x = resources.get_value(data[start[0]])
+            else:
+                start_x = start[0]
             start_adjustment = (0, 0)
 
         def y_from_depth(depth):
             return depth*(self.height - self.waterline) + self.waterline
 
-        start_x = get_boundary_data(0, movement["start"][0])
         start_depth = get_boundary_data(1, movement["start"][1])
 
         start = (start_x, y_from_depth(start_depth))
 
-        end_x = get_boundary_data(0, movement["end"][0])
-        end_depth = get_boundary_data(1, movement["end"][1])
-
-        end = (end_x, y_from_depth(end_depth))
+        speed = resources.get_value(movement["speed"])
+        direction = movement["direction"]
 
         return MovingObject(
             filename,
             start = start,
             adjust_start = start_adjustment,
-            end = end,
             movement_region = self.game.screen.get_rect(),
-            speed = resources.get_value(movement["speed"]),
+            velocity = (speed * direction[0] * self.width,
+                        speed * direction[1] * self.height),
             origin = origin,
             repeat = movement["repeat"])
 

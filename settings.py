@@ -70,8 +70,8 @@ objects = {
         "origin": (0.5,1),
         "movement": {
             "start": ("left", 0),
-            "end": ("right", 0),
             "speed": 0.1,
+            "direction": (1,0),
             "repeat": True
             },
         },
@@ -80,11 +80,11 @@ objects = {
         "origin": (0, 0),
         "movement": {
             "start": ("right", "depth"),
-            "end": ("left", "depth"),
             "speed": {
                 "min": 0.05,
                 "max": 0.2
                 },
+            "direction": (-1,0),
             "repeat": False
             },
         "max_count": 10,
@@ -99,8 +99,8 @@ objects = {
         "origin": (0.5, 0),
         "movement": {
             "start": ("ship", "ship"),
-            "end": ("ship", "bottom"),
             "speed": 0.1,
+            "direction": (0,1),
             "repeat": False
             },
         "max_count": 15
