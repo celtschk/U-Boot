@@ -1,7 +1,8 @@
 # Settings for the uboot game
 
 # Name of the game
-game_name = "U-Boot"
+game_name = "uboot"
+game_title = "U-Boot"
 game_version = "0.1"
 game_author = "celtschk"
 
