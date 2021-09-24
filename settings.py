@@ -108,5 +108,5 @@ objects = {
         }
     }
 
-#save_file = "uboot.save"
-save_file = "/home/ce/test/savefile.shelve"
+save_file = "uboot.save"
+#save_file = "/home/ce/test/savefile.shelve"

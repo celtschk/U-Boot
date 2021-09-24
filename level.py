@@ -12,7 +12,7 @@ from objects import MovingObject, Animation
 class Level(GameDisplay):
     "A game level"
 
-    def __init__(self, game):
+    def __init__(self, game, old_state = None):
         super().__init__(game)
 
         self.width = game.screen.get_width()
@@ -20,32 +20,41 @@ class Level(GameDisplay):
 
         self.waterline = int(settings.sky_fraction * self.height)
 
-        # objects dictonary
-        self.game_objects = {}
+        if old_state:
+            self.game_objects = old_state["objects"]
+            self.ship = self.game_objects["ship"]["list"][0]
+            self.spawnables = old_state["spawnables"]
+            self.score = old_state["score"]
+        else:
+            # objects dictonary
+            self.game_objects = {}
 
-        # set of spawnable object types
-        self.spawnables = set()
+            # set of spawnable object types
+            self.spawnables = set()
 
-        # get limits and probabilities for objects
-        for obj_type, obj in settings.objects.items():
-            # record object info in objects dictionary
-            object_info = self.game_objects[obj_type] = { "list": [] }
+            # get limits and probabilities for objects
+            for obj_type, obj in settings.objects.items():
+                # record object info in objects dictionary
+                object_info = self.game_objects[obj_type] = { "list": [] }
 
-            if "max_count" in obj:
-                # initially, none of those objects exis
-                object_info["max_count"] = obj["max_count"]
+                if "max_count" in obj:
+                    # initially, none of those objects exis
+                    object_info["max_count"] = obj["max_count"]
 
-            if "spawn_rate" in obj:
-                object_info["spawn_rate"] = obj["spawn_rate"]
-                self.spawnables.add(obj_type)
+                if "spawn_rate" in obj:
+                    object_info["spawn_rate"] = obj["spawn_rate"]
+                    self.spawnables.add(obj_type)
 
-        # create the ship
-        self.ship = self.create_moving_object("ship")
-        self.game_objects["ship"] = { "list": [self.ship] }
+            # create the ship
+            self.ship = self.create_moving_object("ship")
+            self.game_objects["ship"] = { "list": [self.ship] }
 
-        # setup storage for animations
-        for animation_type in settings.animations:
-            self.game_objects[animation_type] = { "list": [] }
+            # setup storage for animations
+            for animation_type in settings.animations:
+                self.game_objects[animation_type] = { "list": [] }
+
+            # start with zero score
+            self.score = 0
 
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
@@ -59,40 +68,9 @@ class Level(GameDisplay):
         # colour of the pause text display
         self.c_pause = resources.get_colour("pause")
 
-        self.score = 0
-
         # The game is initially not paused
         self.paused = False
 
-        self.init_resources()
-
-
-    def __getstate__(self):
-        """
-        Serialize the level
-        """
-        state = self.__dict__.copy()
-        state.pop("game")
-        state.pop("game_state_display")
-        state.pop("paused_msg")
-        state.pop("explosion_sound")
-        return state
-
-
-    # the inherited __setstate__ should work fine
-
-
-    def set_game(self, game):
-        super().set_game(game)
-        self.init_resources()
-
-
-    def init_resources(self):
-        """
-        initialize all messages
-
-        This is called both from __init__ and from set_game()
-        """
         self.game_state_display = [
             resources.MessageData(
                 message = "Bombs available: {available_bombs}",
@@ -331,8 +309,13 @@ class Level(GameDisplay):
                 # S shelves this level
                 elif event.key == pygame.K_s:
                     save_file = resources.get_save_file()
+                    save_state = {
+                        "objects": self.game_objects,
+                        "spawnables": self.spawnables,
+                        "score": self.score
+                        }
                     with shelve.open(str(save_file), "c") as savefile:
-                        savefile["game"] = self
+                        savefile["game"] = save_state
                         self.quit()
 
 

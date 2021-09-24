@@ -60,7 +60,7 @@ class Game:
             pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 
-    def run(self, debug = None):
+    def run(self):
         """
         Run the game
         """
@@ -97,11 +97,12 @@ class Game:
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:
-                        level = savefile["game"]
-                        level.set_game(self)
+                        save_state = savefile["game"]
+                        level = Level(self, save_state)
+                        #level.set_game(self)
 
-                if debug:
-                    debug["level"] = level
+                if "debug" in settings.__dict__:
+                    settings.debug["level"] = level
 
                 level.execute()
 

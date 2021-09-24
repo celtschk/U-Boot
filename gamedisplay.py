@@ -14,32 +14,6 @@ class GameDisplay:
         self.quit_game = False
 
 
-    # the game is not part of the object
-    def __getstate__(self):
-        """
-        Serialize the game display
-        """
-        state = self.__dict__.copy()
-        state.pop("game")
-        return state
-
-
-    def __setstate__(self, state):
-        """
-        Deserialize the game display
-
-        The game has to be set manually afterwards
-        """
-        self.__dict__.update(state)
-
-
-    def set_game(self, game):
-        """
-        Set the game back reference
-        """
-        self.game = game
-
-
     def draw(self):
         """
         Draws the object.
