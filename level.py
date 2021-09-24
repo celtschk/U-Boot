@@ -136,31 +136,6 @@ class Level(GameDisplay):
         filename = data["filename"]
         origin = data["origin"]
 
-        # y coordinates (1) are actually depths
-        cache = {
-            (0, "left"): 0 ,
-            (0, "right"):  self.width ,
-            (1, "bottom"): 1
-            }
-
-        # the ship might not yet exist, therefore only use
-        # ship coordinates when actually requested
-        def get_boundary_data(coordinate, name_or_value):
-            if type(name_or_value) == str:
-                if not (coordinate, name_or_value) in cache:
-                    if name_or_value == "ship":
-                        shippos = self.ship.get_position()
-                        cache[0,"ship"] = shippos[0]
-                        cache[1,"ship"] = 0
-                    else:
-                        cache[coordinate, name_or_value] = \
-                            resources.get_value(data[name_or_value])
-
-            else:
-                return name_or_value
-
-            return cache[coordinate, name_or_value]
-
         movement = data["movement"]
 
         start = movement["start"]
@@ -179,10 +154,16 @@ class Level(GameDisplay):
                 start_x = start[0]
             start_adjustment = (0, 0)
 
+        if isinstance(start[1], str):
+            if start[1] == "ship":
+                start_depth = 0
+            else:
+                start_depth = resources.get_value(data[start[1]])
+        else:
+            start_depth = start[1]
+
         def y_from_depth(depth):
             return depth*(self.height - self.waterline) + self.waterline
-
-        start_depth = get_boundary_data(1, movement["start"][1])
 
         start = (start_x, y_from_depth(start_depth))
 
