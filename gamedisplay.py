@@ -23,13 +23,20 @@ class GameDisplay:
         raise NotImplementedError("Must be supplied by the derived class")
 
 
-    def handle_events(self):
+    def handle_event(self, event):
         """
-        Handles the events.
+        Handle a known event. Returns if the event has been handled.
 
-        To be supplied by the derived clas.
+        This function handles only pygame.QUIT. To handle other events,
+        override this function.
         """
-        raise NotImplementedError("Must be supplied by the derived class")
+        # A pygame.QUIT event always terminates the game completely
+        if event.type == pygame.QUIT:
+            self.terminate()
+            return True
+
+        # If we get here, no event has been handled.
+        return False
 
 
     def update_state(self):
@@ -50,7 +57,8 @@ class GameDisplay:
         while self.running:
             self.draw()
             self.game.clock.tick(self.game.fps)
-            self.handle_events()
+            for event in pygame.event.get():
+                self.handle_event(event)
             self.update_state()
 
 

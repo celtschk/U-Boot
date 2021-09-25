@@ -269,50 +269,48 @@ class Level(GameDisplay):
                     bomb.deactivate()
 
 
-    def handle_events(self):
+    def handle_event(self, event):
         """
-        Handle all events
+        Handle an event
         """
-        for event in pygame.event.get():
-            # A pygame.QUIT event always terminates the game completely
-            if event.type == pygame.QUIT:
-                self.terminate()
+        if super().handle_event(event):
+            return True
 
-            if event.type == pygame.KEYDOWN:
-                # Game actions are only processed if the game is not paused
-                if not self.paused:
-                    # Down arrow drops a bomb
-                    if event.key == pygame.K_DOWN:
-                        self.drop_bomb()
+        if event.type == pygame.KEYDOWN:
+            # Game actions are only processed if the game is not paused
+            if not self.paused:
+                # Down arrow drops a bomb
+                if event.key == pygame.K_DOWN:
+                    self.drop_bomb()
 
-                # Other keys are always processed
+            # Other keys are always processed
 
-                # P or Pause pauses the game
-                if event.key in {pygame.K_p, pygame.K_PAUSE}:
-                    if self.paused:
-                        pygame.mixer.music.unpause()
-                    else:
-                        pygame.mixer.music.pause()
-                    self.paused = not self.paused
-                # F toggles fullscreen display
-                elif event.key == pygame.K_f:
-                    self.game.toggle_fullscreen()
+            # P or Pause pauses the game
+            if event.key in {pygame.K_p, pygame.K_PAUSE}:
+                if self.paused:
+                    pygame.mixer.music.unpause()
+                else:
+                    pygame.mixer.music.pause()
+                self.paused = not self.paused
+            # F toggles fullscreen display
+            elif event.key == pygame.K_f:
+                self.game.toggle_fullscreen()
 
-                # Q quits the game and returns to the menu
-                elif event.key == pygame.K_q:
+            # Q quits the game and returns to the menu
+            elif event.key == pygame.K_q:
+                self.quit()
+
+            # S shelves this level
+            elif event.key == pygame.K_s:
+                save_file = resources.get_save_file()
+                save_state = {
+                    "objects": self.game_objects,
+                    "spawnables": self.spawnables,
+                    "score": self.game.score
+                    }
+                with shelve.open(str(save_file), "c") as savefile:
+                    savefile["game"] = save_state
                     self.quit()
-
-                # S shelves this level
-                elif event.key == pygame.K_s:
-                    save_file = resources.get_save_file()
-                    save_state = {
-                        "objects": self.game_objects,
-                        "spawnables": self.spawnables,
-                        "score": self.game.score
-                        }
-                    with shelve.open(str(save_file), "c") as savefile:
-                        savefile["game"] = save_state
-                        self.quit()
 
 
     def update_state(self):

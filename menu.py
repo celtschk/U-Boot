@@ -52,25 +52,27 @@ class Menu(GameDisplay):
         pygame.display.flip()
 
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.terminate()
+    def handle_event(self, event):
+        """
+        Handle an event
+        """
+        if super().handle_event(event):
+            return True
 
-            if event.type == pygame.KEYDOWN:
-                # Up and down navigate the menu
-                if event.key == pygame.K_UP:
-                    if self.selection == 0:
-                        self.selection = len(self.menuspec)
-                    self.selection -= 1
-                elif event.key == pygame.K_DOWN:
-                    self.selection += 1
-                    if self.selection == len(self.menuspec):
-                        self.selection = 0
+        if event.type == pygame.KEYDOWN:
+            # Up and down navigate the menu
+            if event.key == pygame.K_UP:
+                if self.selection == 0:
+                    self.selection = len(self.menuspec)
+                self.selection -= 1
+            elif event.key == pygame.K_DOWN:
+                self.selection += 1
+                if self.selection == len(self.menuspec):
+                    self.selection = 0
 
-                # Enter selects an option, thus quits the menu
-                elif event.key == pygame.K_RETURN:
-                    self.quit()
+            # Enter selects an option, thus quits the menu
+            elif event.key == pygame.K_RETURN:
+                self.quit()
 
 
     def get_selected_action(self):
