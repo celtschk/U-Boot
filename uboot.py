@@ -94,12 +94,13 @@ class Game:
                 # play the game
                 if action == "play":
                     level = Level(self)
+                    self.score = 0
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:
                         save_state = savefile["game"]
+                        self.score = save_state["score"]
                         level = Level(self, save_state)
-                        #level.set_game(self)
 
                 if "debug" in settings.__dict__:
                     settings.debug["level"] = level

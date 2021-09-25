@@ -24,7 +24,6 @@ class Level(GameDisplay):
             self.game_objects = old_state["objects"]
             self.ship = self.game_objects["ship"]["list"][0]
             self.spawnables = old_state["spawnables"]
-            self.score = old_state["score"]
         else:
             # objects dictonary
             self.game_objects = {}
@@ -52,9 +51,6 @@ class Level(GameDisplay):
             # setup storage for animations
             for animation_type in settings.animations:
                 self.game_objects[animation_type] = { "list": [] }
-
-            # start with zero score
-            self.score = 0
 
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
@@ -178,7 +174,7 @@ class Level(GameDisplay):
         displaydata = {
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
-            "score": self.score
+            "score": self.game.score
             }
 
         for message in self.game_state_display:
@@ -205,7 +201,7 @@ class Level(GameDisplay):
 
         available_bombs = max_bombs - existing_bombs
 
-        while self.get_bomb_cost(available_bombs) > self.score:
+        while self.get_bomb_cost(available_bombs) > self.game.score:
                available_bombs -= 1
 
         return available_bombs
@@ -223,7 +219,7 @@ class Level(GameDisplay):
             if ship_pos[0] > 0 and ship_pos[0] < self.width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                self.score -= self.get_bomb_cost();
+                self.game.score -= self.get_bomb_cost();
 
                 newbomb = self.create_moving_object("bomb")
                 self.game_objects["bomb"]["list"].append(newbomb)
@@ -265,8 +261,8 @@ class Level(GameDisplay):
                 bb_bomb = bomb.get_bounding_box()
                 if bb_sub.colliderect(bb_bomb):
                     subpos = sub.get_position()
-                    self.score += int((subpos[1] - self.waterline) /
-                                      self.height * 20 + 0.5)
+                    self.game.score += int((subpos[1] - self.waterline) /
+                                           self.height * 20 + 0.5)
                     self.explosion_sound.play()
                     self.create_animation("explosion", bomb.get_position())
                     sub.deactivate()
@@ -312,7 +308,7 @@ class Level(GameDisplay):
                     save_state = {
                         "objects": self.game_objects,
                         "spawnables": self.spawnables,
-                        "score": self.score
+                        "score": self.game.score
                         }
                     with shelve.open(str(save_file), "c") as savefile:
                         savefile["game"] = save_state
