@@ -324,7 +324,7 @@ class Level(GameDisplay):
         # move all objects and advance all animations
         for obj_data in self.game_objects.values():
             for obj in obj_data["list"]:
-                obj.update(1/self.game.fps)
+                obj.update(self.game.clock.get_time()/1000)
 
         # handle bombs hitting submarines
         self.handle_hits()
