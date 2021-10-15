@@ -70,21 +70,21 @@ class Level(GameDisplay):
         self.game_state_display = [
             resources.MessageData(
                 message = "Bombs available: {available_bombs}",
-                position = (20, 20),
+                position = pygame.Vector2(20, 20),
                 colour = self.c_text,
                 font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
-                position = (20, 50),
+                position = pygame.Vector2(20, 50),
                 colour = self.c_text,
                 font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Score: {score}",
-                position = (20+self.width//2, 20),
+                position = pygame.Vector2(20+self.width//2, 20),
                 colour = self.c_text,
                 font = self.game.font
                 )
@@ -93,10 +93,10 @@ class Level(GameDisplay):
         # message for pause
         self.paused_msg = resources.MessageData(
             message = "--- PAUSED ---",
-            position = (self.width//2, self.height//2),
+            position = pygame.Vector2(self.width//2, self.height//2),
             colour = self.c_pause,
             font = self.game.font,
-            origin = (0.5,0.5))
+            origin = pygame.Vector2(0.5,0.5))
 
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
@@ -108,17 +108,17 @@ class Level(GameDisplay):
         """
         data = settings.objects[object_type]
         filename = data["filename"]
-        origin = data["origin"]
+        origin = pygame.Vector2(data["origin"])
 
         movement = data["movement"]
 
         start = movement["start"]
         if start[0] == "left":
             start_x = 0
-            start_adjustment = (origin[0] - 1, 0)
+            start_adjustment = pygame.Vector2(origin[0] - 1, 0)
         elif start[0] == "right":
             start_x = self.width
-            start_adjustment = (origin[0], 0)
+            start_adjustment = pygame.Vector2(origin[0], 0)
         else:
             if start[0] == "ship":
                 start_x = self.ship.get_position()[0]
@@ -126,7 +126,7 @@ class Level(GameDisplay):
                 start_x = resources.get_value(data[start[0]])
             else:
                 start_x = start[0]
-            start_adjustment = (0, 0)
+            start_adjustment = pygame.Vector2(0, 0)
 
         if isinstance(start[1], str):
             if start[1] == "ship":
@@ -139,7 +139,7 @@ class Level(GameDisplay):
         def y_from_depth(depth):
             return depth*(self.height - self.waterline) + self.waterline
 
-        start = (start_x, y_from_depth(start_depth))
+        start = pygame.Vector2(start_x, y_from_depth(start_depth))
 
         speed = resources.get_value(movement["speed"])
         direction = movement["direction"]
@@ -149,8 +149,8 @@ class Level(GameDisplay):
             start = start,
             adjust_start = start_adjustment,
             movement_region = self.game.screen.get_rect(),
-            velocity = (speed * direction[0] * self.width,
-                        speed * direction[1] * self.height),
+            velocity = pygame.Vector2(speed * direction[0] * self.width,
+                                      speed * direction[1] * self.height),
             origin = origin,
             repeat = movement["repeat"])
 

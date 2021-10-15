@@ -5,10 +5,8 @@ import resources
 class MovingObject:
     "This class represents any moving object in the game."
 
-    def __init__(self, path, start, velocity,
-                 movement_region,
-                 origin = (0,0), repeat=False,
-                 adjust_start = (0,0)):
+    def __init__(self, path, start, velocity, movement_region,
+                 origin, repeat, adjust_start):
         """
         Create a new moving object.
 
@@ -16,11 +14,7 @@ class MovingObject:
           path:             the file path to the image to display
           start:            the pixel at which the movement starts
           velocity:         the velocity of the object (pixels/second)
-          #end:              the pixel at which the movement ends
-          #speed:            the fraction of the distance to move per second
           movement_region:  The region in which the object may move.
-
-        Optional arguments:
           origin:           which point of the image to use for placement
           repeat:           whether to repeat the movement
           adjust_start:     adjustment of the start position
@@ -45,16 +39,16 @@ class MovingObject:
 
         width = self.image.get_width()
 
-        self.start = tuple(s + width * a for s,a in zip(start,adjust_start))
+        self.start = pygame.Vector2(*(s + width * a for s,a in zip(start,adjust_start)))
 
         self.repeat = repeat
 
-        self.pos = self.start
+        self.pos = pygame.Vector2(self.start)
 
         self.velocity = velocity
 
-        self.disp = (-self.image.get_width()*origin[0],
-                     -self.image.get_height()*origin[1])
+        self.disp = pygame.Vector2(-self.image.get_width()*origin[0],
+                                   -self.image.get_height()*origin[1])
 
         self.movement_region = movement_region
         self.active = True
@@ -94,11 +88,10 @@ class MovingObject:
         if self.active:
             inside_before = inside()
 
-            self.pos = (self.pos[0] + self.velocity[0] * time,
-                        self.pos[1] + self.velocity[1] * time)
+            self.pos += self.velocity * time
             if inside_before and not inside():
                 if self.repeat:
-                    self.pos = self.start
+                    self.pos = pygame.Vector2(self.start)
                 else:
                     self.active = False
 
@@ -114,8 +107,7 @@ class MovingObject:
         Return value: The pixel coordinates of the object.
         """
         if displace:
-            return (self.pos[0] + self.disp[0],
-                    self.pos[1] + self.disp[1])
+            return self.pos + self.disp
         else:
             return self.pos
 
