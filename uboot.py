@@ -93,6 +93,7 @@ class Game:
 
                 # play the game
                 if action == "play":
+                    self.level_number = 1;
                     level = Level(self)
                     self.score = 0
                 elif action == "resume":
@@ -100,12 +101,18 @@ class Game:
                     with shelve.open(str(save_file)) as savefile:
                         save_state = savefile["game"]
                         self.score = save_state["score"]
+                        self.level_number = save_state["level_number"]
                         level = Level(self, save_state)
 
                 if "debug" in settings.__dict__:
                     settings.debug["level"] = level
 
-                level.execute()
+                while True:
+                    result = level.execute()
+                    if result is None:
+                        break
+                    self.level_number += 1
+                    level = Level(self)
 
                 # stop the background music
                 if self.play_music:

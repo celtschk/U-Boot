@@ -12,6 +12,16 @@ from objects import MovingObject, Animation
 class Level(GameDisplay):
     "A game level"
 
+    @staticmethod
+    def initial_state():
+        return {
+            "level_number": 1,
+            "object_settings": settings.objects.copy(),
+            "objects": {},
+            "spawnables": {}
+            }
+
+
     def __init__(self, game, old_state = None):
         super().__init__(game)
 
@@ -21,10 +31,17 @@ class Level(GameDisplay):
         self.waterline = int(settings.sky_fraction * self.height)
 
         if old_state:
+            self.object_settings = old_state["object_settings"]
             self.game_objects = old_state["objects"]
             self.ship = self.game_objects["ship"]["list"][0]
             self.spawnables = old_state["spawnables"]
         else:
+            self.object_settings = settings.objects.copy()
+            if game.level_number in settings.level_updates:
+                resources.recursive_update(
+                    self.object_settings,
+                    settings.level_updates[game.level_number])
+
             # objects dictonary
             self.game_objects = {}
 
@@ -32,7 +49,7 @@ class Level(GameDisplay):
             self.spawnables = set()
 
             # get limits and probabilities for objects
-            for obj_type, obj in settings.objects.items():
+            for obj_type, obj in self.object_settings.items():
                 # record object info in objects dictionary
                 object_info = self.game_objects[obj_type] = { "list": [] }
 
@@ -43,6 +60,9 @@ class Level(GameDisplay):
                 if "spawn_rate" in obj:
                     object_info["spawn_rate"] = obj["spawn_rate"]
                     self.spawnables.add(obj_type)
+
+                if "total_count" in obj:
+                    object_info["remaining"] = obj["total_count"]
 
             # create the ship
             self.ship = self.create_moving_object("ship")
@@ -83,11 +103,19 @@ class Level(GameDisplay):
                 ),
 
             resources.MessageData(
-                message = "Score: {score}",
+                message = "Level: {level}",
                 position = pygame.Vector2(20+self.width//2, 20),
                 colour = self.c_text,
                 font = self.game.font
+                ),
+
+            resources.MessageData(
+                message = "Score: {score}",
+                position = pygame.Vector2(20+self.width//2, 50),
+                colour = self.c_text,
+                font = self.game.font
                 )
+
             ]
 
         # message for pause
@@ -106,7 +134,7 @@ class Level(GameDisplay):
         """
         Create a moving object of type object_type
         """
-        data = settings.objects[object_type]
+        data = self.object_settings[object_type]
         filename = data["filename"]
         origin = pygame.Vector2(data["origin"])
 
@@ -174,6 +202,7 @@ class Level(GameDisplay):
         displaydata = {
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
+            "level": self.game.level_number,
             "score": self.game.score
             }
 
@@ -228,14 +257,22 @@ class Level(GameDisplay):
     def spawn_objects(self):
         "Possibly spawn new spawnable objects"
         for obj_type in self.spawnables:
-            max_objects = self.game_objects[obj_type]["max_count"]
-            existing_objects = len(self.game_objects[obj_type]["list"])
-            rate = self.game_objects[obj_type]["spawn_rate"]
+            obj_data = self.game_objects[obj_type]
+            limited = ("remaining" in obj_data)
+
+            max_objects = obj_data["max_count"]
+            if limited and obj_data["remaining"] < max_objects:
+                max_objects = obj_data["remaining"]
+
+            existing_objects = len(obj_data["list"])
+            rate = obj_data["spawn_rate"]
 
             if existing_objects < max_objects:
                 if resources.randomly_true(rate/self.game.fps):
-                    newsub = self.create_moving_object(obj_type)
-                    self.game_objects[obj_type]["list"].append(newsub)
+                    newobj = self.create_moving_object(obj_type)
+                    self.game_objects[obj_type]["list"].append(newobj)
+                    if limited:
+                        obj_data["remaining"] -= 1
 
 
     def create_animation(self, animation_type, position):
@@ -304,6 +341,8 @@ class Level(GameDisplay):
             elif event.key == pygame.K_s:
                 save_file = resources.get_save_file()
                 save_state = {
+                    "level_number": self.game.level_number,
+                    "object_settings": self.object_settings,
                     "objects": self.game_objects,
                     "spawnables": self.spawnables,
                     "score": self.game.score
@@ -332,6 +371,11 @@ class Level(GameDisplay):
         # remove inactive objects and animations
         for object in self.game_objects.values():
             object["list"] = [obj for obj in object["list"] if obj.is_active()]
+
+        # if the last submarine is gone, quit the level
+        if self.game_objects["submarine"]["remaining"] == 0:
+            if len(self.game_objects["submarine"]["list"]) == 0:
+                self.quit("level")
 
         # spawn new spawnable objects at random
         self.spawn_objects()

@@ -289,3 +289,18 @@ def try_load_all():
     # try to resolve all colours
     for colour in settings.colours:
         get_colour(colour)
+
+
+def recursive_update(dictionary, updates):
+    """
+    Recursively update a dictionary.
+    """
+    for key, value in updates.items():
+        if key in dictionary:
+            oldvalue = dictionary[key]
+            if value is None:
+                del dictionary[key]
+            elif isinstance(value, dict) and isinstance(oldvalue, dict):
+                recursive_update(oldvalue, value)
+            else:
+                dictionary[key] = value

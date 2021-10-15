@@ -89,6 +89,7 @@ objects = {
             "repeat": False
             },
         "max_count": 10,
+        "total_count": 50,
         "depth": {
             "min": 0.1,
             "max": 0.97
@@ -108,5 +109,14 @@ objects = {
         }
     }
 
+level_updates = {
+    1:  {
+        "submarine": {
+            "depth": {
+                "max": 0.2
+                }
+            }
+        }
+    }
+
 save_file = "uboot.save"
-#save_file = "/home/ce/test/savefile.shelve"

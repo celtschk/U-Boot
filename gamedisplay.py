@@ -60,13 +60,15 @@ class GameDisplay:
             for event in pygame.event.get():
                 self.handle_event(event)
             self.update_state()
+        return self.status
 
 
-    def quit(self):
+    def quit(self, status = None):
         """
         Quit the display, but not necessarily the game
         """
         self.running = False
+        self.status = status
 
 
     def terminate(self):
