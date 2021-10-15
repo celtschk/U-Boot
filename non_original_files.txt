@@ -2,7 +2,7 @@ Non-original files used:
 
 Explosion sound:
     File: Flashbang-Kibblesbob-899170896.wav
-    Author: Kibblesbob (?)
+    Author: Kibblesbob
     Source: https://soundbible.com/1793-Flashbang.html
     License: Public Domain
 
