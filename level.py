@@ -1,5 +1,6 @@
 import pygame
 import shelve
+from copy import deepcopy
 
 import settings
 import resources
@@ -16,7 +17,7 @@ class Level(GameDisplay):
     def initial_state():
         return {
             "level_number": 1,
-            "object_settings": settings.objects.copy(),
+            "object_settings": deepcopy(settings.objects),
             "objects": {},
             "spawnables": {}
             }
@@ -36,7 +37,7 @@ class Level(GameDisplay):
             self.ship = self.game_objects["ship"]["list"][0]
             self.spawnables = old_state["spawnables"]
         else:
-            self.object_settings = settings.objects.copy()
+            self.object_settings = deepcopy(settings.objects)
             if game.level_number in settings.level_updates:
                 resources.recursive_update(
                     self.object_settings,
