@@ -12,6 +12,10 @@ from objects import MovingObject, Animation
 # separate out the class
 class Level(GameDisplay):
     "A game level"
+    # Level specific exit values
+    LEVEL_CLEARED = GameDisplay.Status()
+    LEVEL_FAILED  = GameDisplay.Status()
+
 
     @staticmethod
     def initial_state():
@@ -376,7 +380,7 @@ class Level(GameDisplay):
         # if the last submarine is gone, quit the level
         if self.game_objects["submarine"]["remaining"] == 0:
             if len(self.game_objects["submarine"]["list"]) == 0:
-                self.quit("level")
+                self.quit(self.LEVEL_CLEARED)
 
         # spawn new spawnable objects at random
         self.spawn_objects()

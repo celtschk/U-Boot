@@ -5,13 +5,22 @@ class GameDisplay:
     Base class containing the logic of any screen the user may
     interact with, whether it is the gameplay or a menu.
     """
+    # exit status values (not an enum, because derived classes
+    # will want to add more. Also, no need for numeric values;
+    # equality comparison is fully sufficient
+    class Status:
+        pass
+
+    TERMINATE = Status()
+    QUIT = Status()
+
+
     def __init__(self, game):
         """
         Initializes the GameDisplay object
         """
         self.game = game
         self.running = False
-        self.quit_game = False
 
 
     def draw(self):
@@ -63,10 +72,11 @@ class GameDisplay:
         return self.status
 
 
-    def quit(self, status = None):
+    def quit(self, status = QUIT):
         """
         Quit the display, but not necessarily the game
         """
+        assert isinstance(status, self.Status)
         self.running = False
         self.status = status
 
@@ -75,12 +85,11 @@ class GameDisplay:
         """
         Quit the game
         """
-        self.quit()
-        self.quit_game = True
+        self.quit(self.TERMINATE)
 
 
     def terminated(self):
         """
         Returns whether the terminate function was called.
         """
-        return self.quit_game
+        return self.status == self.TERMINATE
