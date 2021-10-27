@@ -109,7 +109,7 @@ class Game:
 
                 while True:
                     result = level.execute()
-                    if result in {Level.TERMINATE, level.QUIT}:
+                    if result != Level.LEVEL_CLEARED:
                         break
                     self.level_number += 1
                     level = Level(self)

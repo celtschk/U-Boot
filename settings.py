@@ -105,7 +105,8 @@ objects = {
             "direction": (0,1),
             "repeat": False
             },
-        "max_count": 15
+        "max_count": 15,
+        "total_count": 500
         }
     }
 

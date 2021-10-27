@@ -230,8 +230,9 @@ class Level(GameDisplay):
     def get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
 
-        max_bombs = self.game_objects["bomb"]["max_count"]
-        existing_bombs = len(self.game_objects["bomb"]["list"])
+        bomb_info = self.game_objects["bomb"]
+        max_bombs = min(bomb_info["max_count"], bomb_info["remaining"])
+        existing_bombs = len(bomb_info["list"])
 
         available_bombs = max_bombs - existing_bombs
 
@@ -257,6 +258,7 @@ class Level(GameDisplay):
 
                 newbomb = self.create_moving_object("bomb")
                 self.game_objects["bomb"]["list"].append(newbomb)
+                self.game_objects["bomb"]["remaining"] -= 1
 
 
     def spawn_objects(self):
@@ -357,6 +359,11 @@ class Level(GameDisplay):
                     self.quit()
 
 
+    def no_objects_remaining(self, obj_type):
+        obj_info = self.game_objects[obj_type];
+        return obj_info.get("remaining", 1)==0 and len(obj_info["list"])==0
+
+
     def update_state(self):
         """
         Update the state of the game
@@ -377,10 +384,12 @@ class Level(GameDisplay):
         for object in self.game_objects.values():
             object["list"] = [obj for obj in object["list"] if obj.is_active()]
 
-        # if the last submarine is gone, quit the level
-        if self.game_objects["submarine"]["remaining"] == 0:
-            if len(self.game_objects["submarine"]["list"]) == 0:
-                self.quit(self.LEVEL_CLEARED)
+        # if the last submarine is gone, clear the level
+        if self.no_objects_remaining("submarine"):
+            self.quit(self.LEVEL_CLEARED)
+        #otherwise, if all bombs have been used up, fail the level
+        elif self.no_objects_remaining("bomb"):
+            self.quit(self.LEVEL_FAILED)
 
         # spawn new spawnable objects at random
         self.spawn_objects()
