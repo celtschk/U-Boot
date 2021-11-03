@@ -94,11 +94,18 @@ class Level(GameDisplay):
 
         self.game_state_display = [
             resources.MessageData(
-                message = "Bombs available: {available_bombs}",
+                message = "Bombs: {remaining_bombs} ({available_bombs} available)",
                 position = pygame.Vector2(20, 20),
                 colour = self.c_text,
                 font = self.game.font
                 ),
+
+            #resources.MessageData(
+            #    message = "Bombs available: {available_bombs}",
+            #    position = pygame.Vector2(20, 50),
+            #    colour = self.c_text,
+            #    font = self.game.font
+            #    ),
 
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
@@ -108,14 +115,14 @@ class Level(GameDisplay):
                 ),
 
             resources.MessageData(
-                message = "Level: {level}",
+                message = "Level: {level},  Score: {score}",
                 position = pygame.Vector2(20+self.width//2, 20),
                 colour = self.c_text,
                 font = self.game.font
                 ),
 
             resources.MessageData(
-                message = "Score: {score}",
+                message = "Remaining submarines: {remaining_subs}",
                 position = pygame.Vector2(20+self.width//2, 50),
                 colour = self.c_text,
                 font = self.game.font
@@ -205,8 +212,10 @@ class Level(GameDisplay):
                 obj.draw_on(screen)
 
         displaydata = {
+            "remaining_bombs": self.game_objects["bomb"]["remaining"],
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
+            "remaining_subs": self.game_objects["submarine"]["remaining"],
             "level": self.game.level_number,
             "score": self.game.score
             }

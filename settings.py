@@ -106,7 +106,7 @@ objects = {
             "repeat": False
             },
         "max_count": 15,
-        "total_count": 500
+        "total_count": 100
         }
     }
 
@@ -115,6 +115,13 @@ level_updates = {
         "submarine": {
             "depth": {
                 "max": 0.2
+                }
+            }
+        },
+    2:  {
+        "submarine": {
+            "depth": {
+                "max": 0.4
                 }
             }
         }
