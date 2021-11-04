@@ -35,6 +35,9 @@ class Level(GameDisplay):
 
         self.waterline = int(settings.sky_fraction * self.height)
 
+        self.score_frame_countdown = self.score_frames = settings.score_frames
+
+
         if old_state:
             self.object_settings = old_state["object_settings"]
             self.game_objects = old_state["objects"]
@@ -77,6 +80,10 @@ class Level(GameDisplay):
             for animation_type in settings.animations:
                 self.game_objects[animation_type] = { "list": [] }
 
+        # set displayed score to game score
+        # (separate to allow score animation)
+        self.displayed_score = self.game.score
+        
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
 
@@ -217,7 +224,7 @@ class Level(GameDisplay):
             "bomb_cost": self.get_bomb_cost(),
             "remaining_subs": self.game_objects["submarine"]["remaining"],
             "level": self.game.level_number,
-            "score": self.game.score
+            "score": self.displayed_score # self.game.score
             }
 
         for message in self.game_state_display:
@@ -380,6 +387,17 @@ class Level(GameDisplay):
         # if the game is paused, do nothing
         if self.paused:
             return
+
+        # move the displayed score towards the actual score
+        if self.displayed_score != self.game.score:
+            if self.score_frame_countdown == 0:
+                self.score_frame_countdown = self.score_frames
+                if self.displayed_score < self.game.score:
+                    self.displayed_score += 1
+                elif self.displayed_score > self.game.score:
+                    self.displayed_score -= 1
+            else:
+                self.score_frame_countdown -= 1
 
         # move all objects and advance all animations
         for obj_data in self.game_objects.values():

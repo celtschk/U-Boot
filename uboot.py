@@ -94,8 +94,8 @@ class Game:
                 # play the game
                 if action == "play":
                     self.level_number = 1;
-                    level = Level(self)
                     self.score = 0
+                    level = Level(self)
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:

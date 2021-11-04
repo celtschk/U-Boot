@@ -16,6 +16,9 @@ sky_fraction = 0.2
 # frame rate
 fps = 60
 
+# frames per score animation update
+score_frames = 6
+
 # colours used in the game
 colours = {
     "sky": "sky blue",
