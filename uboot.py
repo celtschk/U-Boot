@@ -120,13 +120,9 @@ class Game:
 
                 if result == level.LEVEL_SAVE:
                     save_file = resources.get_save_file()
-                    save_state = {
-                        "level_number": self.level_number,
-                        "object_settings": level.object_settings,
-                        "objects": level.game_objects,
-                        "spawnables": level.spawnables,
-                        "score": self.score
-                        }
+                    save_state = level.get_state();
+                    save_state["level_number"] = self.level_number
+                    save_state["score"] = self.score
                     with shelve.open(str(save_file), "c") as savefile:
                         savefile["game"] = save_state
 

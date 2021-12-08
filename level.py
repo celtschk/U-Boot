@@ -148,6 +148,14 @@ class Level(GameDisplay):
         self.explosion_sound = resources.get_sound("explosion")
 
 
+    def get_state(self):
+        return {
+            "object_settings": self.object_settings,
+            "objects": self.game_objects,
+            "spawnables": self.spawnables
+            }
+
+
     def create_moving_object(self, object_type):
         """
         Create a moving object of type object_type
