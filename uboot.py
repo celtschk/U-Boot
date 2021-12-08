@@ -118,6 +118,18 @@ class Game:
                 if self.play_music:
                     pygame.mixer.music.stop()
 
+                if result == level.LEVEL_SAVE:
+                    save_file = resources.get_save_file()
+                    save_state = {
+                        "level_number": self.level_number,
+                        "object_settings": level.object_settings,
+                        "objects": level.game_objects,
+                        "spawnables": level.spawnables,
+                        "score": self.score
+                        }
+                    with shelve.open(str(save_file), "c") as savefile:
+                        savefile["game"] = save_state
+
                 if level.terminated():
                     # quit the game on request
                     action = "quit"

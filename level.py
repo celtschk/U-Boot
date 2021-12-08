@@ -1,5 +1,4 @@
 import pygame
-import shelve
 from copy import deepcopy
 
 import settings
@@ -15,7 +14,7 @@ class Level(GameDisplay):
     # Level specific exit values
     LEVEL_CLEARED = GameDisplay.Status()
     LEVEL_FAILED  = GameDisplay.Status()
-
+    LEVEL_SAVE = GameDisplay.Status()
 
     @staticmethod
     def initial_state():
@@ -362,17 +361,7 @@ class Level(GameDisplay):
 
             # S shelves this level
             elif event.key == pygame.K_s:
-                save_file = resources.get_save_file()
-                save_state = {
-                    "level_number": self.game.level_number,
-                    "object_settings": self.object_settings,
-                    "objects": self.game_objects,
-                    "spawnables": self.spawnables,
-                    "score": self.game.score
-                    }
-                with shelve.open(str(save_file), "c") as savefile:
-                    savefile["game"] = save_state
-                    self.quit()
+                self.quit(self.LEVEL_SAVE)
 
 
     def no_objects_remaining(self, obj_type):
