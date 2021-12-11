@@ -17,16 +17,25 @@ class Level(GameDisplay):
     LEVEL_SAVE = GameDisplay.Status()
 
     @staticmethod
-    def initial_state():
+    def initial_state(old_state = {}):
+        level_number = old_state.get("level_number", 0) + 1
+
+        object_settings = deepcopy(settings.objects)
+        if level_number in settings.level_updates:
+            resources.recursive_update(
+                object_settings,
+                settings.level_updates[level_number])
+
         return {
-            "level_number": 1,
-            "object_settings": deepcopy(settings.objects),
+            "level_number": level_number,
+            "object_settings": object_settings,
             "objects": {},
-            "spawnables": {}
+            "spawnables": set(),
+            "score": old_state.get("score", 0)
             }
 
 
-    def __init__(self, game, old_state = None):
+    def __init__(self, game, old_state):
         super().__init__(game)
 
         self.width = game.screen.get_width()
@@ -34,27 +43,17 @@ class Level(GameDisplay):
 
         self.waterline = int(settings.sky_fraction * self.height)
 
+        self.score = old_state["score"]
+        self.level_number = old_state["level_number"]
+        self.object_settings = old_state["object_settings"]
+        self.game_objects = old_state["objects"]
+        self.spawnables = old_state["spawnables"]
+
         self.score_frame_countdown = self.score_frames = settings.score_frames
 
-
-        if old_state:
-            self.object_settings = old_state["object_settings"]
-            self.game_objects = old_state["objects"]
+        if self.game_objects:
             self.ship = self.game_objects["ship"]["list"][0]
-            self.spawnables = old_state["spawnables"]
         else:
-            self.object_settings = deepcopy(settings.objects)
-            if game.level_number in settings.level_updates:
-                resources.recursive_update(
-                    self.object_settings,
-                    settings.level_updates[game.level_number])
-
-            # objects dictonary
-            self.game_objects = {}
-
-            # set of spawnable object types
-            self.spawnables = set()
-
             # get limits and probabilities for objects
             for obj_type, obj in self.object_settings.items():
                 # record object info in objects dictionary
@@ -81,7 +80,7 @@ class Level(GameDisplay):
 
         # set displayed score to game score
         # (separate to allow score animation)
-        self.displayed_score = self.game.score
+        self.displayed_score = self.score
         
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
@@ -150,9 +149,11 @@ class Level(GameDisplay):
 
     def get_state(self):
         return {
+            "level_number": self.level_number,
             "object_settings": self.object_settings,
             "objects": self.game_objects,
-            "spawnables": self.spawnables
+            "spawnables": self.spawnables,
+            "score": self.score
             }
 
 
@@ -230,8 +231,8 @@ class Level(GameDisplay):
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
             "remaining_subs": self.game_objects["submarine"]["remaining"],
-            "level": self.game.level_number,
-            "score": self.displayed_score # self.game.score
+            "level": self.level_number,
+            "score": self.displayed_score
             }
 
         for message in self.game_state_display:
@@ -259,7 +260,7 @@ class Level(GameDisplay):
 
         available_bombs = max_bombs - existing_bombs
 
-        while self.get_bomb_cost(available_bombs) > self.game.score:
+        while self.get_bomb_cost(available_bombs) > self.score:
                available_bombs -= 1
 
         return available_bombs
@@ -277,7 +278,7 @@ class Level(GameDisplay):
             if ship_pos[0] > 0 and ship_pos[0] < self.width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                self.game.score -= self.get_bomb_cost();
+                self.score -= self.get_bomb_cost();
 
                 newbomb = self.create_moving_object("bomb")
                 self.game_objects["bomb"]["list"].append(newbomb)
@@ -328,8 +329,8 @@ class Level(GameDisplay):
                 bb_bomb = bomb.get_bounding_box()
                 if bb_sub.colliderect(bb_bomb):
                     subpos = sub.get_position()
-                    self.game.score += int((subpos[1] - self.waterline) /
-                                           self.height * 20 + 0.5)
+                    self.score += int((subpos[1] - self.waterline) /
+                                      self.height * 20 + 0.5)
                     self.explosion_sound.play()
                     self.create_animation("explosion", bomb.get_position())
                     sub.deactivate()
@@ -386,12 +387,12 @@ class Level(GameDisplay):
             return
 
         # move the displayed score towards the actual score
-        if self.displayed_score != self.game.score:
+        if self.displayed_score != self.score:
             if self.score_frame_countdown == 0:
                 self.score_frame_countdown = self.score_frames
-                if self.displayed_score < self.game.score:
+                if self.displayed_score < self.score:
                     self.displayed_score += 1
-                elif self.displayed_score > self.game.score:
+                elif self.displayed_score > self.score:
                     self.displayed_score -= 1
             else:
                 self.score_frame_countdown -= 1

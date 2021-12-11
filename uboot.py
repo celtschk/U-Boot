@@ -93,15 +93,13 @@ class Game:
 
                 # play the game
                 if action == "play":
-                    self.level_number = 1;
-                    self.score = 0
-                    level = Level(self)
+                    #self.score = 0
+                    level = Level(self, Level.initial_state())
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:
                         save_state = savefile["game"]
-                        self.score = save_state["score"]
-                        self.level_number = save_state["level_number"]
+                        #self.score = save_state["score"]
                         level = Level(self, save_state)
 
                 if "debug" in settings.__dict__:
@@ -111,8 +109,8 @@ class Game:
                     result = level.execute()
                     if result != Level.LEVEL_CLEARED:
                         break
-                    self.level_number += 1
-                    level = Level(self)
+                    state = level.get_state()
+                    level = Level(self, Level.initial_state(state))
 
                 # stop the background music
                 if self.play_music:
@@ -121,8 +119,7 @@ class Game:
                 if result == level.LEVEL_SAVE:
                     save_file = resources.get_save_file()
                     save_state = level.get_state();
-                    save_state["level_number"] = self.level_number
-                    save_state["score"] = self.score
+                    #save_state["score"] = self.score
                     with shelve.open(str(save_file), "c") as savefile:
                         savefile["game"] = save_state
 
