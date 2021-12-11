@@ -18,6 +18,13 @@ class Level(GameDisplay):
 
     @staticmethod
     def initial_state(old_state = {}):
+        """
+        Generates the initial state of a level.
+
+        The optional argument old_state is the state the previous
+        level ended with. If omitted or empty, the oinitial state of
+        the first level is generated.
+        """
         level_number = old_state.get("level_number", 0) + 1
 
         object_settings = deepcopy(settings.objects)
@@ -36,6 +43,9 @@ class Level(GameDisplay):
 
 
     def __init__(self, game, old_state):
+        """
+        Initializes a level based on the passed state
+        """
         super().__init__(game)
 
         self.width = game.screen.get_width()
@@ -148,6 +158,10 @@ class Level(GameDisplay):
 
 
     def get_state(self):
+        """
+        Get the current state of the level. The data is used in the
+        save file, as well as to pass on data to the next level.
+        """
         return {
             "level_number": self.level_number,
             "object_settings": self.object_settings,
@@ -374,6 +388,10 @@ class Level(GameDisplay):
 
 
     def no_objects_remaining(self, obj_type):
+        """
+        Return True if all objects of the given type have already beem
+        generated.
+        """
         obj_info = self.game_objects[obj_type];
         return obj_info.get("remaining", 1)==0 and len(obj_info["list"])==0
 

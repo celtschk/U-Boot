@@ -11,6 +11,9 @@ class Menu(GameDisplay):
     def __init__(self, game,
                  menuspec, c_background, c_text, c_highlight, font,
                  params = {}):
+        """
+        Initialize the menu
+        """
         super().__init__(game)
         self.menuspec = menuspec
         self.c_background = c_background
@@ -22,6 +25,9 @@ class Menu(GameDisplay):
 
 
     def draw(self):
+        """
+        Draw the menu
+        """
         screen = self.game.screen
         screen.fill(self.c_background)
 
