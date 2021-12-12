@@ -80,6 +80,9 @@ class Level(GameDisplay):
                 if "total_count" in obj:
                     object_info["remaining"] = obj["total_count"]
 
+                if "to_destroy" in obj:
+                    object_info["to_destroy"] = obj["to_destroy"]
+
             # create the ship
             self.ship = self.create_moving_object("ship")
             self.game_objects["ship"] = { "list": [self.ship] }
@@ -137,7 +140,7 @@ class Level(GameDisplay):
                 ),
 
             resources.MessageData(
-                message = "Remaining submarines: {remaining_subs}",
+                message = "Remaining submarines: {to_destroy}/{remaining_subs}",
                 position = pygame.Vector2(20+self.width//2, 50),
                 colour = self.c_text,
                 font = self.game.font
@@ -244,7 +247,8 @@ class Level(GameDisplay):
             "remaining_bombs": self.game_objects["bomb"]["remaining"],
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
-            "remaining_subs": self.game_objects["submarine"]["remaining"],
+            "remaining_subs": self.objects_remaining("submarine"),
+            "to_destroy": self.game_objects["submarine"]["to_destroy"],
             "level": self.level_number,
             "score": self.displayed_score
             }
@@ -349,6 +353,8 @@ class Level(GameDisplay):
                     self.create_animation("explosion", bomb.get_position())
                     sub.deactivate()
                     bomb.deactivate()
+                    if self.game_objects["submarine"]["to_destroy"] > 0:
+                        self.game_objects["submarine"]["to_destroy"] -= 1;
 
 
     def handle_event(self, event):
@@ -387,13 +393,13 @@ class Level(GameDisplay):
                 self.quit(self.LEVEL_SAVE)
 
 
-    def no_objects_remaining(self, obj_type):
+    def objects_remaining(self, obj_type):
         """
         Return True if all objects of the given type have already beem
         generated.
         """
         obj_info = self.game_objects[obj_type];
-        return obj_info.get("remaining", 1)==0 and len(obj_info["list"])==0
+        return obj_info.get("remaining", 1) + len(obj_info["list"])
 
 
     def update_state(self):
@@ -427,12 +433,14 @@ class Level(GameDisplay):
         for object in self.game_objects.values():
             object["list"] = [obj for obj in object["list"] if obj.is_active()]
 
-        # if the last submarine is gone, clear the level
-        if self.no_objects_remaining("submarine"):
-            self.quit(self.LEVEL_CLEARED)
-        #otherwise, if all bombs have been used up, fail the level
-        elif self.no_objects_remaining("bomb"):
-            self.quit(self.LEVEL_FAILED)
+        # determine whether to quit the level
+        submarines_remaining = self.objects_remaining("submarine")
+        submarines_to_destroy = self.game_objects["submarine"]["to_destroy"]
+        if submarines_remaining == 0:
+            if submarines_to_destroy > 0:
+                self.quit(self.LEVEL_FAILED)
+            else:
+                self.quit(self.LEVEL_CLEARED)
 
         # spawn new spawnable objects at random
         self.spawn_objects()

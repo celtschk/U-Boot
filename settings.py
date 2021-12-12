@@ -93,6 +93,7 @@ objects = {
             },
         "max_count": 10,
         "total_count": 50,
+        "to_destroy": 30,
         "depth": {
             "min": 0.1,
             "max": 0.97
