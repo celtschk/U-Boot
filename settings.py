@@ -19,12 +19,17 @@ fps = 60
 # frames per score animation update
 score_frames = 6
 
+# number of frames to show the final message of each level
+level_display_frames = 5*fps;
+
 # colours used in the game
 colours = {
     "sky": "sky blue",
     "water": "blue",
     "text": "black",
     "pause": "white",
+    "cleared": "yellow",
+    "failed": "orange",
     "menu background": "dark blue",
     "menu option": "white",
     "menu highlight": "red"

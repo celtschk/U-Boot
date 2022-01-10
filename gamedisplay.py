@@ -58,12 +58,29 @@ class GameDisplay:
         pass
 
 
+    def ready_to_quit(self):
+        """
+        Returns True if the level can actually be quit.
+
+        This method always returns True. It can be overridden by a
+        derived class to allow delayed quitting, e.g. to display a
+        message.
+
+        When quit() has been called, but this function returns False,
+        the event loop still continues, but self.running is false.
+
+        This function is only called from the event loop if
+        self.running == False.
+        """
+        return True
+
+
     def execute(self):
         """
         The main loop
         """
         self.running = True
-        while self.running:
+        while self.running or not self.ready_to_quit():
             self.draw()
             self.game.clock.tick(self.game.fps)
             for event in pygame.event.get():

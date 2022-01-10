@@ -60,6 +60,8 @@ class Level(GameDisplay):
         self.spawnables = old_state["spawnables"]
 
         self.score_frame_countdown = self.score_frames = settings.score_frames
+        self.level_display_frames = settings.level_display_frames
+        self.final_display_frames = 0
 
         if self.game_objects:
             self.ship = self.game_objects["ship"]["list"][0]
@@ -107,6 +109,12 @@ class Level(GameDisplay):
         # colour of the pause text display
         self.c_pause = resources.get_colour("pause")
 
+        # colour of the level cleared text display
+        self.c_cleared = resources.get_colour("cleared")
+
+        # colour of the level failed text display
+        self.c_failed = resources.get_colour("failed")
+
         # The game is initially not paused
         self.paused = False
 
@@ -153,6 +161,22 @@ class Level(GameDisplay):
             message = "--- PAUSED ---",
             position = pygame.Vector2(self.width//2, self.height//2),
             colour = self.c_pause,
+            font = self.game.font,
+            origin = pygame.Vector2(0.5,0.5))
+
+        # message for cleared level
+        self.cleared_msg = resources.MessageData(
+            message = "*** LEVEL CLEARED ***",
+            position = pygame.Vector2(self.width//2, self.height//2 - 32),
+            colour = self.c_cleared,
+            font = self.game.font,
+            origin = pygame.Vector2(0.5,0.5))
+
+        # message for failed level
+        self.failed_msg = resources.MessageData(
+            message = "*** LEVEL FAILED ***",
+            position = pygame.Vector2(self.width//2, self.height//2 - 32),
+            colour = self.c_failed,
             font = self.game.font,
             origin = pygame.Vector2(0.5,0.5))
 
@@ -260,6 +284,13 @@ class Level(GameDisplay):
         if self.paused:
             self.paused_msg.write(screen)
 
+        # show final message as appropriate:
+        if not self.running:
+            if self.status == self.LEVEL_CLEARED:
+                self.cleared_msg.write(screen)
+            elif self.status == self.LEVEL_FAILED:
+                self.failed_msg.write(screen)
+
         pygame.display.flip()
 
 
@@ -365,8 +396,9 @@ class Level(GameDisplay):
             return True
 
         if event.type == pygame.KEYDOWN:
-            # Game actions are only processed if the game is not paused
-            if not self.paused:
+            # Game actions are only processed if the game is running
+            # and not paused
+            if self.running and not self.paused:
                 # Down arrow drops a bomb
                 if event.key == pygame.K_DOWN:
                     self.drop_bomb()
@@ -421,6 +453,18 @@ class Level(GameDisplay):
             else:
                 self.score_frame_countdown -= 1
 
+        # if the game is no longer running, decrease the final frame
+        # counter if appropriate, advance any remaining animations,
+        # and then return immediately (so that game objects no longer
+        # move, and score is no longer collected)
+        if not self.running:
+            if self.final_display_frames > 0:
+                self.final_display_frames -=1
+            for animation_type in settings.animations:
+                for obj in self.game_objects[animation_type]["list"]:
+                    obj.update(self.game.clock.get_time()/1000)
+            return
+
         # move all objects and advance all animations
         for obj_data in self.game_objects.values():
             for obj in obj_data["list"]:
@@ -437,6 +481,7 @@ class Level(GameDisplay):
         submarines_remaining = self.objects_remaining("submarine")
         submarines_to_destroy = self.game_objects["submarine"]["to_destroy"]
         if submarines_remaining == 0:
+            self.final_display_frames = self.level_display_frames
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
             else:
@@ -444,3 +489,7 @@ class Level(GameDisplay):
 
         # spawn new spawnable objects at random
         self.spawn_objects()
+
+
+    def ready_to_quit(self):
+        return self.final_display_frames == 0
