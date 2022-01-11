@@ -6,6 +6,18 @@ Explosion sound:
     Source: https://soundbible.com/1793-Flashbang.html
     License: Public Domain
 
+Fanfare sound:
+    File: Short_triumphal_fanfare-John_Stracke-815794903.wav
+    Author: John Stracke
+    Source: https://soundbible.com/1823-Winning-Triumphal-Fanfare.html
+    License: Creative Commons Attribution 3.0
+
+Sad trombone sound:
+    File: Sad_Trombone-Joe_Lamb-665429450.wav
+    Author: Joe Lamb
+    Source: https://soundbible.com/1830-Sad-Trombone.html
+    License: Creative Commons Attribution 3.0
+
 Background music:
     File: The Enemy.mp3
     Author: Alexander Nakarada.

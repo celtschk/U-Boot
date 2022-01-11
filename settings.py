@@ -46,6 +46,14 @@ sounds = {
     "explosion": {
         "filename": "Flashbang-Kibblesbob-899170896.wav",
         "volume": 0.2
+        },
+    "winning": {
+        "filename": "Short_triumphal_fanfare-John_Stracke-815794903.wav",
+        "volume": 0.5
+        },
+    "losing": {
+        "filename": "Sad_Trombone-Joe_Lamb-665429450.wav",
+        "volume": 0.5
         }
     }
 

@@ -106,6 +106,7 @@ class Game:
                     settings.debug["level"] = level
 
                 while True:
+                    pygame.mixer.music.unpause()
                     result = level.execute()
                     if result != Level.LEVEL_CLEARED:
                         break

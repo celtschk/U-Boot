@@ -182,6 +182,8 @@ class Level(GameDisplay):
 
         # sound effects
         self.explosion_sound = resources.get_sound("explosion")
+        self.winning_sound = resources.get_sound("winning")
+        self.losing_sound = resources.get_sound("losing")
 
 
     def get_state(self):
@@ -482,10 +484,13 @@ class Level(GameDisplay):
         submarines_to_destroy = self.game_objects["submarine"]["to_destroy"]
         if submarines_remaining == 0:
             self.final_display_frames = self.level_display_frames
+            pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
+                self.losing_sound.play()
             else:
                 self.quit(self.LEVEL_CLEARED)
+                self.winning_sound.play()
 
         # spawn new spawnable objects at random
         self.spawn_objects()
