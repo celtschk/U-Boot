@@ -141,6 +141,13 @@ level_updates = {
                 "max": 0.4
                 }
             }
+        },
+    3:  {
+        "submarine": {
+            "depth": {
+                "max": 0.6
+                }
+            }
         }
     }
 
