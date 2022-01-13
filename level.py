@@ -382,7 +382,7 @@ class Level(GameDisplay):
                     subpos = sub.get_position()
                     self.score += int((subpos[1] - self.waterline) /
                                       self.height * 20 + 0.5)
-                    self.explosion_sound.play()
+                    self.play(self.explosion_sound)
                     self.create_animation("explosion", bomb.get_position())
                     sub.deactivate()
                     bomb.deactivate()
@@ -487,10 +487,10 @@ class Level(GameDisplay):
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
-                self.losing_sound.play()
+                self.play(self.losing_sound)
             else:
                 self.quit(self.LEVEL_CLEARED)
-                self.winning_sound.play()
+                self.play(self.winning_sound)
 
         # spawn new spawnable objects at random
         self.spawn_objects()
@@ -498,3 +498,11 @@ class Level(GameDisplay):
 
     def ready_to_quit(self):
         return self.final_display_frames == 0
+
+
+    def play(self, sound):
+        """
+        Play a sound only if sounds are enabled
+        """
+        if self.game.play_sound:
+            sound.play()

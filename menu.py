@@ -9,7 +9,8 @@ class Menu(GameDisplay):
     """
 
     def __init__(self, game,
-                 menuspec, c_background, c_text, c_highlight, font,
+                 menuspec, selection,
+                 c_background, c_text, c_highlight, font,
                  params = {}):
         """
         Initialize the menu
@@ -21,7 +22,7 @@ class Menu(GameDisplay):
         self.c_highlight = c_highlight
         self.font = font
         self.params = params
-        self.selection = 0
+        self.selection = selection
 
 
     def draw(self):
