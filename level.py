@@ -504,5 +504,5 @@ class Level(GameDisplay):
         """
         Play a sound only if sounds are enabled
         """
-        if self.game.play_sound:
+        if self.game.options["sound"]:
             sound.play()

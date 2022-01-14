@@ -41,14 +41,44 @@ class Game:
             { "text": "Quit", "action": "quit" }
             ]
 
-        self.options_menu = [
-            { "text": "{allow_music} music", "action": "music" },
-            { "text": "{allow_sound} sound effects", "action": "sound" },
-            { "text": "Return to main menu", "action": "menu" }
-            ]
+        self.options = {
+            "music": True,
+            "sound": True
+            }
 
-        self.play_music = True
-        self.play_sound = True
+        def toggle(option):
+            def do_it():
+                self.options[option] = not self.options[option]
+            return do_it
+
+        def text_enabled(option):
+            def value():
+                if self.options[option]:
+                    return "Enabled"
+                else:
+                    return "Disabled"
+            return value;
+
+        self.options_menu = [
+            {
+                "text": "Music: {allow_music}",
+                "action": toggle("music"),
+                "values": {
+                    "allow_music": text_enabled("music")
+                    }
+                },
+            {
+                "text": "Sound effects: {allow_sound}",
+                "action": toggle("sound"),
+                "values": {
+                    "allow_sound": text_enabled("sound")
+                    }
+                },
+            {
+                "text": "Return to main menu",
+                "action": "menu"
+                }
+            ]
 
 
     def toggle_fullscreen(self):
@@ -67,7 +97,6 @@ class Game:
         Run the game
         """
         action = "menu"
-        highlight_option = 0
         while action != "quit":
             if action == "menu" or action == "options":
                 if action == "menu":
@@ -76,32 +105,18 @@ class Game:
                     displayed_menu = self.options_menu
                 menu = Menu(self,
                             displayed_menu,
-                            highlight_option,
                             resources.get_colour("menu background"),
                             resources.get_colour("menu option"),
                             resources.get_colour("menu highlight"),
-                            self.font,
-                            {"allow_music":
-                                 ["Enable", "Disable"][self.play_music],
-                             "allow_sound":
-                                 ["Enable", "Disable"][self.play_sound]})
+                            self.font)
                 menu.execute()
                 if menu.terminated():
                     action = "quit"
                 else:
                     action = menu.get_selected_action()
-                    highlight_option = 0
-            elif action == "music":
-                self.play_music = not self.play_music
-                action = "options"
-                highlight_option = 0
-            elif action == "sound":
-                self.play_sound = not self.play_sound
-                action = "options"
-                highlight_option = 1
             elif action == "play" or action == "resume":
                 # start the backkground music in infinte loop
-                if self.play_music:
+                if self.options["music"]:
                     pygame.mixer.music.play(-1)
 
                 # play the game
@@ -127,7 +142,7 @@ class Game:
                     level = Level(self, Level.initial_state(state))
 
                 # stop the background music
-                if self.play_music:
+                if self.options["music"]:
                     pygame.mixer.music.stop()
 
                 if result == level.LEVEL_SAVE:
@@ -143,7 +158,6 @@ class Game:
                 else:
                     # return to the menu
                     action = "menu"
-                    highlight_option = 0
 
 
 if __name__=='__main__':

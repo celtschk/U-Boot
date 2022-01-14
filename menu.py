@@ -9,9 +9,7 @@ class Menu(GameDisplay):
     """
 
     def __init__(self, game,
-                 menuspec, selection,
-                 c_background, c_text, c_highlight, font,
-                 params = {}):
+                 menuspec, c_background, c_text, c_highlight, font):
         """
         Initialize the menu
         """
@@ -21,8 +19,7 @@ class Menu(GameDisplay):
         self.c_text = c_text
         self.c_highlight = c_highlight
         self.font = font
-        self.params = params
-        self.selection = selection
+        self.selection = 0
 
 
     def draw(self):
@@ -44,8 +41,12 @@ class Menu(GameDisplay):
             else:
                 colour = self.c_text
 
+            values = option.get("values", {})
+
+            params = { key: fn() for key, fn in values.items() }
+
             text = resources.MessageData(
-                message = option["text"].format(**self.params),
+                message = option["text"].format(**params),
                 position = (center_x, current_line),
                 colour = colour,
                 font = self.font,
@@ -79,7 +80,11 @@ class Menu(GameDisplay):
 
             # Enter selects an option, thus quits the menu
             elif event.key == pygame.K_RETURN:
-                self.quit()
+                action = self.menuspec[self.selection]["action"]
+                if isinstance(action, str):
+                    self.quit()
+                else:
+                    action()
 
 
     def get_selected_action(self):
