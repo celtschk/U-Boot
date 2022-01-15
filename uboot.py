@@ -34,7 +34,7 @@ class Game:
         # music
         resources.load_music("background")
 
-        self.main_menu = [
+        main_menu = [
             { "text": "Play new game", "action": "play" },
             { "text": "Resume saved game", "action": "resume" },
             { "text": "Options", "action": "options" },
@@ -59,7 +59,7 @@ class Game:
                     return "Disabled"
             return value;
 
-        self.options_menu = [
+        options_menu = [
             {
                 "text": "Music: {allow_music}",
                 "action": toggle("music"),
@@ -79,6 +79,11 @@ class Game:
                 "action": "menu"
                 }
             ]
+
+        self.menus = {
+            "menu": main_menu,
+            "options": options_menu
+            }
 
 
     def toggle_fullscreen(self):
@@ -120,28 +125,28 @@ class Game:
         return result, level.get_state()
 
 
+    def display_menu(self, menu_name):
+        menu = Menu(self,
+                    self.menus[menu_name],
+                    resources.get_colour("menu background"),
+                    resources.get_colour("menu option"),
+                    resources.get_colour("menu highlight"),
+                    self.font)
+        menu.execute()
+        if menu.terminated():
+            return "quit"
+        else:
+            return menu.get_selected_action()
+
+
     def run(self):
         """
         Run the game
         """
         action = "menu"
         while action != "quit":
-            if action == "menu" or action == "options":
-                if action == "menu":
-                    displayed_menu = self.main_menu
-                elif action == "options":
-                    displayed_menu = self.options_menu
-                menu = Menu(self,
-                            displayed_menu,
-                            resources.get_colour("menu background"),
-                            resources.get_colour("menu option"),
-                            resources.get_colour("menu highlight"),
-                            self.font)
-                menu.execute()
-                if menu.terminated():
-                    action = "quit"
-                else:
-                    action = menu.get_selected_action()
+            if action in self.menus.keys():
+                action = self.display_menu(action)
             elif action == "play" or action == "resume":
                 # play the game
                 if action == "play":
