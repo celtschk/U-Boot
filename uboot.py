@@ -92,6 +92,34 @@ class Game:
             pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 
+    def play(self, state):
+        """
+        Actually play the game
+        """
+        # start the backkground music in infinte loop
+        if self.options["music"]:
+            pygame.mixer.music.play(-1)
+
+        level = Level(self, state)
+
+        if "debug" in settings.__dict__:
+            settings.debug["level"] = level
+
+        while True:
+            pygame.mixer.music.unpause()
+            result = level.execute()
+            if result != Level.LEVEL_CLEARED:
+                break
+            state = level.get_state()
+            level = Level(self, Level.initial_state(state))
+
+        # stop the background music
+        if self.options["music"]:
+            pygame.mixer.music.stop()
+
+        return result, level.get_state()
+
+
     def run(self):
         """
         Run the game
@@ -115,44 +143,22 @@ class Game:
                 else:
                     action = menu.get_selected_action()
             elif action == "play" or action == "resume":
-                # start the backkground music in infinte loop
-                if self.options["music"]:
-                    pygame.mixer.music.play(-1)
-
                 # play the game
                 if action == "play":
-                    #self.score = 0
-                    level = Level(self, Level.initial_state())
+                    state = Level.initial_state()
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:
-                        save_state = savefile["game"]
-                        #self.score = save_state["score"]
-                        level = Level(self, save_state)
+                        state = savefile["game"]
 
-                if "debug" in settings.__dict__:
-                    settings.debug["level"] = level
+                result, state = self.play(state)
 
-                while True:
-                    pygame.mixer.music.unpause()
-                    result = level.execute()
-                    if result != Level.LEVEL_CLEARED:
-                        break
-                    state = level.get_state()
-                    level = Level(self, Level.initial_state(state))
-
-                # stop the background music
-                if self.options["music"]:
-                    pygame.mixer.music.stop()
-
-                if result == level.LEVEL_SAVE:
+                if result == Level.LEVEL_SAVE:
                     save_file = resources.get_save_file()
-                    save_state = level.get_state();
-                    #save_state["score"] = self.score
                     with shelve.open(str(save_file), "c") as savefile:
-                        savefile["game"] = save_state
+                        savefile["game"] = state
 
-                if level.terminated():
+                if result == Level.TERMINATE:
                     # quit the game on request
                     action = "quit"
                 else:
