@@ -124,6 +124,27 @@ objects = {
             },
         "max_count": 15,
         "total_count": 100
+        },
+    "whale": {
+        "filename": "whale.png",
+        "origin": (0,0),
+        "movement": {
+            "start": ("right", "depth"),
+            "speed": {
+                "min": 0.01,
+                "max": 0.05
+                },
+            "direction": (-1,0),
+            "repeat": False
+            },
+        "max_count": 10,
+        "total_count": 50,
+        "to_destroy": 30,
+        "depth": {
+            "min": 0.1,
+            "max": 0.97
+            },
+        "spawn_rate": 1/20 # average spawns per second
         }
     }
 
@@ -139,6 +160,11 @@ hit_info = {
 
         # Whether a hit results in a score
         "score": True
+        },
+    ("whale", "bomb"): {
+        "animation": "explosion",
+        "sound": "explosion",
+        "score": False
         }
     }
 
@@ -148,6 +174,9 @@ level_updates = {
             "depth": {
                 "max": 0.2
                 }
+            },
+        "whale": {
+            "max_count": 0
             }
         },
     2:  {
