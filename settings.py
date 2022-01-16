@@ -47,6 +47,10 @@ sounds = {
         "filename": "Flashbang-Kibblesbob-899170896.wav",
         "volume": 0.2
         },
+    "whale explosion": {
+        "filename": "Torpedo Impact-SoundBible.com-765913562.wav",
+        "volume": 1
+        },
     "winning": {
         "filename": "Short_triumphal_fanfare-John_Stracke-815794903.wav",
         "volume": 0.5
@@ -163,7 +167,7 @@ hit_info = {
         },
     ("whale", "bomb"): {
         "animation": "explosion",
-        "sound": "explosion",
+        "sound": "whale explosion",
         "score": False
         }
     }
