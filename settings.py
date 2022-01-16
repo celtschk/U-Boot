@@ -127,6 +127,21 @@ objects = {
         }
     }
 
+# information about possible hits
+hit_info = {
+    ("submarine", "bomb"): {
+        # Which animation to play on hit. Animations are always played
+        # at the position of the second object
+        "animation": "explosion",
+
+        # Which sound to play on hit.
+        "sound": "explosion",
+
+        # Whether a hit results in a score
+        "score": True
+        }
+    }
+
 level_updates = {
     1:  {
         "submarine": {

@@ -181,9 +181,9 @@ class Level(GameDisplay):
             origin = pygame.Vector2(0.5,0.5))
 
         # sound effects
-        self.explosion_sound = resources.get_sound("explosion")
-        self.winning_sound = resources.get_sound("winning")
-        self.losing_sound = resources.get_sound("losing")
+        self.sounds = {}
+        for sound in settings.sounds:
+            self.sounds[sound] = resources.get_sound(sound)
 
 
     def get_state(self):
@@ -374,20 +374,24 @@ class Level(GameDisplay):
         Check if any bomb hit any submarine, and if so, remove both
         and update score
         """
-        for sub in self.game_objects["submarine"]["list"]:
-            for bomb in self.game_objects["bomb"]["list"]:
-                bb_sub = sub.get_bounding_box()
-                bb_bomb = bomb.get_bounding_box()
-                if bb_sub.colliderect(bb_bomb):
-                    subpos = sub.get_position()
-                    self.score += int((subpos[1] - self.waterline) /
-                                      self.height * 20 + 0.5)
-                    self.play(self.explosion_sound)
-                    self.create_animation("explosion", bomb.get_position())
-                    sub.deactivate()
-                    bomb.deactivate()
-                    if self.game_objects["submarine"]["to_destroy"] > 0:
-                        self.game_objects["submarine"]["to_destroy"] -= 1;
+        for obj_pair, info in settings.hit_info.items():
+            obj1_name, obj2_name = obj_pair
+            for obj1 in self.game_objects[obj1_name]["list"]:
+                for obj2 in self.game_objects[obj2_name]["list"]:
+                    bb1 = obj1.get_bounding_box()
+                    bb2 = obj2.get_bounding_box()
+                    if bb1.colliderect(bb2):
+                        subpos = obj1.get_position()
+                        if info["score"]:
+                            self.score += int((subpos[1] - self.waterline) /
+                                              self.height * 20 + 0.5)
+                        self.play(self.sounds[info["sound"]])
+                        self.create_animation(info["animation"],
+                                              obj2.get_position())
+                        obj1.deactivate()
+                        obj2.deactivate()
+                        if self.game_objects[obj1_name]["to_destroy"] > 0:
+                            self.game_objects[obj1_name]["to_destroy"] -= 1;
 
 
     def handle_event(self, event):
@@ -487,10 +491,10 @@ class Level(GameDisplay):
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
-                self.play(self.losing_sound)
+                self.play(self.sounds["losing"])
             else:
                 self.quit(self.LEVEL_CLEARED)
-                self.play(self.winning_sound)
+                self.play(self.sounds["winning"])
 
         # spawn new spawnable objects at random
         self.spawn_objects()
