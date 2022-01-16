@@ -180,11 +180,6 @@ class Level(GameDisplay):
             font = self.game.font,
             origin = pygame.Vector2(0.5,0.5))
 
-        # sound effects
-        self.sounds = {}
-        for sound in settings.sounds:
-            self.sounds[sound] = resources.get_sound(sound)
-
 
     def get_state(self):
         """
@@ -385,7 +380,7 @@ class Level(GameDisplay):
                         if info["score"]:
                             self.score += int((subpos[1] - self.waterline) /
                                               self.height * 20 + 0.5)
-                        self.play(self.sounds[info["sound"]])
+                        self.play(info["sound"])
                         self.create_animation(info["animation"],
                                               obj2.get_position())
                         obj1.deactivate()
@@ -491,10 +486,10 @@ class Level(GameDisplay):
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
-                self.play(self.sounds["losing"])
+                self.play("losing")
             else:
                 self.quit(self.LEVEL_CLEARED)
-                self.play(self.sounds["winning"])
+                self.play("winning")
 
         # spawn new spawnable objects at random
         self.spawn_objects()
@@ -504,9 +499,10 @@ class Level(GameDisplay):
         return self.final_display_frames == 0
 
 
-    def play(self, sound):
+    def play(self, sound_name):
         """
         Play a sound only if sounds are enabled
         """
+        sound = resources.get_sound(sound_name)
         if self.game.options["sound"]:
             sound.play()
