@@ -180,7 +180,9 @@ level_updates = {
                 }
             },
         "whale": {
-            "max_count": 0
+            "depth": {
+                "min": 0.25
+                }
             }
         },
     2:  {
