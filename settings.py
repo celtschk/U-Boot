@@ -24,12 +24,22 @@ level_display_frames = 5*fps;
 
 # colours used in the game
 colours = {
+    # background colours
     "sky": "sky blue",
     "water": "blue",
+
+    # game text colours
     "text": "black",
     "pause": "white",
     "cleared": "yellow",
     "failed": "orange",
+    "good news": "dark green",
+    "bad news": "red",
+    "no bombs": "bad news",
+    "no more subs to destroy": "good news",
+    "not enough subs": "bad news",
+
+    # menu colors
     "menu background": "dark blue",
     "menu option": "white",
     "menu highlight": "red"

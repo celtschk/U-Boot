@@ -216,7 +216,11 @@ class MessageData:
         if string == self.cache[0]:
             text = self.cache[1]
         else:
-            text = self.font.render(string, True, self.colour)
+            if callable(self.colour):
+                colour = self.colour(data)
+            else:
+                colour = self.colour
+            text = self.font.render(string, True, colour)
             self.cache = (string, text)
 
         textsize = (text.get_width(), text.get_height())

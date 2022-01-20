@@ -103,8 +103,11 @@ class Level(GameDisplay):
         # water colour
         self.c_water = resources.get_colour("water")
 
-        # colour of the game state display
+        # colours of the game state display
         self.c_text = resources.get_colour("text")
+        self.c_no_bombs = resources.get_colour("no bombs")
+        self.c_no_destroy = resources.get_colour("no more subs to destroy")
+        self.c_not_enough_subs = resources.get_colour("not enough subs")
 
         # colour of the pause text display
         self.c_pause = resources.get_colour("pause")
@@ -118,20 +121,27 @@ class Level(GameDisplay):
         # The game is initially not paused
         self.paused = False
 
+        def bomb_text_colour(data):
+            if data["available_bombs"] > 0:
+                return self.c_text
+            else:
+                return self.c_no_bombs
+
+        def submarine_text_colour(data):
+            if data["to_destroy"] == 0:
+                return self.c_no_destroy
+            elif data["to_destroy"] > data["remaining_subs"]:
+                return self.c_not_enough_subs
+            else:
+                return self.c_text
+
         self.game_state_display = [
             resources.MessageData(
                 message = "Bombs: {remaining_bombs} ({available_bombs} available)",
                 position = pygame.Vector2(20, 20),
-                colour = self.c_text,
+                colour = bomb_text_colour,
                 font = self.game.font
                 ),
-
-            #resources.MessageData(
-            #    message = "Bombs available: {available_bombs}",
-            #    position = pygame.Vector2(20, 50),
-            #    colour = self.c_text,
-            #    font = self.game.font
-            #    ),
 
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
@@ -150,7 +160,7 @@ class Level(GameDisplay):
             resources.MessageData(
                 message = "Remaining submarines: {to_destroy}/{remaining_subs}",
                 position = pygame.Vector2(20+self.width//2, 50),
-                colour = self.c_text,
+                colour = submarine_text_colour,
                 font = self.game.font
                 )
 
