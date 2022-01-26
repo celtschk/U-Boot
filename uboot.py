@@ -125,13 +125,14 @@ class Game:
         return result, level.get_state()
 
 
-    def display_menu(self, menu_name):
+    def display_menu(self, menu_name, message):
         menu = Menu(self,
                     self.menus[menu_name],
                     resources.get_colour("menu background"),
                     resources.get_colour("menu option"),
                     resources.get_colour("menu highlight"),
-                    self.font)
+                    self.font,
+                    message)
         menu.execute()
         if menu.terminated():
             return "quit"
@@ -144,9 +145,11 @@ class Game:
         Run the game
         """
         action = "menu"
+        message = None
         while action != "quit":
             if action in self.menus.keys():
-                action = self.display_menu(action)
+                action = self.display_menu(action, message)
+                message = None
             elif action == "play" or action == "resume":
                 # play the game
                 if action == "play":
@@ -154,21 +157,25 @@ class Game:
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:
-                        state = savefile["game"]
+                        state = savefile.get("game", None)
 
-                result, state = self.play(state)
-
-                if result == Level.LEVEL_SAVE:
-                    save_file = resources.get_save_file()
-                    with shelve.open(str(save_file), "c") as savefile:
-                        savefile["game"] = state
-
-                if result == Level.TERMINATE:
-                    # quit the game on request
-                    action = "quit"
-                else:
-                    # return to the menu
+                if state is None:
+                    message = "Did not find saved game"
                     action = "menu"
+                else:
+                    result, state = self.play(state)
+
+                    if result == Level.LEVEL_SAVE:
+                        save_file = resources.get_save_file()
+                        with shelve.open(str(save_file), "c") as savefile:
+                            savefile["game"] = state
+
+                    if result == Level.TERMINATE:
+                        # quit the game on request
+                        action = "quit"
+                    else:
+                        # return to the menu
+                        action = "menu"
 
 
 if __name__=='__main__':

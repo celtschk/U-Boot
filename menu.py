@@ -9,7 +9,8 @@ class Menu(GameDisplay):
     """
 
     def __init__(self, game,
-                 menuspec, c_background, c_text, c_highlight, font):
+                 menuspec, c_background, c_text, c_highlight, font,
+                 message = None):
         """
         Initialize the menu
         """
@@ -20,6 +21,7 @@ class Menu(GameDisplay):
         self.c_highlight = c_highlight
         self.font = font
         self.selection = 0
+        self.message = message
 
 
     def draw(self):
@@ -32,6 +34,7 @@ class Menu(GameDisplay):
         line_height = 50
         center_x = screen.get_width()//2
         center_y = screen.get_height()//2
+
 
         current_line = center_y - (len(self.menuspec)-1)*line_height/2
 
@@ -57,6 +60,19 @@ class Menu(GameDisplay):
 
             current_line += line_height
 
+        if self.message is not None:
+            current_line += line_height
+
+            text = resources.MessageData(
+                message = self.message,
+                position = (center_x, current_line),
+                colour = self.c_highlight,
+                font = self.font,
+                origin = (0.5, 0.5)
+                )
+
+            text.write(screen)
+
         pygame.display.flip()
 
 
@@ -68,6 +84,9 @@ class Menu(GameDisplay):
             return True
 
         if event.type == pygame.KEYDOWN:
+            # If there's a message, any keypress makes it disappear
+            self.message = None
+
             # Up and down navigate the menu
             if event.key == pygame.K_UP:
                 if self.selection == 0:
