@@ -131,6 +131,7 @@ class Game:
                     resources.get_colour("menu background"),
                     resources.get_colour("menu option"),
                     resources.get_colour("menu highlight"),
+                    resources.get_colour("menu message"),
                     self.font,
                     message)
         menu.execute()
@@ -169,6 +170,7 @@ class Game:
                         save_file = resources.get_save_file()
                         with shelve.open(str(save_file), "c") as savefile:
                             savefile["game"] = state
+                        message = "Game saved"
 
                     if result == Level.TERMINATE:
                         # quit the game on request

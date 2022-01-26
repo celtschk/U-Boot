@@ -9,7 +9,7 @@ class Menu(GameDisplay):
     """
 
     def __init__(self, game,
-                 menuspec, c_background, c_text, c_highlight, font,
+                 menuspec, c_background, c_text, c_highlight, c_message, font,
                  message = None):
         """
         Initialize the menu
@@ -19,6 +19,7 @@ class Menu(GameDisplay):
         self.c_background = c_background
         self.c_text = c_text
         self.c_highlight = c_highlight
+        self.c_message = c_message
         self.font = font
         self.selection = 0
         self.message = message
@@ -66,7 +67,7 @@ class Menu(GameDisplay):
             text = resources.MessageData(
                 message = self.message,
                 position = (center_x, current_line),
-                colour = self.c_highlight,
+                colour = self.c_message,
                 font = self.font,
                 origin = (0.5, 0.5)
                 )

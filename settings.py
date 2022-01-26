@@ -42,7 +42,8 @@ colours = {
     # menu colors
     "menu background": "dark blue",
     "menu option": "white",
-    "menu highlight": "red"
+    "menu highlight": "red",
+    "menu message": "orange"
     }
 
 # font used in the game
