@@ -376,27 +376,27 @@ class Level(GameDisplay):
 
     def handle_hits(self):
         """
-        Check if any bomb hit any submarine, and if so, remove both
+        Check if any projectile hit any target, and if so, remove both
         and update score
         """
         for obj_pair, info in settings.hit_info.items():
-            obj1_name, obj2_name = obj_pair
-            for obj1 in self.game_objects[obj1_name]["list"]:
-                for obj2 in self.game_objects[obj2_name]["list"]:
-                    bb1 = obj1.get_bounding_box()
-                    bb2 = obj2.get_bounding_box()
+            target_name, projectile_name = obj_pair
+            for target in self.game_objects[target_name]["list"]:
+                for projectile in self.game_objects[projectile_name]["list"]:
+                    bb1 = target.get_bounding_box()
+                    bb2 = projectile.get_bounding_box()
                     if bb1.colliderect(bb2):
-                        subpos = obj1.get_position()
-                        if info["score"]:
-                            self.score += int((subpos[1] - self.waterline) /
+                        targetpos = target.get_position()
+                        if target.is_active() and info["score"]:
+                            self.score += int((targetpos[1] - self.waterline) /
                                               self.height * 20 + 0.5)
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
-                                              obj2.get_position())
-                        obj1.deactivate()
-                        obj2.deactivate()
-                        if self.game_objects[obj1_name]["to_destroy"] > 0:
-                            self.game_objects[obj1_name]["to_destroy"] -= 1;
+                                              projectile.get_position())
+                        target.deactivate()
+                        projectile.deactivate()
+                        if self.game_objects[target_name]["to_destroy"] > 0:
+                            self.game_objects[target_name]["to_destroy"] -= 1;
 
 
     def handle_event(self, event):
