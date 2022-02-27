@@ -85,17 +85,12 @@ class TextScreen(GameDisplay):
                 nonlocal current_hpos
                 nonlocal current_page
 
-                print(f"line feed: {current_vpos=}, {current_hpos=}")
-
                 current_hpos = left
                 current_vpos += linespacing
-
-                print(f"    after: {current_vpos=}, {current_hpos=}")
 
                 # if the next line does not fit on the current page,
                 # commit that page and start a new one
                 if current_vpos + line_height > bottom:
-                    print("new page")
                     self.pages += [current_page]
                     current_page = newpage()
                     current_vpos = top
@@ -103,7 +98,6 @@ class TextScreen(GameDisplay):
             # empty lines at the beginning of a page are ignored
             ignore_empty = True
             for line in block.split("\n"):
-                print(f"{current_vpos=}, {current_hpos=}")
                 # ignore empty lines where apropriate:
                 if line == "":
                     if ignore_empty:
@@ -142,9 +136,7 @@ class TextScreen(GameDisplay):
                         left_index, right_index = index, line.find("@")
                         if right_index == -1:
                             right_index = len(line)
-                        print(f"{index=}, {left_index=}, {right_index=}")
                         while right_index - left_index > 1:
-                            print(f"-> {index=}, {left_index=}, {right_index=}")
                             middle_index = (left_index + right_index) // 2
                             width = self.font.size(line[index:middle_index])[0]
                             if width > textwidth:
@@ -153,16 +145,19 @@ class TextScreen(GameDisplay):
                                 left_index = middle_index
 
                         # if possible, wrap at a space
-                        print(f"{line[index:right_index]=}")
-                        chunk_end = line.rfind(" ", index, right_index)
-                        if chunk_end == -1:
+                        if right_index == len(line):
+                            # got to end of line; no wrap needed
                             chunk_end = right_index
                             spacewrap = False
                         else:
-                            spacewrap = True
+                            chunk_end = line.rfind(" ", index, right_index)
+                            if chunk_end == -1:
+                                chunk_end = right_index
+                                spacewrap = False
+                            else:
+                                spacewrap = True
 
                         # render the text on the page
-                        print(f"{line[index:chunk_end]=}")
                         rendered_chunk = self.font.render(
                             line[index:chunk_end],
                             True,
@@ -177,7 +172,6 @@ class TextScreen(GameDisplay):
                         # when wrapping on a space, that space is skipped
                         if spacewrap:
                             index += 1
-                        print(f"{index=}")
 
                     # finally, move to a new line
                     line_feed()
