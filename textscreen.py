@@ -85,12 +85,17 @@ class TextScreen(GameDisplay):
                 nonlocal current_hpos
                 nonlocal current_page
 
+                print(f"line feed: {current_vpos=}, {current_hpos=}")
+
                 current_hpos = left
                 current_vpos += linespacing
+
+                print(f"    after: {current_vpos=}, {current_hpos=}")
 
                 # if the next line does not fit on the current page,
                 # commit that page and start a new one
                 if current_vpos + line_height > bottom:
+                    print("new page")
                     self.pages += [current_page]
                     current_page = newpage()
                     current_vpos = top
@@ -98,6 +103,7 @@ class TextScreen(GameDisplay):
             # empty lines at the beginning of a page are ignored
             ignore_empty = True
             for line in block.split("\n"):
+                print(f"{current_vpos=}, {current_hpos=}")
                 # ignore empty lines where apropriate:
                 if line == "":
                     if ignore_empty:
@@ -163,7 +169,7 @@ class TextScreen(GameDisplay):
                             self.fg_colour)
                         current_page.blit(rendered_chunk,
                                           (current_hpos, current_vpos))
-                        current_vpos += rendered_chunk.get_width()
+                        current_hpos += rendered_chunk.get_width()
 
                         # continue rendering at chunk_end
                         index = chunk_end
