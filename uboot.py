@@ -1,6 +1,5 @@
 import pygame
 import shelve
-from inspect import cleandoc
 
 # python files from this game
 import settings
@@ -160,46 +159,8 @@ class Game:
                 message = None
             elif action == "help":
                 # show help
-                helptext = cleandoc("""
-                This is a game. The help text has yet to be written.
-
-                This text is only there for testing purposes.
-
-
-                Test.
-                \f
-
-                This is page 2.
-
-                This is a verly long line to test word wrapping. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-                \f
-                Line 1
-                Line 2
-                Line 3
-                Line 4
-                Line 5
-                Line 6
-                Line 7
-                Line 8
-                Line 9
-                Line 10
-                Line 11
-                Line 12
-                Line 13
-                Line 14
-                Line 15
-                Line 16
-                Line 17
-                Line 18
-                Line 19
-                Line 20
-                Line 21
-                Line 22
-                Line 23
-                Line 24
-                Line 25
-                """)
+                with open("helptext.txt") as helpfile:
+                    helptext = helpfile.read()
 
                 helpscreen = TextScreen(self, helptext)
                 helpscreen.execute()
