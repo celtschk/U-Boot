@@ -1,11 +1,13 @@
 import pygame
 import shelve
+from inspect import cleandoc
 
 # python files from this game
 import settings
 import resources
 from menu import Menu
 from level import Level
+from textscreen import TextScreen
 
 class Game:
     "The game"
@@ -31,6 +33,10 @@ class Game:
         self.font = pygame.font.SysFont(settings.font["name"],
                                         settings.font["size"])
 
+        self.paginated_font = pygame.font.SysFont(
+            settings.paginated_font["name"],
+            settings.paginated_font["size"])
+
         # music
         resources.load_music("background")
 
@@ -38,6 +44,7 @@ class Game:
             { "text": "Play new game", "action": "play" },
             { "text": "Resume saved game", "action": "resume" },
             { "text": "Options", "action": "options" },
+            { "text": "Help", "action": "help" },
             { "text": "Quit", "action": "quit" }
             ]
 
@@ -151,6 +158,56 @@ class Game:
             if action in self.menus.keys():
                 action = self.display_menu(action, message)
                 message = None
+            elif action == "help":
+                # show help
+                helptext = cleandoc("""
+                This is a game. The help text has yet to be written.
+
+                This text is only there for testing purposes.
+
+
+                Test.
+                \f
+
+                This is page 2.
+
+                This is a verly long line to test word wrapping. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+                \f
+                Line 1
+                Line 2
+                Line 3
+                Line 4
+                Line 5
+                Line 6
+                Line 7
+                Line 8
+                Line 9
+                Line 10
+                Line 11
+                Line 12
+                Line 13
+                Line 14
+                Line 15
+                Line 16
+                Line 17
+                Line 18
+                Line 19
+                Line 20
+                Line 21
+                Line 22
+                Line 23
+                Line 24
+                Line 25
+                """)
+
+                helpscreen = TextScreen(self, helptext)
+                helpscreen.execute()
+
+                if helpscreen.terminated():
+                    action = "quit"
+                else:
+                    action = "menu"
             elif action == "play" or action == "resume":
                 # play the game
                 if action == "play":

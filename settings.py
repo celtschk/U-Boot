@@ -39,17 +39,38 @@ colours = {
     "no more subs to destroy": "good news",
     "not enough subs": "bad news",
 
-    # menu colors
+    # menu colours
     "menu background": "dark blue",
     "menu option": "white",
     "menu highlight": "red",
-    "menu message": "orange"
+    "menu message": "orange",
+
+    # paginated text colours
+    "paginated text": "white",
+    "paginated background": "blue"
     }
 
 # font used in the game
 font = {
     "name": "Courier New",
     "size": 30
+    }
+
+# font used for paginated text
+paginated_font = {
+    "name": "Helvetica",
+    "size": 30
+    }
+
+# layout of paginated text (all sizes are in pixels)
+paginate_layout = {
+    "border": {
+        "top": 50,
+        "left": 70,
+        "right": 70,
+        "bottom": 50
+        },
+    "line spacing": 30
     }
 
 # sounds used in the game
