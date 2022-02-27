@@ -36,3 +36,7 @@ Line 22
 Line 23
 Line 24
 Line 25
+
+This is an undefined control sequence: @invalid@ ...
+
+And this is an unterminated control seqence: @unterminated
