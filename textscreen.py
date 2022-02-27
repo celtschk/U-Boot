@@ -81,7 +81,6 @@ class TextScreen(GameDisplay):
 
             # helper function to do a line feed
             def line_feed():
-                print("linefeed")
                 nonlocal current_vpos
                 nonlocal current_hpos
                 nonlocal current_page
@@ -112,9 +111,7 @@ class TextScreen(GameDisplay):
                 index = 0;
                 while (index != len(line)):
                     if line[index] == "@":
-                        print(f"{index=}, {line[index:]=}")
                         control_end = line.find("@", index+1)
-                        print(f"{control_end=}, {line[index+1:control_end]=}")
                         if control_end == -1:
                             # unterminated control
                             control_name = None
@@ -122,14 +119,12 @@ class TextScreen(GameDisplay):
                         else:
                             control_name = line[index+1:control_end]
                             index = control_end + 2
-                        print(f"--> {index=}")
 
                         # currently all control sequences are invalid
                         current_page.blit(invalid_control,
                                           (current_hpos, current_vpos))
                         current_hpos += invalid_control.get_width()
                     else:
-                        print(f"+++ {index=}")
                         remaining_width = textwidth - current_hpos
                         
                         # go to the next line, if necessary
