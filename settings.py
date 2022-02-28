@@ -58,7 +58,7 @@ font = {
 
 # font used for paginated text
 paginated_font = {
-    "name": "Helvetica",
+    "name": "Courier New", # "Helvetica",
     "size": 30
     }
 

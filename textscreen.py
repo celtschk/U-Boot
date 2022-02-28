@@ -127,25 +127,29 @@ class TextScreen(GameDisplay):
                     else:
                         remaining_width = textwidth - current_hpos
                         
-                        # go to the next line, if necessary
-                        if self.font.size(line[index])[0] > remaining_width:
-                            line_feed()
-
                         # use binary search to find where to ideally
                         # wrap the line
                         left_index, right_index = index, line.find("@", index)
-                        if right_index == -1:
+
+                        # this is used again further down to decide if
+                        # an extra line feed is needed.
+                        no_control = (right_index == -1)
+                        if no_control:
                             right_index = len(line)
+
                         while right_index - left_index > 1:
                             middle_index = (left_index + right_index) // 2
                             width = self.font.size(line[index:middle_index])[0]
-                            if width > textwidth:
+                            if width > remaining_width:
                                 right_index = middle_index
                             else:
                                 left_index = middle_index
 
+                        # did we reach the end of the input line?
+                        endline = (right_index == len(line))
+
                         # if possible, wrap at a space
-                        if right_index == len(line):
+                        if endline:
                             # got to end of line; no wrap needed
                             chunk_end = right_index
                             spacewrap = False
@@ -172,6 +176,10 @@ class TextScreen(GameDisplay):
                         # when wrapping on a space, that space is skipped
                         if spacewrap:
                             index += 1
+
+                        # if word wrapped, add a line feed
+                        if not endline and no_control:
+                            line_feed()
 
                 # finally, move to a new line
                 line_feed()
