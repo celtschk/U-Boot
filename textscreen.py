@@ -118,7 +118,7 @@ class TextScreen(GameDisplay):
                             index = len(line)
                         else:
                             control_name = line[index+1:control_end]
-                            index = control_end + 2
+                            index = control_end + 1
 
                         # currently all control sequences are invalid
                         current_page.blit(invalid_control,
