@@ -136,7 +136,12 @@ class TextScreen(GameDisplay):
                             right_index = len(line)
 
                         width = self.font.size(line[index:right_index])[0]
-                        if width > remaining_width:
+                        if width <= remaining_width:
+                            # everything fits into one line
+                            endline = no_control
+                            chunk_end = right_index
+                            spacewrap = False
+                        else:
                             # use binary search to find where to ideally
                             # wrap the line
                             dbg_right = right_index
@@ -158,11 +163,6 @@ class TextScreen(GameDisplay):
                                 spacewrap = False
                             else:
                                 spacewrap = True
-                        else:
-                            # everything fits into one line
-                            endline = no_control
-                            chunk_end = right_index
-                            spacewrap = False
 
                         # render the text on the page
                         rendered_chunk = self.font.render(
