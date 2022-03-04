@@ -40,3 +40,6 @@ Line 25
 This is an undefined control sequence: @invalid@ ...
 
 And this is an unterminated control seqence: @unterminated
+
+And this is an invalid control sequence following text that is
+sufficiently long to force a word wrap: @invalid@.

@@ -128,24 +128,18 @@ class TextScreen(GameDisplay):
                         remaining_width = textwidth - current_hpos
                         
                         left_index, right_index = index, line.find("@", index)
-
-                        # no_control is used again further down to
-                        # decide if an extra line feed is needed.
-                        no_control = (right_index == -1)
-                        if no_control:
+                        if right_index == -1:
                             right_index = len(line)
 
                         width = self.font.size(line[index:right_index])[0]
-                        if width <= remaining_width:
+                        wrap_line = (width > remaining_width)
+                        if not wrap_line:
                             # everything fits into one line
-                            endline = no_control
                             chunk_end = right_index
                             spacewrap = False
                         else:
                             # use binary search to find where to ideally
                             # wrap the line
-                            dbg_right = right_index
-
                             while right_index - left_index > 1:
                                 middle_index = (left_index + right_index) // 2
                                 width = self.font.size(line[index:middle_index])[0]
@@ -153,9 +147,6 @@ class TextScreen(GameDisplay):
                                     right_index = middle_index
                                 else:
                                     left_index = middle_index
-
-                            # did we reach the end of the input line?
-                            endline = False
 
                             chunk_end = line.rfind(" ", index, right_index)
                             if chunk_end == -1:
@@ -181,7 +172,7 @@ class TextScreen(GameDisplay):
                             index += 1
 
                         # if word wrapped, add a line feed
-                        if not endline and no_control:
+                        if wrap_line:
                             line_feed()
 
                 # finally, move to a new line
