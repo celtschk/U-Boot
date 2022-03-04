@@ -127,39 +127,42 @@ class TextScreen(GameDisplay):
                     else:
                         remaining_width = textwidth - current_hpos
                         
-                        # use binary search to find where to ideally
-                        # wrap the line
                         left_index, right_index = index, line.find("@", index)
 
-                        # this is used again further down to decide if
-                        # an extra line feed is needed.
+                        # no_control is used again further down to
+                        # decide if an extra line feed is needed.
                         no_control = (right_index == -1)
                         if no_control:
                             right_index = len(line)
 
-                        while right_index - left_index > 1:
-                            middle_index = (left_index + right_index) // 2
-                            width = self.font.size(line[index:middle_index])[0]
-                            if width > remaining_width:
-                                right_index = middle_index
-                            else:
-                                left_index = middle_index
+                        width = self.font.size(line[index:right_index])[0]
+                        if width > remaining_width:
+                            # use binary search to find where to ideally
+                            # wrap the line
+                            dbg_right = right_index
 
-                        # did we reach the end of the input line?
-                        endline = (right_index == len(line))
+                            while right_index - left_index > 1:
+                                middle_index = (left_index + right_index) // 2
+                                width = self.font.size(line[index:middle_index])[0]
+                                if width > remaining_width:
+                                    right_index = middle_index
+                                else:
+                                    left_index = middle_index
 
-                        # if possible, wrap at a space
-                        if endline:
-                            # got to end of line; no wrap needed
-                            chunk_end = right_index
-                            spacewrap = False
-                        else:
+                            # did we reach the end of the input line?
+                            endline = False
+
                             chunk_end = line.rfind(" ", index, right_index)
                             if chunk_end == -1:
                                 chunk_end = right_index
                                 spacewrap = False
                             else:
                                 spacewrap = True
+                        else:
+                            # everything fits into one line
+                            endline = no_control
+                            chunk_end = right_index
+                            spacewrap = False
 
                         # render the text on the page
                         rendered_chunk = self.font.render(
