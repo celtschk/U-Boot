@@ -47,7 +47,9 @@ colours = {
 
     # paginated text colours
     "paginated text": "white",
-    "paginated background": "blue"
+    "paginated background": "blue",
+    "paginated footer": "orange",
+    "invalid control sequence": "red"
     }
 
 # font used in the game

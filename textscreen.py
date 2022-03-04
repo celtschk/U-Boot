@@ -15,9 +15,10 @@ class TextScreen(GameDisplay):
         super().__init__(game)
 
         # the colours used
-        self.fg_colour = settings.colours["paginated text"]
-        self.bg_colour = settings.colours["paginated background"]
-        self.err_colour = "red"
+        self.fg_colour = resources.get_colour("paginated text")
+        self.bg_colour = resources.get_colour("paginated background")
+        self.footer_colour = resources.get_colour("paginated footer")
+        self.err_colour = resources.get_colour("invalid control sequence")
 
         self.layout = settings.paginate_layout
         self.font = self.game.paginated_font
@@ -196,6 +197,17 @@ class TextScreen(GameDisplay):
         Draw the current page
         """
         self.game.screen.blit(self.pages[self.current_page], (0, 0))
+
+        text = self.font.render(
+            f"Page {self.current_page+1} of {len(self.pages)}. "
+            + "Up/Down: turn page, Q: back to menu.",
+            True,
+            self.footer_colour)
+        posx = self.layout["border"]["left"]
+        posy = (self.game.screen.get_height()
+                - self.layout["border"]["bottom"]
+                + 10)
+        self.game.screen.blit(text, (posx, posy))
         pygame.display.flip()
 
 
