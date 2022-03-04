@@ -1,5 +1,6 @@
 import pygame
 import settings
+import resources
 
 from gamedisplay import GameDisplay
 
@@ -122,12 +123,18 @@ class TextScreen(GameDisplay):
                             control_name = line[index+1:control_end]
                             index = control_end + 1
 
-                        # currently all control sequences are invalid
-                        if invalid_control.get_width() > remaining_width:
+                        if control_name is None:
+                            item = invalid_control
+                        elif control_name[:4] == "img ":
+                            item = resources.load_image(control_name[4:])
+                        else:
+                            item = invalid_control
+                            
+                        width = item.get_width()
+                        if width > remaining_width:
                             line_feed()
-                        current_page.blit(invalid_control,
-                                          (current_hpos, current_vpos))
-                        current_hpos += invalid_control.get_width()
+                        current_page.blit(item, (current_hpos, current_vpos))
+                        current_hpos += width
                     else:
                         left_index, right_index = index, line.find("@", index)
                         if right_index == -1:

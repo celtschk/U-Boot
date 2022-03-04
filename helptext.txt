@@ -41,5 +41,6 @@ This is an undefined control sequence: @invalid@ ...
 
 And this is an unterminated control seqence: @unterminated
 
-And this is an invalid control sequence following text that is
-sufficiently long to force a word wrap: @invalid@.
+And this is an invalid control sequence following text that is sufficiently long to force a word wrap: @invalid@.
+
+The following are all images: @img schiff.png@ @img Uboot.png@ @img bomb.png@ @img whale.png@
