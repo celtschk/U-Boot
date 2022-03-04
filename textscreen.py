@@ -110,6 +110,8 @@ class TextScreen(GameDisplay):
 
                 index = 0;
                 while (index != len(line)):
+                    remaining_width = textwidth - current_hpos
+                        
                     if line[index] == "@":
                         control_end = line.find("@", index+1)
                         if control_end == -1:
@@ -121,12 +123,12 @@ class TextScreen(GameDisplay):
                             index = control_end + 1
 
                         # currently all control sequences are invalid
+                        if invalid_control.get_width() > remaining_width:
+                            line_feed()
                         current_page.blit(invalid_control,
                                           (current_hpos, current_vpos))
                         current_hpos += invalid_control.get_width()
                     else:
-                        remaining_width = textwidth - current_hpos
-                        
                         left_index, right_index = index, line.find("@", index)
                         if right_index == -1:
                             right_index = len(line)
