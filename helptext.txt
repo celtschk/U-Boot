@@ -19,51 +19,70 @@ In this help, the following keys can be used:
   * [Q]:
        Quit the help and return to the menu.
 
-This is a game. The help text has yet to be written.
+GAME MECHANICS
 
-This text is only there for testing purposes.
+You are controlling the bomb release of a ship that moves on the surface from left to right. The ship looks like this: @img schiff.png@
 
+Pressing the down arrow key releases a bomb if available. It appears below the ship and sinks at constant speed.
 
-Test.
+A bomb explodes on hitting a submarine and destroys it, giving you score. In rare cases, two bombs may destroy one submarine, or one bomb may destroy two submarines at once. Submarines look like this: @img Uboot.png@
+
+A bomb may also destroy a whale instead of a submarine. Destroying a whale does not give you score. A whale looks like this: @img whale.png@
+
+In each level you must destroy a minimal number of submarines.
+
 
 
-This is page 2.
+SCORING
 
-This is a verly long line to test word wrapping. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Dropping a bomb while another bomb is still active costs some score. That cost goes up with the number of currently active bombs. The number of currently available bombs is limited by the condition that the score must never get negative.
+
+For each destroyed submarine your score increases. That increase is the larger the deeper the submarine was. Note that the score is per submarine, not per exploded bomb.
+
+Note that this implies that your score may go down as well as up.
 
 
-Line 1
-Line 2
-Line 3
-Line 4
-Line 5
-Line 6
-Line 7
-Line 8
-Line 9
-Line 10
-Line 11
-Line 12
-Line 13
-Line 14
-Line 15
-Line 16
-Line 17
-Line 18
-Line 19
-Line 20
-Line 21
-Line 22
-Line 23
-Line 24
-Line 25
+
+STATUS DISPLAY
+
+On the top of the window, there are several status displays.
+
+On the left, you'll find the two lines (with changing numbers):
+
+Bombs: 100 (1 available)
+Bomb cost: 0
+
+The first line tells you how many bombs you have left in total, and how many of them are currently available given your score. If no bombs are currently available, this line turns red.
+
+The second line tells you how much score dropping one more bomb will currently cost you. Note that the first bomb is always free.
+
 
-This is an undefined control sequence: @invalid@ ...
 
-And this is an unterminated control seqence: @unterminated
+STATUS DISPLAY (continued)
 
-And this is an invalid control sequence following text that is sufficiently long to force a word wrap: @invalid@.
+On the right, you'll find the two lines (again with varying numbers):
 
-The following are all images: @img schiff.png@ @img Uboot.png@ @img bomb.png@ @img whale.png@
+Level: 1, Score: 0
+Remaining submarimes: 30/50
 
-This game is named @title@.
+The first line gives you your current level and score.
+
+The second line tells you how many submarines you still need to destroy to clear the level, and how many submarines are still to come (including those currently on the screen). When the latter is 0, the level ends.
+
+When the first number is zero, the line turns green, indicating that the level will be cleared. When the second number goes below the first, the line turns red, indicating that you won't be able to clear this level.
+
+
+
+GAME KEYS
+
+The following keys can be used within the game:
+
+  [Down]        Drop a bomb.
+
+  [F]           Toggle fullscreen.
+
+  [Q]           Quit the game.
+
+  [S]           Save the game.
+
+  [P], [Pause]  Pause the game.
