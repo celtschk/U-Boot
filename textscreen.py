@@ -128,6 +128,11 @@ class TextScreen(GameDisplay):
                             item = invalid_control
                         elif control_name[:4] == "img ":
                             item = resources.load_image(control_name[4:])
+                        elif control_name == "title":
+                            item = self.font.render(
+                                settings.game_title,
+                                True,
+                                self.fg_colour)
                         else:
                             item = invalid_control
                             
