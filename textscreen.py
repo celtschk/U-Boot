@@ -81,21 +81,29 @@ class TextScreen(GameDisplay):
             current_vpos = top
             current_hpos = left
 
+            at_beginning_of_page = True
+
             # helper function to do a line feed
             def line_feed():
                 nonlocal current_vpos
                 nonlocal current_hpos
                 nonlocal current_page
+                nonlocal at_beginning_of_page
 
                 current_hpos = left
                 current_vpos += linespacing
 
                 # if the next line does not fit on the current page,
                 # commit that page and start a new one
-                if current_vpos + line_height > bottom:
+                if (current_vpos + line_height > bottom
+                    and not at_beginning_of_page):
                     self.pages += [current_page]
                     current_page = newpage()
                     current_vpos = top
+                    at_beginning_of_page = True
+                else:
+                    at_beginning_of_page = False
+
 
             # empty lines at the beginning of a page are ignored
             ignore_empty = True
@@ -190,11 +198,18 @@ class TextScreen(GameDisplay):
                         if wrap_line:
                             line_feed()
 
-                # finally, move to a new line
-                line_feed()
+                    # if we get here, we're no longer at the beginning
+                    # of the page
+                    at_beginning_of_page = False
 
-            # commit the last page
-            self.pages += [current_page]
+                # finally, move to a new line, unless at the beginning
+                # of a page
+                if not at_beginning_of_page:
+                    line_feed()
+
+            # commit the last page, if not empty
+            if not at_beginning_of_page:
+                self.pages += [current_page]
 
 
     def draw(self):
