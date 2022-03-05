@@ -36,12 +36,16 @@ class GameDisplay:
         """
         Handle a known event. Returns if the event has been handled.
 
-        This function handles only pygame.QUIT. To handle other events,
-        override this function.
+        This function handles pygame.QUIT and toggling fullscreen with
+        key F. To handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
         if event.type == pygame.QUIT:
             self.terminate()
+            return True
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+            self.game.toggle_fullscreen()
             return True
 
         # If we get here, no event has been handled.

@@ -261,10 +261,6 @@ class TextScreen(GameDisplay):
             elif event.key == pygame.K_END:
                 self.current_page = len(self.pages) - 1
 
-            # F toggles fullscreen display
-            elif event.key == pygame.K_f:
-                self.game.toggle_fullscreen()
-
             # Q quits the game and returns to the menu
             elif event.key == pygame.K_q:
                 self.quit()
