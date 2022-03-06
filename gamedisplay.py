@@ -4,6 +4,14 @@ This module provides the GameDisplay class
 
 import pygame
 
+# workaround to make pylint happy: explicitly import pygame constants
+from pygame.constants import (
+    QUIT as pygame_QUIT,
+    KEYDOWN as pygame_KEYDOWN,
+    K_f as pygame_K_f,
+    K_HASH as pygame_K_HASH
+    )
+
 class GameDisplay:
     """
     Base class containing the logic of any screen the user may
@@ -12,10 +20,13 @@ class GameDisplay:
     # exit status values (not an enum, because derived classes
     # will want to add more. Also, no need for numeric values;
     # equality comparison is fully sufficient
+
+    # pylint: disable=too-few-public-methods
     class Status:
         """
         Empty class to define unique status values
         """
+    # pylint: enable=too-few-public-methods
 
     TERMINATE = Status()
     QUIT = Status()
@@ -47,15 +58,15 @@ class GameDisplay:
         key F. To handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
-        if event.type == pygame.QUIT:
+        if event.type == pygame_QUIT:
             self.terminate()
             return True
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
+        if event.type == pygame_KEYDOWN:
+            if event.key == pygame_K_f:
                 self.game.toggle_fullscreen()
                 return True
-            if event.key == pygame.K_HASH:
+            if event.key == pygame_K_HASH:
                 pygame.image.save(self.game.screen, "U-Boot-screenshot.png")
                 return True
 
@@ -63,6 +74,7 @@ class GameDisplay:
         return False
 
 
+    # pylint: disable=no-self-use
     def update_state(self):
         """
         Updates the state.
@@ -70,6 +82,7 @@ class GameDisplay:
         Does nothing in the base class. Can, but does not need to be
         overwritten by the derived class.
         """
+    # pylint: enable=no-self-use
 
 
     def ready_to_quit(self):
