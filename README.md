@@ -38,3 +38,8 @@ I didn't test it on MacOS, but I expect it to work there as well.
 This game uses some artwork files from others. All of them are either
 public domain or under a Creative Commons license. Please see
 the file non_original_files.txt for details.
+
+## Caveats
+
+As the game is still in development, the save file format may change
+at any commit, invalidating earlier saved games.
