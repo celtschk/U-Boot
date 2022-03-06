@@ -1,3 +1,7 @@
+"""
+This module provides the GameDisplay class
+"""
+
 import pygame
 
 class GameDisplay:
@@ -9,6 +13,9 @@ class GameDisplay:
     # will want to add more. Also, no need for numeric values;
     # equality comparison is fully sufficient
     class Status:
+        """
+        Empty class to define unique status values
+        """
         pass
 
     TERMINATE = Status()

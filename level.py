@@ -96,7 +96,7 @@ class Level(GameDisplay):
         # set displayed score to game score
         # (separate to allow score animation)
         self.displayed_score = self.score
-        
+
         # background (sky) colour
         self.c_background = resources.get_colour("sky")
 
@@ -317,7 +317,7 @@ class Level(GameDisplay):
         available_bombs = max_bombs - existing_bombs
 
         while self.get_bomb_cost(available_bombs) > self.score:
-               available_bombs -= 1
+            available_bombs -= 1
 
         return available_bombs
 
@@ -328,13 +328,13 @@ class Level(GameDisplay):
         # don't drop a new bomb if there already exist a naximal
         # number of them, or the score would go negative
         if self.get_available_bombs() > 0:
-            ship_pos = self.ship.get_position();
+            ship_pos = self.ship.get_position()
 
             # don't drop a bomb off-screen
             if ship_pos[0] > 0 and ship_pos[0] < self.width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                self.score -= self.get_bomb_cost();
+                self.score -= self.get_bomb_cost()
 
                 newbomb = self.create_moving_object("bomb")
                 self.game_objects["bomb"]["list"].append(newbomb)
@@ -396,7 +396,7 @@ class Level(GameDisplay):
                         target.deactivate()
                         projectile.deactivate()
                         if self.game_objects[target_name]["to_destroy"] > 0:
-                            self.game_objects[target_name]["to_destroy"] -= 1;
+                            self.game_objects[target_name]["to_destroy"] -= 1
 
 
     def handle_event(self, event):
@@ -438,7 +438,7 @@ class Level(GameDisplay):
         Return True if all objects of the given type have already beem
         generated.
         """
-        obj_info = self.game_objects[obj_type];
+        obj_info = self.game_objects[obj_type]
         return obj_info.get("remaining", 1) + len(obj_info["list"])
 
 
@@ -482,8 +482,8 @@ class Level(GameDisplay):
         self.handle_hits()
 
         # remove inactive objects and animations
-        for object in self.game_objects.values():
-            object["list"] = [obj for obj in object["list"] if obj.is_active()]
+        for thing in self.game_objects.values():
+            thing["list"] = [obj for obj in thing["list"] if obj.is_active()]
 
         # determine whether to quit the level
         submarines_remaining = self.objects_remaining("submarine")
