@@ -16,8 +16,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        echo "running ..."
         python -m pip install --upgrade pip
+        echo "pip upgrade succeeded"
         pip install pylint
+        echo "pylint install succeeded"
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
