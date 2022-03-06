@@ -18,9 +18,9 @@ jobs:
       run: |
         echo "running ..."
         python -m pip install --upgrade pip
-        echo "pip upgrade succeeded"
         pip install pylint
-        echo "pylint install succeeded"
+        pip install pygame
+        pip install appdirs
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
