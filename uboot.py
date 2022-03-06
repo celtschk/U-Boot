@@ -172,7 +172,7 @@ class Game:
             elif action == "play" or action == "resume":
                 # play the game
                 if action == "play":
-                    state = Level.initial_state()
+                    state = Level.initial_state({})
                 elif action == "resume":
                     save_file = resources.get_save_file()
                     with shelve.open(str(save_file)) as savefile:

@@ -1,5 +1,10 @@
-import pygame
+"""
+This module implements the class Level, which contains the actual gameplay.
+"""
+
 from copy import deepcopy
+
+import pygame
 
 import settings
 import resources
@@ -17,7 +22,7 @@ class Level(GameDisplay):
     LEVEL_SAVE = GameDisplay.Status()
 
     @staticmethod
-    def initial_state(old_state = {}):
+    def initial_state(old_state):
         """
         Generates the initial state of a level.
 
@@ -413,6 +418,7 @@ class Level(GameDisplay):
                 # Down arrow drops a bomb
                 if event.key == pygame.K_DOWN:
                     self.drop_bomb()
+                    return True
 
             # Other keys are always processed
 
@@ -423,14 +429,19 @@ class Level(GameDisplay):
                 else:
                     pygame.mixer.music.pause()
                 self.paused = not self.paused
+                return True
 
             # Q quits the game and returns to the menu
-            elif event.key == pygame.K_q:
+            if event.key == pygame.K_q:
                 self.quit()
+                return True
 
             # S shelves this level
-            elif event.key == pygame.K_s:
+            if event.key == pygame.K_s:
                 self.quit(self.LEVEL_SAVE)
+                return True
+
+        return False
 
 
     def objects_remaining(self, obj_type):

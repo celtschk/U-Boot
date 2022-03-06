@@ -16,7 +16,6 @@ class GameDisplay:
         """
         Empty class to define unique status values
         """
-        pass
 
     TERMINATE = Status()
     QUIT = Status()
@@ -28,6 +27,7 @@ class GameDisplay:
         """
         self.game = game
         self.running = False
+        self.status = None
 
 
     def draw(self):
@@ -55,8 +55,9 @@ class GameDisplay:
             if event.key == pygame.K_f:
                 self.game.toggle_fullscreen()
                 return True
-            elif event.key == pygame.K_HASH:
+            if event.key == pygame.K_HASH:
                 pygame.image.save(self.game.screen, "U-Boot-screenshot.png")
+                return True
 
         # If we get here, no event has been handled.
         return False
@@ -69,7 +70,6 @@ class GameDisplay:
         Does nothing in the base class. Can, but does not need to be
         overwritten by the derived class.
         """
-        pass
 
 
     def ready_to_quit(self):
