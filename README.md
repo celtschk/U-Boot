@@ -1,6 +1,8 @@
 # U-Boot
 A simple game
 
+![Screenshot](U-Boot-screenshot-1.png)
+
 This is a simple game in which you gain score by destroying
 submarines with bombs dropped from a ship.
 
