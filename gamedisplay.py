@@ -44,9 +44,12 @@ class GameDisplay:
             self.terminate()
             return True
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
-            self.game.toggle_fullscreen()
-            return True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_f:
+                self.game.toggle_fullscreen()
+                return True
+            elif event.key == pygame.K_HASH:
+                pygame.image.save(self.game.screen, "U-Boot-screenshot.png")
 
         # If we get here, no event has been handled.
         return False
