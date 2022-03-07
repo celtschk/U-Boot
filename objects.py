@@ -6,6 +6,11 @@ import pygame
 
 import resources
 
+# I don't think those objects can be meaningfully implemented with
+# fewer attributes or constructor arguments
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-arguments
+
 class MovingObject:
     "This class represents any moving object in the game."
 
