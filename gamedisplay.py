@@ -4,6 +4,16 @@ This module provides the GameDisplay class
 
 import pygame
 
+# work around pylint not understanding pygame
+# pylint: disable no-member
+from pygame import (
+    QUIT as pygame_QUIT,
+    KEYDOWN as pygame_KEYDOWN,
+    K_f as pygame_K_f,
+    K_HASH as pygame_K_HASH
+    )
+#pylint: enable no-member
+
 class GameDisplay:
     """
     Base class containing the logic of any screen the user may
@@ -13,6 +23,7 @@ class GameDisplay:
     # will want to add more. Also, no need for numeric values;
     # equality comparison is fully sufficient
 
+    # This class is intentionally empty, thus make pylint shut up about it
     # pylint: disable=too-few-public-methods
     class Status:
         """
@@ -42,7 +53,7 @@ class GameDisplay:
         raise NotImplementedError("Must be supplied by the derived class")
 
 
-    # pylint: disable=no-member
+    # py lint disable=no-member
     def handle_event(self, event):
         """
         Handle a known event. Returns if the event has been handled.
@@ -51,23 +62,24 @@ class GameDisplay:
         key F. To handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
-        if event.type == pygame.QUIT:
+        if event.type == pygame_QUIT:
             self.terminate()
             return True
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
+        if event.type == pygame_KEYDOWN:
+            if event.key == pygame_K_f:
                 self.game.toggle_fullscreen()
                 return True
-            if event.key == pygame.K_HASH:
+            if event.key == pygame_K_HASH:
                 pygame.image.save(self.game.screen, "U-Boot-screenshot.png")
                 return True
 
         # If we get here, no event has been handled.
         return False
-    # pylint: enable=no-member
+    # py lint enable=no-member
 
 
+    # This must be a member function in order to be overridden
     # pylint: disable=no-self-use
     def update_state(self):
         """
@@ -79,6 +91,7 @@ class GameDisplay:
     # pylint: enable=no-self-use
 
 
+    # This must be a member function in order to be overridden
     # pylint: disable=no-self-use
     def ready_to_quit(self):
         """
