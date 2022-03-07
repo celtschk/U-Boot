@@ -141,16 +141,14 @@ class Level(GameDisplay):
         def bomb_text_colour(data):
             if data["available_bombs"] > 0:
                 return self.c_text
-            else:
-                return self.c_no_bombs
+            return self.c_no_bombs
 
         def submarine_text_colour(data):
             if data["to_destroy"] == 0:
                 return self.c_no_destroy
-            elif data["to_destroy"] > data["remaining_subs"]:
+            if data["to_destroy"] > data["remaining_subs"]:
                 return self.c_not_enough_subs
-            else:
-                return self.c_text
+            return self.c_text
 
         self.game_state_display = [
             resources.MessageData(
@@ -465,15 +463,10 @@ class Level(GameDisplay):
         return obj_info.get("remaining", 1) + len(obj_info["list"])
 
 
-    def update_state(self):
+    def update_displayed_score(self):
         """
-        Update the state of the game
+        Move the displayed score one step closer to the actual score
         """
-        # if the game is paused, do nothing
-        if self.paused:
-            return
-
-        # move the displayed score towards the actual score
         if self.displayed_score != self.score:
             if self.score_frame_countdown == 0:
                 self.score_frame_countdown = self.score_frames
@@ -483,6 +476,18 @@ class Level(GameDisplay):
                     self.displayed_score -= 1
             else:
                 self.score_frame_countdown -= 1
+
+
+    def update_state(self):
+        """
+        Update the state of the game
+        """
+        # if the game is paused, do nothing
+        if self.paused:
+            return
+
+        # move the displayed score towards the actual score
+        self.update_displayed_score()
 
         # if the game is no longer running, decrease the final frame
         # counter if appropriate, advance any remaining animations,
