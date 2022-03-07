@@ -156,6 +156,9 @@ class Game:
 
 
     def show_help(self):
+        """
+        Show help
+        """
         with open("helptext.txt", encoding="utf8") as helpfile:
             helptext = helpfile.read()
 
