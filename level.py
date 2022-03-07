@@ -80,9 +80,7 @@ class Level(GameDisplay):
         self.level_display_frames = settings.level_display_frames
         self.final_display_frames = 0
 
-        if self.game_objects:
-            self.ship = self.game_objects["ship"]["list"][0]
-        else:
+        if not self.game_objects:
             # get limits and probabilities for objects
             for obj_type, obj in self.object_settings.items():
                 # record object info in objects dictionary
@@ -103,8 +101,8 @@ class Level(GameDisplay):
                     object_info["to_destroy"] = obj["to_destroy"]
 
             # create the ship
-            self.ship = self.create_moving_object("ship")
-            self.game_objects["ship"] = { "list": [self.ship] }
+            ship = self.create_moving_object("ship")
+            self.game_objects["ship"] = { "list": [ship] }
 
             # setup storage for animations
             for animation_type in settings.animations:
@@ -243,7 +241,8 @@ class Level(GameDisplay):
             start_adjustment = pygame.Vector2(origin[0], 0)
         else:
             if start[0] == "ship":
-                start_x = self.ship.get_position()[0]
+                ship = self.game_objects["ship"]["list"][0]
+                start_x = ship.get_position()[0]
             elif isinstance(start[0],str):
                 start_x = resources.get_value(data[start[0]])
             else:
@@ -347,7 +346,8 @@ class Level(GameDisplay):
         # don't drop a new bomb if there already exist a naximal
         # number of them, or the score would go negative
         if self.get_available_bombs() > 0:
-            ship_pos = self.ship.get_position()
+            ship = self.game_objects["ship"]["list"][0]
+            ship_pos = ship.get_position()
 
             # don't drop a bomb off-screen
             if ship_pos[0] > 0 and ship_pos[0] < self.width:
