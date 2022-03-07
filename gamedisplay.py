@@ -5,14 +5,14 @@ This module provides the GameDisplay class
 import pygame
 
 # work around pylint not understanding pygame
-# pylint: disable no-name-in-module
+# pylint: disable=no-name-in-module
 from pygame import (
     QUIT as pygame_QUIT,
     KEYDOWN as pygame_KEYDOWN,
     K_f as pygame_K_f,
     K_HASH as pygame_K_HASH
     )
-#pylint: enable no-name-in-module
+#pylint: enable=no-name-in-module
 
 class GameDisplay:
     """

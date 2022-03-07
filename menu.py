@@ -4,14 +4,14 @@ This module provides menus for the game
 
 import pygame
 # work around pylint not understanding pygame
-# pylint: disable no-name-in-module
+# pylint: disable=no-name-in-module
 from pygame import (
     KEYDOWN as pygame_KEYDOWN,
     K_UP as pygame_K_UP,
     K_DOWN as pygame_K_DOWN,
     K_RETURN as pygame_K_RETURN
     )
-# pylint: enable no-name-in-module
+# pylint: enable=no-name-in-module
 
 import resources
 from gamedisplay import GameDisplay

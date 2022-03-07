@@ -6,7 +6,7 @@ from copy import deepcopy
 
 import pygame
 # work around pylint not understanding pygame
-# pylint: disable no-name-in-module
+# pylint: disable=no-name-in-module
 from pygame import (
     KEYDOWN as pygame_KEYDOWN,
     K_DOWN as pygame_K_DOWN,
@@ -15,7 +15,7 @@ from pygame import (
     K_q as pygame_K_q,
     K_s as pygame_K_s
     )
-# pylint: enable no-name-in-module
+# pylint: enable=no-name-in-module
 
 
 import settings

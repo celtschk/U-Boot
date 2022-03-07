@@ -1,6 +1,6 @@
 import pygame
 # work around pylint not understanding pygame
-# pylint: disable no-name-in-module
+# pylint: disable=no-name-in-module
 from pygame import (
     KEYDOWN as pygame_KEYDOWN,
     K_UP as pygame_K_UP,
@@ -13,7 +13,7 @@ from pygame import (
     K_END as pygame_K_END,
     K_q as pygame_K_q
     )
-# pylint: enable no-name-in-module
+# pylint: enable=no-name-in-module
 
 
 import settings

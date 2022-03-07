@@ -2,9 +2,9 @@ import shelve
 
 import pygame
 # work around pylint not understanding pygame
-# pylint: disable no-name-in-module
+# pylint: disable=no-name-in-module
 from pygame import FULLSCREEN as pygame_FULLSCREEN
-# pylint: enable no-name-in-module
+# pylint: enable=no-name-in-module
 
 # python files from this game
 import settings
