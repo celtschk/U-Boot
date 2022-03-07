@@ -217,7 +217,9 @@ class MessageData:
             text = self.cache[1]
         else:
             if callable(self.colour):
+                # pylint: disable=not-callable
                 colour = self.colour(data)
+                # pylint: enable=not-callable
             else:
                 colour = self.colour
             text = self.font.render(string, True, colour)

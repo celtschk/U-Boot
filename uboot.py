@@ -119,7 +119,9 @@ class Game:
         level = Level(self, state)
 
         if "debug" in settings.__dict__:
+            # pylint: disable=no-member
             settings.debug["level"] = level
+            # pylint: enable=no-member
 
         while True:
             pygame.mixer.music.unpause()
