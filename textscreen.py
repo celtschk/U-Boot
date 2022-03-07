@@ -1,3 +1,7 @@
+"""
+This module provides a class to display running text
+"""
+
 import pygame
 # work around pylint not understanding pygame
 # pylint: disable=no-name-in-module
@@ -73,7 +77,6 @@ class TextScreen(GameDisplay):
 
         linespacing = self.layout["line spacing"]
 
-        lines_per_page = (bottom - top)//linespacing
         textwidth = right - left
 
         line_height = self.font.size("")[1]
@@ -90,7 +93,7 @@ class TextScreen(GameDisplay):
 
         # invalid control sequence sign. Always the same, thus
         # rendered exactly once
-        invalid_control = self.font.render("???", True, self.err_colour);
+        invalid_control = self.font.render("???", True, self.err_colour)
         
         # do the pagination
         for block in text.split("\f"):
@@ -136,9 +139,9 @@ class TextScreen(GameDisplay):
                     ignore_empty = False
 
                 index = 0;
-                while (index != len(line)):
+                while index != len(line):
                     remaining_width = textwidth - current_hpos
-                        
+
                     if line[index] == "@":
                         control_end = line.find("@", index+1)
                         if control_end == -1:
@@ -160,7 +163,7 @@ class TextScreen(GameDisplay):
                                 self.fg_colour)
                         else:
                             item = invalid_control
-                            
+
                         width = item.get_width()
                         if width > remaining_width:
                             line_feed()
@@ -262,22 +265,29 @@ class TextScreen(GameDisplay):
                              pygame_K_PAGEUP}:
                 if self.current_page > 0:
                     self.current_page -= 1
+                return True
 
             # Down, Space or Page Down go to the next page
-            elif event.key in {pygame_K_DOWN,
+            if event.key in {pygame_K_DOWN,
                                pygame_K_SPACE,
                                pygame_K_PAGEDOWN}:
                 if self.current_page < len(self.pages) - 1:
                     self.current_page += 1
+                return True
 
             # Home goes to the first page
-            elif event.key == pygame_K_HOME:
+            if event.key == pygame_K_HOME:
                 self.current_page = 0
+                return True
 
             # End goes to the last page
-            elif event.key == pygame_K_END:
+            if event.key == pygame_K_END:
                 self.current_page = len(self.pages) - 1
+                return True
 
             # Q quits the game and returns to the menu
-            elif event.key == pygame_K_q:
+            if event.key == pygame_K_q:
                 self.quit()
+                return True
+
+        return False

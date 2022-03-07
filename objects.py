@@ -1,3 +1,7 @@
+"""
+This module provides classes for game objects and animations.
+"""
+
 import pygame
 
 import resources
@@ -221,7 +225,7 @@ class Animation:
         """
         Draws the animation
         """
-        if (self.is_active()):
+        if self.is_active():
             surface.blit(self.images[self.current_frame], self.position)
 
 

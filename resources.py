@@ -1,8 +1,13 @@
-import pygame
+"""
+This module provides access to various resources.
+"""
+
 import random
-import appdirs
 import pathlib
 from dataclasses import dataclass
+
+import pygame
+import appdirs
 
 import settings
 
@@ -21,18 +26,17 @@ def load_image(path):
     return imagestore[path]
 
 
-def subset_or_none(d1, d2):
+def subset_or_none(dict1, dict2):
     """
-    If the keys of d2 are a subset of the keys of d1,
-    return a copy of d1 updated with the values of d2,
-    otherwise return an empty dict of the same type as d1
+    If the keys of dict2 are a subset of the keys of dict1,
+    return a copy of dict1 updated with the values of dict2,
+    otherwise return an empty dict of the same type as dict1
     """
-    d = d1.copy()
-    d.update(d2)
-    if d.keys() == d1.keys():
-        return d
-    else:
-        return d.__class__()
+    new_dict = dict1.copy()
+    new_dict.update(dict2)
+    if new_dict.keys() == dict1.keys():
+        return new_dict
+    return new_dict.__class__()
 
 
 def get_colour(name):
@@ -131,20 +135,20 @@ def get_colour(name):
     while name in settings.colours:
         colour = settings.colours[name]
 
-        if type(colour) is str:
+        if isinstance(colour, str):
             # prevent endless loop
             if colour in previous_names:
                 raise ValueError("recursive colour specification")
             previous_names.add(colour)
             name = colour
 
-        elif type(colour) is int:
+        elif isinstance(colour, int):
             return pygame.Color(colour, colour, colour)
 
-        elif type(colour) is tuple:
+        elif isinstance(colour, tuple):
             return pygame.Color(*colour)
 
-        elif type(colour) is dict:
+        elif isinstance(colour, dict):
             colour_options = [
                 ({"red": 0, "green": 0, "blue": 0}, rgb),
                 ({"grey": 0}, greyscale),
@@ -198,6 +202,9 @@ def load_music(music_name):
 
 @dataclass
 class MessageData:
+    """
+    This class represents a message to be displayed on the screen
+    """
     message: str
     position: tuple
     colour: tuple
@@ -206,6 +213,9 @@ class MessageData:
     cache: tuple = (None, None)
 
 
+    # The argument data is not changed in the function, therefore the
+    # default value is safe
+    # pylint: disable=dangerous-default-value
     def write(self, screen, data = {}):
         """
         Write the message at a given position on screen
@@ -233,6 +243,7 @@ class MessageData:
                                 self.origin))
 
         screen.blit(text, position)
+    # pylint: enable=dangerous-default-value
 
 
 def get_value(value_or_range):
@@ -244,11 +255,10 @@ def get_value(value_or_range):
     specifying respectively the minimal and maximal value of the
     interval to uniformly choose from.
     """
-    if type(value_or_range) is dict:
+    if isinstance(value_or_range, dict):
         return random.uniform(value_or_range["min"],
                               value_or_range["max"])
-    else:
-        return value_or_range
+    return value_or_range
 
 
 def randomly_true(probability):
@@ -282,13 +292,13 @@ def try_load_all():
     """
 
     # load all the images for objects
-    for object in settings.objects.values():
-        load_image(object["filename"])
+    for obj in settings.objects.values():
+        load_image(obj["filename"])
 
     # load all the images for animations
     for animation in settings.animations.values():
-        for n in range(animation["frame_count"]):
-            load_image(animation["images"].format(frame=n))
+        for frame_number in range(animation["frame_count"]):
+            load_image(animation["images"].format(frame=frame_number))
 
     # load all the sounds
     for sound in settings.sounds.keys():

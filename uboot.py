@@ -1,3 +1,7 @@
+"""
+U-Boot: A simple game
+"""
+
 import shelve
 
 import pygame
@@ -69,8 +73,7 @@ class Game:
             def value():
                 if self.options[option]:
                     return "Enabled"
-                else:
-                    return "Disabled"
+                return "Disabled"
             return value;
 
         options_menu = [
@@ -142,6 +145,9 @@ class Game:
 
 
     def display_menu(self, menu_name, message):
+        """
+        Display a menu
+        """
         menu = Menu(self,
                     self.menus[menu_name],
                     resources.get_colour("menu background"),
@@ -164,7 +170,7 @@ class Game:
         action = "menu"
         message = None
         while action != "quit":
-            if action in self.menus.keys():
+            if action in self.menus:
                 action = self.display_menu(action, message)
                 message = None
             elif action == "help":
@@ -179,7 +185,7 @@ class Game:
                     action = "quit"
                 else:
                     action = "menu"
-            elif action == "play" or action == "resume":
+            elif action in ("play", "resume"):
                 # play the game
                 if action == "play":
                     state = Level.initial_state({})

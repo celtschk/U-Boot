@@ -108,7 +108,7 @@ class Menu(GameDisplay):
                     self.selection = len(self.menuspec)
                 self.selection -= 1
                 return True
-            
+
             if event.key == pygame_K_DOWN:
                 self.selection += 1
                 if self.selection == len(self.menuspec):
