@@ -112,8 +112,7 @@ class MovingObject:
         """
         if displace:
             return self.pos + self.disp
-        else:
-            return self.pos
+        return self.pos
 
 
     def draw_on(self, surface):

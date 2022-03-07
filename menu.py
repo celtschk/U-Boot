@@ -116,7 +116,7 @@ class Menu(GameDisplay):
                 return True
 
             # Enter selects an option, thus quits the menu
-            elif event.key == pygame_K_RETURN:
+            if event.key == pygame_K_RETURN:
                 action = self.menuspec[self.selection]["action"]
                 if isinstance(action, str):
                     self.quit()

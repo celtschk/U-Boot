@@ -24,7 +24,7 @@ fps = 60
 score_frames = 6
 
 # number of frames to show the final message of each level
-level_display_frames = 5*fps;
+level_display_frames = 5*fps
 
 # colours used in the game
 colours = {
@@ -108,7 +108,7 @@ animations = {
 
         # total number of frames in the animation
         "frame_count": 5,
-        
+
         # image file name format string, with the frame number
         # replaced by {frame}. The first
         "images": "explosion_{frame}.png"

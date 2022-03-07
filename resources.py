@@ -301,11 +301,11 @@ def try_load_all():
             load_image(animation["images"].format(frame=frame_number))
 
     # load all the sounds
-    for sound in settings.sounds.keys():
+    for sound in settings.sounds:
         get_sound(sound)
 
     # load all the music
-    for music in settings.music.keys():
+    for music in settings.music:
         load_music(music)
 
     # try to resolve all colours

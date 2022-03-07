@@ -94,7 +94,7 @@ class TextScreen(GameDisplay):
         # invalid control sequence sign. Always the same, thus
         # rendered exactly once
         invalid_control = self.font.render("???", True, self.err_colour)
-        
+
         # do the pagination
         for block in text.split("\f"):
             current_page = newpage()
@@ -138,7 +138,7 @@ class TextScreen(GameDisplay):
                     # don't ignore empty lines after non-empty ones
                     ignore_empty = False
 
-                index = 0;
+                index = 0
                 while index != len(line):
                     remaining_width = textwidth - current_hpos
 

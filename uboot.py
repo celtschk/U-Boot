@@ -74,7 +74,7 @@ class Game:
                 if self.options[option]:
                     return "Enabled"
                 return "Disabled"
-            return value;
+            return value
 
         options_menu = [
             {
@@ -159,8 +159,7 @@ class Game:
         menu.execute()
         if menu.terminated():
             return "quit"
-        else:
-            return menu.get_selected_action()
+        return menu.get_selected_action()
 
 
     def run(self):
@@ -175,7 +174,7 @@ class Game:
                 message = None
             elif action == "help":
                 # show help
-                with open("helptext.txt") as helpfile:
+                with open("helptext.txt", encoding="utf8") as helpfile:
                     helptext = helpfile.read()
 
                 helpscreen = TextScreen(self, helptext)
