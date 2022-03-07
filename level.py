@@ -320,8 +320,8 @@ class Level(GameDisplay):
 
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
-        l = len(self.game_objects["bomb"]["list"])
-        return sum((l+k)**2 for k in range(count))
+        num_of_bombs = len(self.game_objects["bomb"]["list"])
+        return sum((num_of_bombs+k)**2 for k in range(count))
 
 
     def get_available_bombs(self):
