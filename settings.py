@@ -2,7 +2,7 @@
 Settings for the uboot game
 """
 
-# pylint: disable=invalid_name
+# pylint: disable=invalid-name
 
 # Name of the game
 game_name = "uboot"
