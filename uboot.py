@@ -155,6 +155,16 @@ class Game:
         return menu.get_selected_action()
 
 
+    def show_help(self):
+        with open("helptext.txt", encoding="utf8") as helpfile:
+            helptext = helpfile.read()
+
+            helpscreen = TextScreen(self, helptext)
+            helpscreen.execute()
+
+            return helpscreen.terminated()
+
+
     def run(self):
         """
         Run the game
@@ -166,14 +176,8 @@ class Game:
                 action = self.display_menu(action, message)
                 message = None
             elif action == "help":
-                # show help
-                with open("helptext.txt", encoding="utf8") as helpfile:
-                    helptext = helpfile.read()
-
-                helpscreen = TextScreen(self, helptext)
-                helpscreen.execute()
-
-                if helpscreen.terminated():
+                terminated = self.show_help()
+                if terminated:
                     action = "quit"
                 else:
                     action = "menu"
