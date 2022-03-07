@@ -1,5 +1,10 @@
-import pygame
 import shelve
+
+import pygame
+# work around pylint not understanding pygame
+# pylint: disable no-name-in-module
+from pygame import FULLSCREEN as pygame_FULLSCREEN
+# pylint: enable no-name-in-module
 
 # python files from this game
 import settings
@@ -97,10 +102,10 @@ class Game:
         toggle between fullscreen and windowed
         """
         size = (self.screen.get_width(), self.screen.get_height())
-        if self.screen.get_flags() & pygame.FULLSCREEN:
+        if self.screen.get_flags() & pygame_FULLSCREEN:
             pygame.display.set_mode(size)
         else:
-            pygame.display.set_mode(size, pygame.FULLSCREEN)
+            pygame.display.set_mode(size, pygame_FULLSCREEN)
 
 
     def play(self, state):

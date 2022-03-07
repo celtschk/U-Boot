@@ -1,4 +1,21 @@
 import pygame
+# work around pylint not understanding pygame
+# pylint: disable no-name-in-module
+from pygame import (
+    KEYDOWN as pygame_KEYDOWN,
+    K_UP as pygame_K_UP,
+    K_BACKSPACE as pygame_K_BACKSPACE,
+    K_PAGEUP as pygame_K_PAGEUP,
+    K_DOWN as pygame_K_DOWN,
+    K_SPACE as pygame_K_SPACE,
+    K_PAGEDOWN as pygame_K_PAGEDOWN,
+    K_HOME as pygame_K_HOME,
+    K_END as pygame_K_END,
+    K_q as pygame_K_q
+    )
+# pylint: enable no-name-in-module
+
+
 import settings
 import resources
 
@@ -238,29 +255,29 @@ class TextScreen(GameDisplay):
         if super().handle_event(event):
             return True
 
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame_KEYDOWN:
             # Up, Backspace or Page Up go to the previous page
-            if event.key in {pygame.K_UP,
-                             pygame.K_BACKSPACE,
-                             pygame.K_PAGEUP}:
+            if event.key in {pygame_K_UP,
+                             pygame_K_BACKSPACE,
+                             pygame_K_PAGEUP}:
                 if self.current_page > 0:
                     self.current_page -= 1
 
             # Down, Space or Page Down go to the next page
-            elif event.key in {pygame.K_DOWN,
-                               pygame.K_SPACE,
-                               pygame.K_PAGEDOWN}:
+            elif event.key in {pygame_K_DOWN,
+                               pygame_K_SPACE,
+                               pygame_K_PAGEDOWN}:
                 if self.current_page < len(self.pages) - 1:
                     self.current_page += 1
 
             # Home goes to the first page
-            elif event.key == pygame.K_HOME:
+            elif event.key == pygame_K_HOME:
                 self.current_page = 0
 
             # End goes to the last page
-            elif event.key == pygame.K_END:
+            elif event.key == pygame_K_END:
                 self.current_page = len(self.pages) - 1
 
             # Q quits the game and returns to the menu
-            elif event.key == pygame.K_q:
+            elif event.key == pygame_K_q:
                 self.quit()

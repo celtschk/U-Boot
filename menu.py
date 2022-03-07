@@ -3,6 +3,16 @@ This module provides menus for the game
 """
 
 import pygame
+# work around pylint not understanding pygame
+# pylint: disable no-name-in-module
+from pygame import (
+    KEYDOWN as pygame_KEYDOWN,
+    K_UP as pygame_K_UP,
+    K_DOWN as pygame_K_DOWN,
+    K_RETURN as pygame_K_RETURN
+    )
+# pylint: enable no-name-in-module
+
 import resources
 from gamedisplay import GameDisplay
 
@@ -88,25 +98,25 @@ class Menu(GameDisplay):
         if super().handle_event(event):
             return True
 
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame_KEYDOWN:
             # If there's a message, any keypress makes it disappear
             self.message = None
 
             # Up and down navigate the menu
-            if event.key == pygame.K_UP:
+            if event.key == pygame_K_UP:
                 if self.selection == 0:
                     self.selection = len(self.menuspec)
                 self.selection -= 1
                 return True
             
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame_K_DOWN:
                 self.selection += 1
                 if self.selection == len(self.menuspec):
                     self.selection = 0
                 return True
 
             # Enter selects an option, thus quits the menu
-            elif event.key == pygame.K_RETURN:
+            elif event.key == pygame_K_RETURN:
                 action = self.menuspec[self.selection]["action"]
                 if isinstance(action, str):
                     self.quit()

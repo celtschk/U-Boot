@@ -5,14 +5,14 @@ This module provides the GameDisplay class
 import pygame
 
 # work around pylint not understanding pygame
-# pylint: disable no-member
+# pylint: disable no-name-in-module
 from pygame import (
     QUIT as pygame_QUIT,
     KEYDOWN as pygame_KEYDOWN,
     K_f as pygame_K_f,
     K_HASH as pygame_K_HASH
     )
-#pylint: enable no-member
+#pylint: enable no-name-in-module
 
 class GameDisplay:
     """
@@ -53,7 +53,6 @@ class GameDisplay:
         raise NotImplementedError("Must be supplied by the derived class")
 
 
-    # py lint disable=no-member
     def handle_event(self, event):
         """
         Handle a known event. Returns if the event has been handled.
@@ -76,7 +75,6 @@ class GameDisplay:
 
         # If we get here, no event has been handled.
         return False
-    # py lint enable=no-member
 
 
     # This must be a member function in order to be overridden
