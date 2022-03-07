@@ -198,9 +198,10 @@ class Game:
                             savefile["game"] = state
                         message = "Game saved"
 
-                    if result == Level.TERMINATE:
+                    elif result == Level.TERMINATE:
                         # quit the game on request
                         action = "quit"
+
                     else:
                         # return to the menu
                         action = "menu"
