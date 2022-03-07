@@ -162,7 +162,12 @@ class Game:
             helpscreen = TextScreen(self, helptext)
             helpscreen.execute()
 
-            return helpscreen.terminated()
+            if helpscreen.terminated():
+                action = "quit"
+            else:
+                action = "menu"
+
+            return action
 
 
     def run(self):
@@ -176,11 +181,7 @@ class Game:
                 action = self.display_menu(action, message)
                 message = None
             elif action == "help":
-                terminated = self.show_help()
-                if terminated:
-                    action = "quit"
-                else:
-                    action = "menu"
+                action = self.show_help()
             elif action in ("play", "resume"):
                 # play the game
                 if action == "play":
