@@ -36,10 +36,12 @@ class TextScreen(GameDisplay):
         super().__init__(game)
 
         # the colours used
-        self.fg_colour = resources.get_colour("paginated text")
-        self.bg_colour = resources.get_colour("paginated background")
-        self.footer_colour = resources.get_colour("paginated footer")
-        self.err_colour = resources.get_colour("invalid control sequence")
+        self.colours = {
+            "foreground": resources.get_colour("paginated text"),
+            "background": resources.get_colour("paginated background"),
+            "footer":     resources.get_colour("paginated footer"),
+            "error":      resources.get_colour("invalid control sequence")
+            }
 
         self.layout = settings.paginate_layout
         self.font = self.game.paginated_font
@@ -88,12 +90,12 @@ class TextScreen(GameDisplay):
         # helper function to create an empty page
         def newpage():
             page = pygame.Surface((screenwidth, screenheight))
-            page.fill(self.bg_colour)
+            page.fill(self.colours["background"])
             return page
 
         # invalid control sequence sign. Always the same, thus
         # rendered exactly once
-        invalid_control = self.font.render("???", True, self.err_colour)
+        invalid_control = self.font.render("???", True, self.colours["error"])
 
         # do the pagination
         for block in text.split("\f"):
@@ -160,7 +162,7 @@ class TextScreen(GameDisplay):
                             item = self.font.render(
                                 settings.game_title,
                                 True,
-                                self.fg_colour)
+                                self.colours["foreground"])
                         else:
                             item = invalid_control
 
@@ -202,7 +204,7 @@ class TextScreen(GameDisplay):
                         rendered_chunk = self.font.render(
                             line[index:chunk_end],
                             True,
-                            self.fg_colour)
+                            self.colours["foreground"])
                         current_page.blit(rendered_chunk,
                                           (current_hpos, current_vpos))
                         current_hpos += rendered_chunk.get_width()
@@ -242,7 +244,7 @@ class TextScreen(GameDisplay):
             f"Page {self.current_page+1} of {len(self.pages)}. "
             + "Up/Down: turn page, Q: back to menu.",
             True,
-            self.footer_colour)
+            self.colours["footer"])
         posx = self.layout["border"]["left"]
         posy = (self.game.screen.get_height()
                 - self.layout["border"]["bottom"]
