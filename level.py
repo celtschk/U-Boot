@@ -70,21 +70,17 @@ class Level(GameDisplay):
 
         self.waterline = int(settings.sky_fraction * self.height)
 
-        self.score = old_state["score"]
-        self.level_number = old_state["level_number"]
-        self.object_settings = old_state["object_settings"]
-        self.game_objects = old_state["objects"]
-        self.spawnables = old_state["spawnables"]
+        self.state = old_state
 
         self.score_frame_countdown = self.score_frames = settings.score_frames
         self.level_display_frames = settings.level_display_frames
         self.final_display_frames = 0
 
-        if not self.game_objects:
+        if not self.state["objects"]:
             # get limits and probabilities for objects
-            for obj_type, obj in self.object_settings.items():
+            for obj_type, obj in self.state["object_settings"].items():
                 # record object info in objects dictionary
-                object_info = self.game_objects[obj_type] = { "list": [] }
+                object_info = self.state["objects"][obj_type] = { "list": [] }
 
                 if "max_count" in obj:
                     # initially, none of those objects exis
@@ -92,7 +88,7 @@ class Level(GameDisplay):
 
                 if "spawn_rate" in obj:
                     object_info["spawn_rate"] = obj["spawn_rate"]
-                    self.spawnables.add(obj_type)
+                    self.state["spawnables"].add(obj_type)
 
                 if "total_count" in obj:
                     object_info["remaining"] = obj["total_count"]
@@ -102,15 +98,15 @@ class Level(GameDisplay):
 
             # create the ship
             ship = self.create_moving_object("ship")
-            self.game_objects["ship"] = { "list": [ship] }
+            self.state["objects"]["ship"] = { "list": [ship] }
 
             # setup storage for animations
             for animation_type in settings.animations:
-                self.game_objects[animation_type] = { "list": [] }
+                self.state["objects"][animation_type] = { "list": [] }
 
         # set displayed score to game score
         # (separate to allow score animation)
-        self.displayed_score = self.score
+        self.displayed_score = self.state["score"]
 
         self.colours = {
             # background (sky) colour
@@ -213,20 +209,14 @@ class Level(GameDisplay):
         Get the current state of the level. The data is used in the
         save file, as well as to pass on data to the next level.
         """
-        return {
-            "level_number": self.level_number,
-            "object_settings": self.object_settings,
-            "objects": self.game_objects,
-            "spawnables": self.spawnables,
-            "score": self.score
-            }
+        return self.state
 
 
     def create_moving_object(self, object_type):
         """
         Create a moving object of type object_type
         """
-        data = self.object_settings[object_type]
+        data = self.state["object_settings"][object_type]
         filename = data["filename"]
         origin = pygame.Vector2(data["origin"])
 
@@ -241,7 +231,7 @@ class Level(GameDisplay):
             start_adjustment = pygame.Vector2(origin[0], 0)
         else:
             if start[0] == "ship":
-                ship = self.game_objects["ship"]["list"][0]
+                ship = self.state["objects"]["ship"]["list"][0]
                 start_x = ship.get_position()[0]
             elif isinstance(start[0],str):
                 start_x = resources.get_value(data[start[0]])
@@ -288,17 +278,17 @@ class Level(GameDisplay):
                           self.width,
                           self.height - self.waterline))
 
-        for obj_data in self.game_objects.values():
+        for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
                 obj.draw_on(screen)
 
         displaydata = {
-            "remaining_bombs": self.game_objects["bomb"]["remaining"],
+            "remaining_bombs": self.state["objects"]["bomb"]["remaining"],
             "available_bombs": self.get_available_bombs(),
             "bomb_cost": self.get_bomb_cost(),
             "remaining_subs": self.objects_remaining("submarine"),
-            "to_destroy": self.game_objects["submarine"]["to_destroy"],
-            "level": self.level_number,
+            "to_destroy": self.state["objects"]["submarine"]["to_destroy"],
+            "level": self.state["level_number"],
             "score": self.displayed_score
             }
 
@@ -321,20 +311,20 @@ class Level(GameDisplay):
 
     def get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
-        num_of_bombs = len(self.game_objects["bomb"]["list"])
+        num_of_bombs = len(self.state["objects"]["bomb"]["list"])
         return sum((num_of_bombs+k)**2 for k in range(count))
 
 
     def get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
 
-        bomb_info = self.game_objects["bomb"]
+        bomb_info = self.state["objects"]["bomb"]
         max_bombs = min(bomb_info["max_count"], bomb_info["remaining"])
         existing_bombs = len(bomb_info["list"])
 
         available_bombs = max_bombs - existing_bombs
 
-        while self.get_bomb_cost(available_bombs) > self.score:
+        while self.get_bomb_cost(available_bombs) > self.state["score"]:
             available_bombs -= 1
 
         return available_bombs
@@ -346,24 +336,24 @@ class Level(GameDisplay):
         # don't drop a new bomb if there already exist a naximal
         # number of them, or the score would go negative
         if self.get_available_bombs() > 0:
-            ship = self.game_objects["ship"]["list"][0]
+            ship = self.state["objects"]["ship"]["list"][0]
             ship_pos = ship.get_position()
 
             # don't drop a bomb off-screen
             if ship_pos[0] > 0 and ship_pos[0] < self.width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                self.score -= self.get_bomb_cost()
+                self.state["score"] -= self.get_bomb_cost()
 
                 newbomb = self.create_moving_object("bomb")
-                self.game_objects["bomb"]["list"].append(newbomb)
-                self.game_objects["bomb"]["remaining"] -= 1
+                self.state["objects"]["bomb"]["list"].append(newbomb)
+                self.state["objects"]["bomb"]["remaining"] -= 1
 
 
     def spawn_objects(self):
         "Possibly spawn new spawnable objects"
-        for obj_type in self.spawnables:
-            obj_data = self.game_objects[obj_type]
+        for obj_type in self.state["spawnables"]:
+            obj_data = self.state["objects"][obj_type]
             limited = ("remaining" in obj_data)
 
             max_objects = obj_data["max_count"]
@@ -376,7 +366,7 @@ class Level(GameDisplay):
             if existing_objects < max_objects:
                 if resources.randomly_true(rate/self.game.fps):
                     newobj = self.create_moving_object(obj_type)
-                    self.game_objects[obj_type]["list"].append(newobj)
+                    self.state["objects"][obj_type]["list"].append(newobj)
                     if limited:
                         obj_data["remaining"] -= 1
 
@@ -386,7 +376,7 @@ class Level(GameDisplay):
         Create an animation of given type at a specific position.
         """
         animation = settings.animations[animation_type]
-        self.game_objects[animation_type]["list"].append(
+        self.state["objects"][animation_type]["list"].append(
             Animation(path_scheme = animation["images"],
                       frame_count = animation["frame_count"],
                       fps = animation["fps"],
@@ -400,22 +390,22 @@ class Level(GameDisplay):
         """
         for obj_pair, info in settings.hit_info.items():
             target_name, projectile_name = obj_pair
-            for target in self.game_objects[target_name]["list"]:
-                for projectile in self.game_objects[projectile_name]["list"]:
+            for target in self.state["objects"][target_name]["list"]:
+                for projectile in self.state["objects"][projectile_name]["list"]:
                     bb1 = target.get_bounding_box()
                     bb2 = projectile.get_bounding_box()
                     if bb1.colliderect(bb2):
                         targetpos = target.get_position()
                         if target.is_active() and info["score"]:
-                            self.score += int((targetpos[1] - self.waterline) /
+                            self.state["score"] += int((targetpos[1] - self.waterline) /
                                               self.height * 20 + 0.5)
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
                                               projectile.get_position())
                         target.deactivate()
                         projectile.deactivate()
-                        if self.game_objects[target_name]["to_destroy"] > 0:
-                            self.game_objects[target_name]["to_destroy"] -= 1
+                        if self.state["objects"][target_name]["to_destroy"] > 0:
+                            self.state["objects"][target_name]["to_destroy"] -= 1
 
 
     def handle_event(self, event):
@@ -463,7 +453,7 @@ class Level(GameDisplay):
         Return True if all objects of the given type have already beem
         generated.
         """
-        obj_info = self.game_objects[obj_type]
+        obj_info = self.state["objects"][obj_type]
         return obj_info.get("remaining", 1) + len(obj_info["list"])
 
 
@@ -471,12 +461,12 @@ class Level(GameDisplay):
         """
         Move the displayed score one step closer to the actual score
         """
-        if self.displayed_score != self.score:
+        if self.displayed_score != self.state["score"]:
             if self.score_frame_countdown == 0:
                 self.score_frame_countdown = self.score_frames
-                if self.displayed_score < self.score:
+                if self.displayed_score < self.state["score"]:
                     self.displayed_score += 1
-                elif self.displayed_score > self.score:
+                elif self.displayed_score > self.state["score"]:
                     self.displayed_score -= 1
             else:
                 self.score_frame_countdown -= 1
@@ -501,12 +491,12 @@ class Level(GameDisplay):
             if self.final_display_frames > 0:
                 self.final_display_frames -=1
             for animation_type in settings.animations:
-                for obj in self.game_objects[animation_type]["list"]:
+                for obj in self.state["objects"][animation_type]["list"]:
                     obj.update(self.game.clock.get_time()/1000)
             return
 
         # move all objects and advance all animations
-        for obj_data in self.game_objects.values():
+        for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
                 obj.update(self.game.clock.get_time()/1000)
 
@@ -514,12 +504,12 @@ class Level(GameDisplay):
         self.handle_hits()
 
         # remove inactive objects and animations
-        for thing in self.game_objects.values():
+        for thing in self.state["objects"].values():
             thing["list"] = [obj for obj in thing["list"] if obj.is_active()]
 
         # determine whether to quit the level
         submarines_remaining = self.objects_remaining("submarine")
-        submarines_to_destroy = self.game_objects["submarine"]["to_destroy"]
+        submarines_to_destroy = self.state["objects"]["submarine"]["to_destroy"]
         if submarines_remaining == 0:
             self.final_display_frames = self.level_display_frames
             pygame.mixer.music.pause()
