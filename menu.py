@@ -22,18 +22,22 @@ class Menu(GameDisplay):
     Class representing a menu.
     """
 
-    def __init__(self, game,
-                 menuspec, c_background, c_text, c_highlight, c_message, font,
-                 message = None):
+    def __init__(self, game, menuspec, font, message = None):
         """
         Initialize the menu
         """
         super().__init__(game)
         self.menuspec = menuspec
-        self.c_background = c_background
-        self.c_text = c_text
-        self.c_highlight = c_highlight
-        self.c_message = c_message
+        self.colours = {
+            "background": resources.get_colour("menu background"),
+            "option":     resources.get_colour("menu option"),
+            "highlight":  resources.get_colour("menu highlight"),
+            "message":    resources.get_colour("menu message")
+            }
+        #self.c_background = resources.get_colour("menu background")
+        #self.c_text = resources.get_colour("menu option")
+        #self.c_highlight = resources.get_colour("menu highlight")
+        #self.c_message = resources.get_colour("menu message")
         self.font = font
         self.selection = 0
         self.message = message
@@ -44,7 +48,7 @@ class Menu(GameDisplay):
         Draw the menu
         """
         screen = self.game.screen
-        screen.fill(self.c_background)
+        screen.fill(self.colours["background"])
 
         line_height = 50
         center_x = screen.get_width()//2
@@ -55,9 +59,9 @@ class Menu(GameDisplay):
 
         for index, option in enumerate(self.menuspec):
             if index == self.selection:
-                colour = self.c_highlight
+                colour = self.colours["highlight"]
             else:
-                colour = self.c_text
+                colour = self.colours["option"]
 
             values = option.get("values", {})
 
@@ -81,7 +85,7 @@ class Menu(GameDisplay):
             text = resources.MessageData(
                 message = self.message,
                 position = (center_x, current_line),
-                colour = self.c_message,
+                colour = self.colours["message"],
                 font = self.font,
                 origin = (0.5, 0.5)
                 )

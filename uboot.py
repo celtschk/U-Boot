@@ -148,14 +148,7 @@ class Game:
         """
         Display a menu
         """
-        menu = Menu(self,
-                    self.menus[menu_name],
-                    resources.get_colour("menu background"),
-                    resources.get_colour("menu option"),
-                    resources.get_colour("menu highlight"),
-                    resources.get_colour("menu message"),
-                    self.font,
-                    message)
+        menu = Menu(self, self.menus[menu_name], self.font, message)
         menu.execute()
         if menu.terminated():
             return "quit"
