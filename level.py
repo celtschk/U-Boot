@@ -114,41 +114,43 @@ class Level(GameDisplay):
         # (separate to allow score animation)
         self.displayed_score = self.score
 
-        # background (sky) colour
-        self.c_background = resources.get_colour("sky")
+        self.colours = {
+            # background (sky) colour
+            "background": resources.get_colour("sky"),
 
-        # water colour
-        self.c_water = resources.get_colour("water")
+            # water colour
+            "water": resources.get_colour("water"),
 
-        # colours of the game state display
-        self.c_text = resources.get_colour("text")
-        self.c_no_bombs = resources.get_colour("no bombs")
-        self.c_no_destroy = resources.get_colour("no more subs to destroy")
-        self.c_not_enough_subs = resources.get_colour("not enough subs")
+            # colours of the game state display
+            "text": resources.get_colour("text"),
+            "no bombs": resources.get_colour("no bombs"),
+            "no destroy": resources.get_colour("no more subs to destroy"),
+            "not enough subs": resources.get_colour("not enough subs"),
 
-        # colour of the pause text display
-        self.c_pause = resources.get_colour("pause")
+            # colour of the pause text display
+            "pause": resources.get_colour("pause"),
 
-        # colour of the level cleared text display
-        self.c_cleared = resources.get_colour("cleared")
+            # colour of the level cleared text display
+            "cleared": resources.get_colour("cleared"),
 
-        # colour of the level failed text display
-        self.c_failed = resources.get_colour("failed")
+            # colour of the level failed text display
+            "failed": resources.get_colour("failed")
+            }
 
         # The game is initially not paused
         self.paused = False
 
         def bomb_text_colour(data):
             if data["available_bombs"] > 0:
-                return self.c_text
-            return self.c_no_bombs
+                return self.colours["text"]
+            return self.colours["no bombs"]
 
         def submarine_text_colour(data):
             if data["to_destroy"] == 0:
-                return self.c_no_destroy
+                return self.colours["no destroy"]
             if data["to_destroy"] > data["remaining_subs"]:
-                return self.c_not_enough_subs
-            return self.c_text
+                return self.colours["not enough subs"]
+            return self.colours["text"]
 
         self.game_state_display = [
             resources.MessageData(
@@ -161,14 +163,14 @@ class Level(GameDisplay):
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
                 position = pygame.Vector2(20, 50),
-                colour = self.c_text,
+                colour = self.colours["text"],
                 font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Level: {level},  Score: {score}",
                 position = pygame.Vector2(20+self.width//2, 20),
-                colour = self.c_text,
+                colour = self.colours["text"],
                 font = self.game.font
                 ),
 
@@ -181,29 +183,31 @@ class Level(GameDisplay):
 
             ]
 
-        # message for pause
-        self.paused_msg = resources.MessageData(
-            message = "--- PAUSED ---",
-            position = pygame.Vector2(self.width//2, self.height//2),
-            colour = self.c_pause,
-            font = self.game.font,
-            origin = pygame.Vector2(0.5,0.5))
+        self.messages = {
+            # message for pause
+            "paused": resources.MessageData(
+                message = "--- PAUSED ---",
+                position = pygame.Vector2(self.width//2, self.height//2),
+                colour = self.colours["pause"],
+                font = self.game.font,
+                origin = pygame.Vector2(0.5,0.5)),
 
-        # message for cleared level
-        self.cleared_msg = resources.MessageData(
-            message = "*** LEVEL CLEARED ***",
-            position = pygame.Vector2(self.width//2, self.height//2 - 32),
-            colour = self.c_cleared,
-            font = self.game.font,
-            origin = pygame.Vector2(0.5,0.5))
+            # message for cleared level
+            "cleared": resources.MessageData(
+                message = "*** LEVEL CLEARED ***",
+                position = pygame.Vector2(self.width//2, self.height//2 - 32),
+                colour = self.colours["cleared"],
+                font = self.game.font,
+                origin = pygame.Vector2(0.5,0.5)),
 
-        # message for failed level
-        self.failed_msg = resources.MessageData(
-            message = "*** LEVEL FAILED ***",
-            position = pygame.Vector2(self.width//2, self.height//2 - 32),
-            colour = self.c_failed,
-            font = self.game.font,
-            origin = pygame.Vector2(0.5,0.5))
+            # message for failed level
+            "failed": resources.MessageData(
+                message = "*** LEVEL FAILED ***",
+                position = pygame.Vector2(self.width//2, self.height//2 - 32),
+                colour = self.colours["failed"],
+                font = self.game.font,
+                origin = pygame.Vector2(0.5,0.5))
+            }
 
 
     def get_state(self):
@@ -278,8 +282,8 @@ class Level(GameDisplay):
         Draw the game graphics
         """
         screen = self.game.screen
-        screen.fill(self.c_background)
-        pygame.draw.rect(screen, self.c_water,
+        screen.fill(self.colours["background"])
+        pygame.draw.rect(screen, self.colours["water"],
                          (0,
                           self.waterline,
                           self.width,
@@ -304,14 +308,14 @@ class Level(GameDisplay):
 
         # show message if game is paused:
         if self.paused:
-            self.paused_msg.write(screen)
+            self.messages["paused"].write(screen)
 
         # show final message as appropriate:
         if not self.running:
             if self.status == self.LEVEL_CLEARED:
-                self.cleared_msg.write(screen)
+                self.messages["cleared"].write(screen)
             elif self.status == self.LEVEL_FAILED:
-                self.failed_msg.write(screen)
+                self.messages["failed"].write(screen)
 
         pygame.display.flip()
 
