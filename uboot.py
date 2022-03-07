@@ -3,7 +3,10 @@ import shelve
 import pygame
 # work around pylint not understanding pygame
 # pylint: disable=no-name-in-module
-from pygame import FULLSCREEN as pygame_FULLSCREEN
+from pygame import (
+    FULLSCREEN as pygame_FULLSCREEN,
+    init as pygame_init
+    )
 # pylint: enable=no-name-in-module
 
 # python files from this game
@@ -20,7 +23,7 @@ class Game:
         """
         Initialize the game
         """
-        pygame.init()
+        pygame_init()
 
         self.screen = pygame.display.set_mode((settings.width,
                                                settings.height))
