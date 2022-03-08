@@ -265,18 +265,30 @@ class TextScreen(GameDisplay):
 
 
     def previous_page(self):
+        """
+        Move to the previous page
+        """
         if self.current_page > 0:
             self.current_page -= 1
 
 
     def next_page(self):
+        """
+        Move to the next page
+        """
         if self.current_page < len(self.pages) - 1:
             self.current_page += 1
 
 
     def first_page(self):
+        """
+        Move to the first page
+        """
         self.current_page = 0
 
 
     def last_page(self):
+        """
+        Move to the last page
+        """
         self.current_page = len(self.pages) - 1
