@@ -14,6 +14,8 @@ from pygame import (
     )
 #pylint: enable=no-name-in-module
 
+import settings
+
 class GameDisplay:
     """
     Base class containing the logic of any screen the user may
@@ -43,6 +45,12 @@ class GameDisplay:
         self.running = False
         self.status = None
 
+        # key bindings
+        self.key_bindings = {
+            pygame_K_f: self.game.toggle_fullscreen,
+            pygame_K_HASH: self.screenshot
+            }
+
 
     def draw(self):
         """
@@ -57,8 +65,8 @@ class GameDisplay:
         """
         Handle a known event. Returns if the event has been handled.
 
-        This function handles pygame.QUIT and toggling fullscreen with
-        key F. To handle other events, override this function.
+        This function handles pygame.QUIT and pygame.KEYDOWN.
+        To handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
         if event.type == pygame_QUIT:
@@ -66,15 +74,19 @@ class GameDisplay:
             return True
 
         if event.type == pygame_KEYDOWN:
-            if event.key == pygame_K_f:
-                self.game.toggle_fullscreen()
-                return True
-            if event.key == pygame_K_HASH:
-                pygame.image.save(self.game.screen, "U-Boot-screenshot.png")
+            if event.key in self.key_bindings:
+                self.key_bindings[event.key]()
                 return True
 
         # If we get here, no event has been handled.
         return False
+
+
+    def screenshot(self):
+        """
+        Make a screenshot of the current display
+        """
+        pygame.image.save(self.game.screen, settings.screenshot_file)
 
 
     # This must be a member function in order to be overridden

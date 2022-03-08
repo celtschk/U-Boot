@@ -203,6 +203,12 @@ class Level(GameDisplay):
                 origin = pygame.Vector2(0.5,0.5))
             }
 
+        self.key_bindings.update({
+            pygame_K_p: self.pause_game,
+            pygame_K_PAUSE: self.pause_game,
+            pygame_K_s: lambda: self.quit(self.LEVEL_SAVE),  #self.quit_for_save,
+            pygame_K_q: self.quit
+            })
 
     def get_state(self):
         """
@@ -408,6 +414,24 @@ class Level(GameDisplay):
                             self.state["objects"][target_name]["to_destroy"] -= 1
 
 
+    def pause_game(self):
+        """
+        Pause the game
+        """
+        if self.paused:
+            pygame.mixer.music.unpause()
+        else:
+            pygame.mixer.music.pause()
+        self.paused = not self.paused
+
+
+    def quit_for_save(self):
+        """
+        Quit the level and mark it for being saved
+        """
+        self.quit(self.LEVEL_SAVE)
+
+
     def handle_event(self, event):
         """
         Handle an event
@@ -423,27 +447,6 @@ class Level(GameDisplay):
                 if event.key == pygame_K_DOWN:
                     self.drop_bomb()
                     return True
-
-            # Other keys are always processed
-
-            # P or Pause pauses the game
-            if event.key in {pygame_K_p, pygame_K_PAUSE}:
-                if self.paused:
-                    pygame.mixer.music.unpause()
-                else:
-                    pygame.mixer.music.pause()
-                self.paused = not self.paused
-                return True
-
-            # Q quits the game and returns to the menu
-            if event.key == pygame_K_q:
-                self.quit()
-                return True
-
-            # S shelves this level
-            if event.key == pygame_K_s:
-                self.quit(self.LEVEL_SAVE)
-                return True
 
         return False
 

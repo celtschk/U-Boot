@@ -240,3 +240,4 @@ level_updates = {
     }
 
 save_file = "uboot.save"
+screenshot_file = "U-Boot-screenshot.png"

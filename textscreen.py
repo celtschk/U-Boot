@@ -6,7 +6,6 @@ import pygame
 # work around pylint not understanding pygame
 # pylint: disable=no-name-in-module
 from pygame import (
-    KEYDOWN as pygame_KEYDOWN,
     K_UP as pygame_K_UP,
     K_BACKSPACE as pygame_K_BACKSPACE,
     K_PAGEUP as pygame_K_PAGEUP,
@@ -51,6 +50,18 @@ class TextScreen(GameDisplay):
 
         # start with the first page
         self.current_page = 0
+
+        self.key_bindings.update({
+            pygame_K_UP:        self.previous_page,
+            pygame_K_PAGEUP:    self.previous_page,
+            pygame_K_BACKSPACE: self.previous_page,
+            pygame_K_DOWN:      self.next_page,
+            pygame_K_PAGEDOWN:  self.next_page,
+            pygame_K_SPACE:     self.next_page,
+            pygame_K_HOME:      self.first_page,
+            pygame_K_END:       self.last_page,
+            pygame_K_q:         self.quit
+            })
 
 
     def paginate(self, text):
@@ -253,43 +264,19 @@ class TextScreen(GameDisplay):
         pygame.display.flip()
 
 
-    def handle_event(self, event):
-        """
-        Handle an event
-        """
-        if super().handle_event(event):
-            return True
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
 
-        if event.type == pygame_KEYDOWN:
-            # Up, Backspace or Page Up go to the previous page
-            if event.key in {pygame_K_UP,
-                             pygame_K_BACKSPACE,
-                             pygame_K_PAGEUP}:
-                if self.current_page > 0:
-                    self.current_page -= 1
-                return True
 
-            # Down, Space or Page Down go to the next page
-            if event.key in {pygame_K_DOWN,
-                               pygame_K_SPACE,
-                               pygame_K_PAGEDOWN}:
-                if self.current_page < len(self.pages) - 1:
-                    self.current_page += 1
-                return True
+    def next_page(self):
+        if self.current_page < len(self.pages) - 1:
+            self.current_page += 1
 
-            # Home goes to the first page
-            if event.key == pygame_K_HOME:
-                self.current_page = 0
-                return True
 
-            # End goes to the last page
-            if event.key == pygame_K_END:
-                self.current_page = len(self.pages) - 1
-                return True
+    def first_page(self):
+        self.current_page = 0
 
-            # Q quits the game and returns to the menu
-            if event.key == pygame_K_q:
-                self.quit()
-                return True
 
-        return False
+    def last_page(self):
+        self.current_page = len(self.pages) - 1

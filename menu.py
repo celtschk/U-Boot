@@ -34,13 +34,16 @@ class Menu(GameDisplay):
             "highlight":  resources.get_colour("menu highlight"),
             "message":    resources.get_colour("menu message")
             }
-        #self.c_background = resources.get_colour("menu background")
-        #self.c_text = resources.get_colour("menu option")
-        #self.c_highlight = resources.get_colour("menu highlight")
-        #self.c_message = resources.get_colour("menu message")
         self.font = font
         self.selection = 0
         self.message = message
+
+        # menu specific keybindings
+        self.key_bindings.update({
+            pygame_K_UP: self.move_up,
+            pygame_K_DOWN: self.move_down,
+            pygame_K_RETURN: self.select_option
+            })
 
 
     def draw(self):
@@ -53,7 +56,6 @@ class Menu(GameDisplay):
         line_height = 50
         center_x = screen.get_width()//2
         center_y = screen.get_height()//2
-
 
         current_line = center_y - (len(self.menuspec)-1)*line_height/2
 
@@ -95,38 +97,45 @@ class Menu(GameDisplay):
         pygame.display.flip()
 
 
+    def move_up(self):
+        """
+        Move the menu selection one position up
+        """
+        if self.selection == 0:
+            self.selection = len(self.menuspec)
+        self.selection -= 1
+
+
+    def move_down(self):
+        """
+        Move the menu selection one position down
+        """
+        self.selection += 1
+        if self.selection == len(self.menuspec):
+            self.selection = 0
+
+
+    def select_option(self):
+        """
+        Select a menu option
+        """
+        action = self.menuspec[self.selection]["action"]
+        if isinstance(action, str):
+            self.quit()
+        else:
+            action()
+
+
     def handle_event(self, event):
         """
-        Handle an event
+        Make any message disappear on pressing a key
         """
-        if super().handle_event(event):
-            return True
-
         if event.type == pygame_KEYDOWN:
             # If there's a message, any keypress makes it disappear
             self.message = None
 
-            # Up and down navigate the menu
-            if event.key == pygame_K_UP:
-                if self.selection == 0:
-                    self.selection = len(self.menuspec)
-                self.selection -= 1
-                return True
-
-            if event.key == pygame_K_DOWN:
-                self.selection += 1
-                if self.selection == len(self.menuspec):
-                    self.selection = 0
-                return True
-
-            # Enter selects an option, thus quits the menu
-            if event.key == pygame_K_RETURN:
-                action = self.menuspec[self.selection]["action"]
-                if isinstance(action, str):
-                    self.quit()
-                else:
-                    action()
-                return True
+        if super().handle_event(event):
+            return True
 
         return False
 
