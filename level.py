@@ -5,18 +5,6 @@ This module implements the class Level, which contains the actual gameplay.
 from copy import deepcopy
 
 import pygame
-# work around pylint not understanding pygame
-# pylint: disable=no-name-in-module
-from pygame import (
-    KEYDOWN as pygame_KEYDOWN,
-    K_DOWN as pygame_K_DOWN,
-    K_p as pygame_K_p,
-    K_PAUSE as pygame_K_PAUSE,
-    K_q as pygame_K_q,
-    K_s as pygame_K_s
-    )
-# pylint: enable=no-name-in-module
-
 
 import settings
 import resources
@@ -204,10 +192,10 @@ class Level(GameDisplay):
             }
 
         self.key_bindings.update({
-            pygame_K_p: self.pause_game,
-            pygame_K_PAUSE: self.pause_game,
-            pygame_K_s: lambda: self.quit(self.LEVEL_SAVE),  #self.quit_for_save,
-            pygame_K_q: self.quit
+            pygame.K_p: self.pause_game,
+            pygame.K_PAUSE: self.pause_game,
+            pygame.K_s: lambda: self.quit(self.LEVEL_SAVE),  #self.quit_for_save,
+            pygame.K_q: self.quit
             })
 
     def get_state(self):
@@ -439,12 +427,12 @@ class Level(GameDisplay):
         if super().handle_event(event):
             return True
 
-        if event.type == pygame_KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             # Game actions are only processed if the game is running
             # and not paused
             if self.running and not self.paused:
                 # Down arrow drops a bomb
-                if event.key == pygame_K_DOWN:
+                if event.key == pygame.K_DOWN:
                     self.drop_bomb()
                     return True
 

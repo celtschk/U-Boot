@@ -5,13 +5,6 @@ U-Boot: A simple game
 import shelve
 
 import pygame
-# work around pylint not understanding pygame
-# pylint: disable=no-name-in-module
-from pygame import (
-    FULLSCREEN as pygame_FULLSCREEN,
-    init as pygame_init
-    )
-# pylint: enable=no-name-in-module
 
 # python files from this game
 import settings
@@ -27,7 +20,7 @@ class Game:
         """
         Initialize the game
         """
-        pygame_init()
+        pygame.init()
 
         self.screen = pygame.display.set_mode((settings.width,
                                                settings.height))
@@ -108,10 +101,10 @@ class Game:
         toggle between fullscreen and windowed
         """
         size = (self.screen.get_width(), self.screen.get_height())
-        if self.screen.get_flags() & pygame_FULLSCREEN:
+        if self.screen.get_flags() & pygame.FULLSCREEN:
             pygame.display.set_mode(size)
         else:
-            pygame.display.set_mode(size, pygame_FULLSCREEN)
+            pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 
     def play(self, state):

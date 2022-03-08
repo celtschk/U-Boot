@@ -23,4 +23,4 @@ jobs:
         pip install appdirs
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --extension-pkg-allow-list=pygame $(git ls-files '*.py')

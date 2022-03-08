@@ -3,21 +3,6 @@ This module provides a class to display running text
 """
 
 import pygame
-# work around pylint not understanding pygame
-# pylint: disable=no-name-in-module
-from pygame import (
-    K_UP as pygame_K_UP,
-    K_BACKSPACE as pygame_K_BACKSPACE,
-    K_PAGEUP as pygame_K_PAGEUP,
-    K_DOWN as pygame_K_DOWN,
-    K_SPACE as pygame_K_SPACE,
-    K_PAGEDOWN as pygame_K_PAGEDOWN,
-    K_HOME as pygame_K_HOME,
-    K_END as pygame_K_END,
-    K_q as pygame_K_q
-    )
-# pylint: enable=no-name-in-module
-
 
 import settings
 import resources
@@ -52,15 +37,15 @@ class TextScreen(GameDisplay):
         self.current_page = 0
 
         self.key_bindings.update({
-            pygame_K_UP:        self.previous_page,
-            pygame_K_PAGEUP:    self.previous_page,
-            pygame_K_BACKSPACE: self.previous_page,
-            pygame_K_DOWN:      self.next_page,
-            pygame_K_PAGEDOWN:  self.next_page,
-            pygame_K_SPACE:     self.next_page,
-            pygame_K_HOME:      self.first_page,
-            pygame_K_END:       self.last_page,
-            pygame_K_q:         self.quit
+            pygame.K_UP:        self.previous_page,
+            pygame.K_PAGEUP:    self.previous_page,
+            pygame.K_BACKSPACE: self.previous_page,
+            pygame.K_DOWN:      self.next_page,
+            pygame.K_PAGEDOWN:  self.next_page,
+            pygame.K_SPACE:     self.next_page,
+            pygame.K_HOME:      self.first_page,
+            pygame.K_END:       self.last_page,
+            pygame.K_q:         self.quit
             })
 
 

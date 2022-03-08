@@ -4,16 +4,6 @@ This module provides the GameDisplay class
 
 import pygame
 
-# work around pylint not understanding pygame
-# pylint: disable=no-name-in-module
-from pygame import (
-    QUIT as pygame_QUIT,
-    KEYDOWN as pygame_KEYDOWN,
-    K_f as pygame_K_f,
-    K_HASH as pygame_K_HASH
-    )
-#pylint: enable=no-name-in-module
-
 import settings
 
 class GameDisplay:
@@ -47,8 +37,8 @@ class GameDisplay:
 
         # key bindings
         self.key_bindings = {
-            pygame_K_f: self.game.toggle_fullscreen,
-            pygame_K_HASH: self.screenshot
+            pygame.K_f: self.game.toggle_fullscreen,
+            pygame.K_HASH: self.screenshot
             }
 
 
@@ -69,11 +59,11 @@ class GameDisplay:
         To handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
-        if event.type == pygame_QUIT:
+        if event.type == pygame.QUIT:
             self.terminate()
             return True
 
-        if event.type == pygame_KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             if event.key in self.key_bindings:
                 self.key_bindings[event.key]()
                 return True

@@ -3,15 +3,6 @@ This module provides menus for the game
 """
 
 import pygame
-# work around pylint not understanding pygame
-# pylint: disable=no-name-in-module
-from pygame import (
-    KEYDOWN as pygame_KEYDOWN,
-    K_UP as pygame_K_UP,
-    K_DOWN as pygame_K_DOWN,
-    K_RETURN as pygame_K_RETURN
-    )
-# pylint: enable=no-name-in-module
 
 import resources
 from gamedisplay import GameDisplay
@@ -40,9 +31,9 @@ class Menu(GameDisplay):
 
         # menu specific keybindings
         self.key_bindings.update({
-            pygame_K_UP: self.move_up,
-            pygame_K_DOWN: self.move_down,
-            pygame_K_RETURN: self.select_option
+            pygame.K_UP: self.move_up,
+            pygame.K_DOWN: self.move_down,
+            pygame.K_RETURN: self.select_option
             })
 
 
@@ -130,7 +121,7 @@ class Menu(GameDisplay):
         """
         Make any message disappear on pressing a key
         """
-        if event.type == pygame_KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             # If there's a message, any keypress makes it disappear
             self.message = None
 
