@@ -206,7 +206,10 @@ class Game:
                             savefile["game"] = state
                         message = "Game saved"
 
-                    elif result == Level.TERMINATE:
+                    # the else branch of this must be executed also if
+                    # result == Level.LEVEL_SAVE, therefore this must
+                    # not be an elif
+                    if result == Level.TERMINATE:
                         # quit the game on request
                         action = "quit"
 
