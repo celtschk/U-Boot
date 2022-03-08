@@ -53,16 +53,16 @@ class Level(GameDisplay):
         """
         super().__init__(game)
 
-        self.width = game.screen.get_width()
-        self.height = game.screen.get_height()
+        self.dimensions = {
+            "width": game.screen.get_width(),
+            "height": game.screen.get_height()
+            }
+        self.dimensions["waterline"] = int(settings.sky_fraction * self.dimensions["height"])
 
-        self.waterline = int(settings.sky_fraction * self.height)
+        center_x = self.dimensions["width"]//2
+        center_y = self.dimensions["height"]//2
 
         self.state = old_state
-
-        self.score_frame_countdown = self.score_frames = settings.score_frames
-        self.level_display_frames = settings.level_display_frames
-        self.final_display_frames = 0
 
         if not self.state["objects"]:
             # get limits and probabilities for objects
@@ -92,9 +92,20 @@ class Level(GameDisplay):
             for animation_type in settings.animations:
                 self.state["objects"][animation_type] = { "list": [] }
 
-        # set displayed score to game score
-        # (separate to allow score animation)
-        self.displayed_score = self.state["score"]
+        self.display = {
+            # set displayed score to game score
+            # (separate to allow score animation)
+            "score": self.state["score"],
+
+            # number of frames between displayed score steps
+            "score_frames":    settings.score_frames,
+
+            # remaining frames until next score step
+            "score_countdown": settings.score_frames,
+
+            # number of frames the finished level is still shown
+            "final_display_frames": settings.level_display_frames,
+            }
 
         self.colours = {
             # background (sky) colour
@@ -151,14 +162,14 @@ class Level(GameDisplay):
 
             resources.MessageData(
                 message = "Level: {level},  Score: {score}",
-                position = pygame.Vector2(20+self.width//2, 20),
+                position = pygame.Vector2(20+center_x, 20),
                 colour = self.colours["text"],
                 font = self.game.font
                 ),
 
             resources.MessageData(
                 message = "Remaining submarines: {to_destroy}/{remaining_subs}",
-                position = pygame.Vector2(20+self.width//2, 50),
+                position = pygame.Vector2(20+center_x, 50),
                 colour = submarine_text_colour,
                 font = self.game.font
                 )
@@ -169,7 +180,7 @@ class Level(GameDisplay):
             # message for pause
             "paused": resources.MessageData(
                 message = "--- PAUSED ---",
-                position = pygame.Vector2(self.width//2, self.height//2),
+                position = pygame.Vector2(center_x, center_y),
                 colour = self.colours["pause"],
                 font = self.game.font,
                 origin = pygame.Vector2(0.5,0.5)),
@@ -177,7 +188,7 @@ class Level(GameDisplay):
             # message for cleared level
             "cleared": resources.MessageData(
                 message = "*** LEVEL CLEARED ***",
-                position = pygame.Vector2(self.width//2, self.height//2 - 32),
+                position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["cleared"],
                 font = self.game.font,
                 origin = pygame.Vector2(0.5,0.5)),
@@ -185,7 +196,7 @@ class Level(GameDisplay):
             # message for failed level
             "failed": resources.MessageData(
                 message = "*** LEVEL FAILED ***",
-                position = pygame.Vector2(self.width//2, self.height//2 - 32),
+                position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["failed"],
                 font = self.game.font,
                 origin = pygame.Vector2(0.5,0.5))
@@ -211,8 +222,11 @@ class Level(GameDisplay):
         Create a moving object of type object_type
         """
         data = self.state["object_settings"][object_type]
-        filename = data["filename"]
         origin = pygame.Vector2(data["origin"])
+
+        height = self.dimensions["height"]
+        width = self.dimensions["width"]
+        waterline = self.dimensions["waterline"]
 
         movement = data["movement"]
 
@@ -221,7 +235,7 @@ class Level(GameDisplay):
             start_x = 0
             start_adjustment = pygame.Vector2(origin[0] - 1, 0)
         elif start[0] == "right":
-            start_x = self.width
+            start_x = width
             start_adjustment = pygame.Vector2(origin[0], 0)
         else:
             if start[0] == "ship":
@@ -242,20 +256,19 @@ class Level(GameDisplay):
             start_depth = start[1]
 
         def y_from_depth(depth):
-            return depth*(self.height - self.waterline) + self.waterline
+            return depth*(height - waterline) + waterline
 
-        start = pygame.Vector2(start_x, y_from_depth(start_depth))
-
-        speed = resources.get_value(movement["speed"])
-        direction = movement["direction"]
+        def calc_velocity(speed, direction):
+            return pygame.Vector2(speed * direction[0] * width,
+                                  speed * direction[1] * height)
 
         return MovingObject(
-            filename,
-            start = start,
+            data["filename"],
+            start = pygame.Vector2(start_x, y_from_depth(start_depth)),
             adjust_start = start_adjustment,
             movement_region = self.game.screen.get_rect(),
-            velocity = pygame.Vector2(speed * direction[0] * self.width,
-                                      speed * direction[1] * self.height),
+            velocity = calc_velocity(resources.get_value(movement["speed"]),
+                                     movement["direction"]),
             origin = origin,
             repeat = movement["repeat"])
 
@@ -268,9 +281,9 @@ class Level(GameDisplay):
         screen.fill(self.colours["background"])
         pygame.draw.rect(screen, self.colours["water"],
                          (0,
-                          self.waterline,
-                          self.width,
-                          self.height - self.waterline))
+                          self.dimensions["waterline"],
+                          self.dimensions["width"],
+                          self.dimensions["height"] - self.dimensions["waterline"]))
 
         for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
@@ -283,7 +296,7 @@ class Level(GameDisplay):
             "remaining_subs": self.objects_remaining("submarine"),
             "to_destroy": self.state["objects"]["submarine"]["to_destroy"],
             "level": self.state["level_number"],
-            "score": self.displayed_score
+            "score": self.display["score"]
             }
 
         for message in self.game_state_display:
@@ -334,7 +347,7 @@ class Level(GameDisplay):
             ship_pos = ship.get_position()
 
             # don't drop a bomb off-screen
-            if ship_pos[0] > 0 and ship_pos[0] < self.width:
+            if ship_pos[0] > 0 and ship_pos[0] < self.dimensions["width"]:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
                 self.state["score"] -= self.get_bomb_cost()
@@ -382,6 +395,9 @@ class Level(GameDisplay):
         Check if any projectile hit any target, and if so, remove both
         and update score
         """
+        waterline = self.dimensions["waterline"]
+        height    = self.dimensions["height"]
+
         for obj_pair, info in settings.hit_info.items():
             target_name, projectile_name = obj_pair
             for target in self.state["objects"][target_name]["list"]:
@@ -391,8 +407,8 @@ class Level(GameDisplay):
                     if bb1.colliderect(bb2):
                         targetpos = target.get_position()
                         if target.is_active() and info["score"]:
-                            self.state["score"] += int((targetpos[1] - self.waterline) /
-                                              self.height * 20 + 0.5)
+                            self.state["score"] += int(
+                                (targetpos[1] - waterline) / height * 20 + 0.5)
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
                                               projectile.get_position())
@@ -452,15 +468,15 @@ class Level(GameDisplay):
         """
         Move the displayed score one step closer to the actual score
         """
-        if self.displayed_score != self.state["score"]:
-            if self.score_frame_countdown == 0:
-                self.score_frame_countdown = self.score_frames
-                if self.displayed_score < self.state["score"]:
-                    self.displayed_score += 1
-                elif self.displayed_score > self.state["score"]:
-                    self.displayed_score -= 1
+        if self.display["score"] != self.state["score"]:
+            if self.display["score_countdown"] == 0:
+                self.display["score_countdown"] = self.display["score_frames"]
+                if self.display["score"] < self.state["score"]:
+                    self.display["score"] += 1
+                elif self.display["score"] > self.state["score"]:
+                    self.display["score"] -= 1
             else:
-                self.score_frame_countdown -= 1
+                self.display["score_countdown"] -= 1
 
 
     def update_state(self):
@@ -479,8 +495,8 @@ class Level(GameDisplay):
         # and then return immediately (so that game objects no longer
         # move, and score is no longer collected)
         if not self.running:
-            if self.final_display_frames > 0:
-                self.final_display_frames -=1
+            if self.display["final_display_frames"] > 0:
+                self.display["final_display_frames"] -=1
             for animation_type in settings.animations:
                 for obj in self.state["objects"][animation_type]["list"]:
                     obj.update(self.game.clock.get_time()/1000)
@@ -502,7 +518,6 @@ class Level(GameDisplay):
         submarines_remaining = self.objects_remaining("submarine")
         submarines_to_destroy = self.state["objects"]["submarine"]["to_destroy"]
         if submarines_remaining == 0:
-            self.final_display_frames = self.level_display_frames
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
@@ -516,7 +531,7 @@ class Level(GameDisplay):
 
 
     def ready_to_quit(self):
-        return self.final_display_frames == 0
+        return self.display["final_display_frames"] == 0
 
 
     def play(self, sound_name):
