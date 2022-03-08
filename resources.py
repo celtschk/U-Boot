@@ -326,3 +326,22 @@ def recursive_update(dictionary, updates):
                 recursive_update(oldvalue, value)
             else:
                 dictionary[key] = value
+
+
+def bisect(first, last, condition):
+    """
+    Returns the largest integer i with first <= i <= last such that
+    condition(i-1) is True.
+
+    Requires truth of condition(first) and that condition(i+1)
+    implies condition(i).
+    """
+    left, right = first, last
+    while left + 1 < right:
+        middle = (left + right) // 2
+        if condition(middle):
+            left = middle
+        else:
+            right = middle
+
+    return right

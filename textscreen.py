@@ -277,3 +277,110 @@ class TextScreen(GameDisplay):
         Move to the last page
         """
         self.current_page = len(self.pages) - 1
+
+
+class TextArea(pygame.Surface):
+    """
+    This class represents a rectanglular area that contains running
+    text.
+    """
+    def __init__(self, size, bg_colour, font, linespacing):
+        width, height = size
+        super().__init__((width, height))
+        self.font = font
+        self.linespacing = linespacing
+
+        self.line_height = font.size("")[1]
+
+        self.fill(bg_colour)
+
+        self.hpos = 0
+        self.vpos = 0
+
+
+    def line_feed(self):
+        """
+        Goes to the next line. Returns whether that line fits.
+        """
+        self.hpos = 0
+        self.vpos += self.linespacing
+
+        return self.vpos + self.line_height < self.get_height()
+
+
+    def get_item_width(self, item):
+        """
+        Gives the width of an item, which is either a string or a
+        surface
+        """
+        if isinstance(item, str):
+            return self.font.size(item)[0]
+        return item.get_width()
+
+
+    def fits_in_line(self, item_width):
+        """
+        Test whether an item of given width fits into the current line
+        """
+        return self.hpos + item_width <= self.get_width()
+
+
+    def render(self, item, colour = None):
+        """
+        Render an item, if possible. The item can be a string or a
+        surface. Returns whether the item was rendered. If it is a
+        string, the colour must be given.
+
+        If the item fits into the current line, it is appended to it.
+        Otherwise, if a new line fits in the text area, render the
+        item in the next line. Otherwise, give up.
+        """
+        item_width = self.get_item_width(item)
+
+        if not self.fits_in_line(item_width):
+            line_fits = self.line_feed()
+            if not line_fits:
+                return False
+
+        if isinstance(item, str):
+            surface = self.font.render(item, True, colour)
+        else:
+            surface = item
+
+        self.blit(surface, (self.hpos, self.vpos))
+        return True
+
+
+    def word_wrap(self, text, start, end, colour):
+        """
+        Word wrap text starting from index start until index end, or
+        until the text area is full, whichever happens first.
+
+        Returns the index up to which the text was rendered.
+        """
+        chunk_start = start
+
+        while chunk_start != end:
+            if self.fits_in_line(text[chunk_start:end]):
+                result = self.render(text[chunk_start:end], colour)
+                if not result:
+                    return chunk_start
+                return end
+
+            chunk_end = resources.bisect(
+                chunk_start, end,
+                lambda index: self.fits_in_line(text[chunk_start:index]))
+
+            last_space = text.rfind(" ", chunk_start, chunk_end)
+            if last_space != -1:
+                chunk_end = last_space - 1
+
+            result = self.render(text[chunk_start:chunk_end], colour)
+            if not result:
+                return chunk_start
+
+            chunk_start = chunk_end
+            if last_space != -1:
+                chunk_start += 1
+
+        return end
