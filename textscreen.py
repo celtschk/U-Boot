@@ -85,9 +85,12 @@ class TextScreen(GameDisplay):
 
         # helper function to create an empty page
         def newpage():
-            page = pygame.Surface((screenwidth, screenheight))
-            page.fill(self.colours["background"])
-            return page
+            #page = pygame.Surface((screenwidth, screenheight))
+            #page.fill(self.colours["background"])
+            #return page
+            return TextArea((textwidth, bottom - top),
+                            self.colours["background"],
+                            self.font, linespacing)
 
         # invalid control sequence sign. Always the same, thus
         # rendered exactly once
@@ -96,32 +99,8 @@ class TextScreen(GameDisplay):
         # do the pagination
         for block in text.split("\f"):
             current_page = newpage()
-            current_vpos = top
-            current_hpos = left
 
             at_beginning_of_page = True
-
-            # helper function to do a line feed
-            def line_feed():
-                nonlocal current_vpos
-                nonlocal current_hpos
-                nonlocal current_page
-                nonlocal at_beginning_of_page
-
-                current_hpos = left
-                current_vpos += linespacing
-
-                # if the next line does not fit on the current page,
-                # commit that page and start a new one
-                if (current_vpos + line_height > bottom
-                    and not at_beginning_of_page):
-                    self.pages += [current_page]
-                    current_page = newpage()
-                    current_vpos = top
-                    at_beginning_of_page = True
-                else:
-                    at_beginning_of_page = False
-
 
             # empty lines at the beginning of a page are ignored
             ignore_empty = True
@@ -138,8 +117,6 @@ class TextScreen(GameDisplay):
 
                 index = 0
                 while index != len(line):
-                    remaining_width = textwidth - current_hpos
-
                     if line[index] == "@":
                         control_end = line.find("@", index+1)
                         if control_end == -1:
@@ -162,59 +139,19 @@ class TextScreen(GameDisplay):
                         else:
                             item = invalid_control
 
-                        width = item.get_width()
-                        if width > remaining_width:
-                            line_feed()
-                        current_page.blit(item, (current_hpos, current_vpos))
-                        current_hpos += width
+                        current_page.render(item)
                     else:
                         left_index, right_index = index, line.find("@", index)
                         if right_index == -1:
                             right_index = len(line)
 
-                        width = self.font.size(line[index:right_index])[0]
-                        wrap_line = (width > remaining_width)
-                        if not wrap_line:
-                            # everything fits into one line
-                            chunk_end = right_index
-                            spacewrap = False
-                        else:
-                            # use binary search to find where to ideally
-                            # wrap the line
-                            while right_index - left_index > 1:
-                                middle_index = (left_index + right_index) // 2
-                                width = self.font.size(line[index:middle_index])[0]
-                                if width > remaining_width:
-                                    right_index = middle_index
-                                else:
-                                    left_index = middle_index
-
-                            chunk_end = line.rfind(" ", index, right_index)
-                            if chunk_end == -1:
-                                chunk_end = right_index
-                                spacewrap = False
-                            else:
-                                spacewrap = True
-
-                        # render the text on the page
-                        rendered_chunk = self.font.render(
-                            line[index:chunk_end],
-                            True,
+                        index = current_page.word_wrap(
+                            line, index, right_index,
                             self.colours["foreground"])
-                        current_page.blit(rendered_chunk,
-                                          (current_hpos, current_vpos))
-                        current_hpos += rendered_chunk.get_width()
 
-                        # continue rendering at chunk_end
-                        index = chunk_end
-
-                        # when wrapping on a space, that space is skipped
-                        if spacewrap:
-                            index += 1
-
-                        # if word wrapped, add a line feed
-                        if wrap_line:
-                            line_feed()
+                        if index != right_index:
+                            pages.append(current_page)
+                            current_page = newpage()
 
                     # if we get here, we're no longer at the beginning
                     # of the page
@@ -223,7 +160,7 @@ class TextScreen(GameDisplay):
                 # finally, move to a new line, unless at the beginning
                 # of a page
                 if not at_beginning_of_page:
-                    line_feed()
+                    current_page.line_feed()
 
             # commit the last page, if not empty
             if not at_beginning_of_page:
@@ -234,7 +171,11 @@ class TextScreen(GameDisplay):
         """
         Draw the current page
         """
-        self.game.screen.blit(self.pages[self.current_page], (0, 0))
+        screen = self.game.screen
+        screen.fill(self.colours["background"])
+        screen.blit(self.pages[self.current_page],
+                    (self.layout["border"]["left"],
+                     self.layout["border"]["top"]))
 
         text = self.font.render(
             f"Page {self.current_page+1} of {len(self.pages)}. "
@@ -348,6 +289,7 @@ class TextArea(pygame.Surface):
             surface = item
 
         self.blit(surface, (self.hpos, self.vpos))
+        self.hpos += item_width
         return True
 
 
@@ -360,20 +302,22 @@ class TextArea(pygame.Surface):
         """
         chunk_start = start
 
+        def fits(chunk_end):
+            return self.fits_in_line(
+                self.get_item_width(text[chunk_start:chunk_end]))
+
         while chunk_start != end:
-            if self.fits_in_line(text[chunk_start:end]):
+            if fits(end):
                 result = self.render(text[chunk_start:end], colour)
                 if not result:
                     return chunk_start
                 return end
 
-            chunk_end = resources.bisect(
-                chunk_start, end,
-                lambda index: self.fits_in_line(text[chunk_start:index]))
+            chunk_end = resources.bisect(chunk_start, end, fits)
 
             last_space = text.rfind(" ", chunk_start, chunk_end)
             if last_space != -1:
-                chunk_end = last_space - 1
+                chunk_end = last_space
 
             result = self.render(text[chunk_start:chunk_end], colour)
             if not result:
@@ -381,6 +325,11 @@ class TextArea(pygame.Surface):
 
             chunk_start = chunk_end
             if last_space != -1:
+                self.line_feed()
                 chunk_start += 1
 
         return end
+
+
+    def at_beginning(self):
+        return self.hpos == 0 and self.vpos == 0
