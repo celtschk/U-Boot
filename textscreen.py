@@ -82,37 +82,14 @@ class TextScreen(GameDisplay):
         """
         # get the screen
         screen = self.game.screen
-        screenwidth = screen.get_width()
-        screenheight = screen.get_height()
-
-        # calculate some useful values
-        top = self.layout["border"]["top"]
-        bottom = screenheight - self.layout["border"]["bottom"]
-        left = self.layout["border"]["left"]
-        right = screenwidth - self.layout["border"]["right"]
-
-        linespacing = self.layout["line spacing"]
-
-        textwidth = right - left
 
         # List of text pages. Each page itself is a pygame surface.
         # Initially the list is empty.
         self.pages = []
 
-        # helper function to create an empty page
-        def newpage():
-            #page = pygame.Surface((screenwidth, screenheight))
-            #page.fill(self.colours["background"])
-            #return page
-            return TextArea((textwidth, bottom - top),
-                            self.colours["background"],
-                            self.font, linespacing)
-
         # do the pagination
         for block in text.split("\f"):
-            current_page = newpage()
-
-            at_beginning_of_page = True
+            current_page = self.new_page()
 
             # empty lines at the beginning of a page are ignored
             ignore_empty = True
@@ -154,20 +131,36 @@ class TextScreen(GameDisplay):
 
                         if index != right_index:
                             self.pages.append(current_page)
-                            current_page = newpage()
-
-                    # if we get here, we're no longer at the beginning
-                    # of the page
-                    at_beginning_of_page = False
+                            current_page = self.new_page()
 
                 # finally, move to a new line, unless at the beginning
                 # of a page
-                if not at_beginning_of_page:
+                if not current_page.at_beginning():
                     current_page.line_feed()
 
             # commit the last page, if not empty
-            if not at_beginning_of_page:
+            if not current_page.at_beginning():
                 self.pages += [current_page]
+
+
+    def new_page(self):
+        """
+        create an empty page
+        """
+        screen = self.game.screen
+
+        textwidth = (screen.get_width()
+                     - self.layout["border"]["right"]
+                     - self.layout["border"]["left"])
+
+        textheight = (screen.get_height()
+                      - self.layout["border"]["bottom"]
+                      - self.layout["border"]["top"])
+
+        return TextArea((textwidth, textheight),
+                        self.colours["background"],
+                        self.font,
+                        self.layout["line spacing"])
 
 
     def render_control(self, current_page, control_name):
@@ -347,6 +340,10 @@ class TextArea(pygame.Surface):
 
             chunk_start = chunk_end
             if last_space != -1:
+                # since the omitted space may mean the next word now
+                # fits, an explicit line feed is needed to prevent
+                # adding the next word to the current line without
+                # space
                 self.line_feed()
                 chunk_start += 1
 
@@ -354,4 +351,7 @@ class TextArea(pygame.Surface):
 
 
     def at_beginning(self):
+        """
+        Return whether we are still at the beginning of the page
+        """
         return self.hpos == 0 and self.vpos == 0
