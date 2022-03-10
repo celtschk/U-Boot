@@ -80,9 +80,6 @@ class TextScreen(GameDisplay):
         Additionally, the control characters line feed (\\n) and form feed
         (\\f) are interpreted.
         """
-        # get the screen
-        screen = self.game.screen
-
         # List of text pages. Each page itself is a pygame surface.
         # Initially the list is empty.
         self.pages = []
@@ -91,19 +88,7 @@ class TextScreen(GameDisplay):
         for block in text.split("\f"):
             current_page = self.new_page()
 
-            # empty lines at the beginning of a page are ignored
-            ignore_empty = True
             for line in block.split("\n"):
-                # ignore empty lines where apropriate:
-                if line == "":
-                    if ignore_empty:
-                        continue
-                    # after an empty line, subsequent empty lines are ignored
-                    ignore_empty = True
-                else:
-                    # don't ignore empty lines after non-empty ones
-                    ignore_empty = False
-
                 index = 0
                 while index != len(line):
                     if line[index] == "@":
@@ -179,7 +164,7 @@ class TextScreen(GameDisplay):
             item = self.font.render("???", True, self.colours["error"])
 
         current_page.render(item)
-        
+
 
 
     def draw(self):
@@ -253,11 +238,22 @@ class TextArea(pygame.Surface):
         self.hpos = 0
         self.vpos = 0
 
+        # at the beginning of a page, don't do line feeds
+        self.no_feed = True
+
 
     def line_feed(self):
         """
         Goes to the next line. Returns whether that line fits.
         """
+        # ignore line feed requests where line feeds are unwanted
+        if self.no_feed:
+            return True
+
+        # after an empty line, don't add another one
+        if self.hpos == 0:
+            self.no_feed = True
+
         self.hpos = 0
         self.vpos += self.linespacing
 
@@ -305,6 +301,9 @@ class TextArea(pygame.Surface):
 
         self.blit(surface, (self.hpos, self.vpos))
         self.hpos += item_width
+
+        # after rendering an item, a line feed should be honoured
+        self.no_feed = False
         return True
 
 
