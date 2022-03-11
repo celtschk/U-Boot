@@ -200,6 +200,7 @@ def test_paginate_layout():
     verify_dict_entry(settings.paginate_layout["border"], "bottom", int,
                       is_nonnegative)
 
+
 def verify_sound_spec(sound_spec):
     """
     Check for valid sound specification
@@ -208,7 +209,39 @@ def verify_sound_spec(sound_spec):
     verify_dict_entry(sound_spec, "filename", str, isfile)
     verify_dict_entry(sound_spec, "volume", Number, is_fraction)
 
+
 def test_sounds():
-    for sound in settings.sounds:
+    """
+    Test sounds dictionary
+    """
+    assert isinstance(settings.sounds, dict)
+    for sound, properties in settings.sounds.items():
         assert isinstance(sound, str)
-        verify_sound_spec(settings.sounds[sound])
+        verify_sound_spec(properties)
+
+
+def test_animations():
+    """
+    Test animations dictionary
+    """
+    assert isinstance(settings.animations, dict)
+    for animation, properties in settings.animations.items():
+        assert isinstance(animation, str)
+        assert isinstance(properties, dict)
+        verify_dict_entry(properties, "fps", int, is_positive)
+        verify_dict_entry(properties, "frame_count", int, is_positive)
+        verify_dict_entry(properties, "images", str)
+        for frame in range(properties["frame_count"]):
+            assert isfile(properties["images"].format(frame = frame))
+
+
+def test_music():
+    """
+    Test music dictionary
+    """
+    assert isinstance(settings.music, dict)
+    for name, properties in settings.music.items():
+        assert isinstance(name, str)
+        assert isinstance(properties, dict)
+        verify_dict_entry(properties, "filename", str, isfile)
+        verify_dict_entry(properties, "volume", Number, is_fraction)
