@@ -219,8 +219,8 @@ class Level(GameDisplay):
         self.key_bindings.update({
             pygame.K_p: self.pause_game,
             pygame.K_PAUSE: self.pause_game,
-            pygame.K_s: lambda: self.quit(self.LEVEL_SAVE),  #self.quit_for_save,
-            pygame.K_q: self.quit
+            pygame.K_s: lambda: self.quit_for_save,
+            pygame.K_q: self.quit_game
             })
 
     def get_state(self):
@@ -443,10 +443,19 @@ class Level(GameDisplay):
         self.paused = not self.paused
 
 
+    def quit_game(self):
+        """
+        Quit the level immediately, without saving
+        """
+        self.display["final_display_frames"] = 0
+        self.quit()
+
+
     def quit_for_save(self):
         """
         Quit the level and mark it for being saved
         """
+        self.display["final_display_frames"] = 0
         self.quit(self.LEVEL_SAVE)
 
 
