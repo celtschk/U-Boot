@@ -3,7 +3,11 @@ Test the validity of entries in settings
 """
 
 import re
+from os.path import isfile
+from numbers import Number
+
 import pygame
+
 import settings
 
 
@@ -127,16 +131,45 @@ def test_colour_values():
         pygame.Color(value)
 
 
+def verify_dict_entry(dictionary, name, entry_type,
+                      condition = lambda value: True):
+    """
+    Verify that a dict entry of a given name exists and its value has
+    the required type and properties
+    """
+    assert name in dictionary
+    assert isinstance(dictionary[name], entry_type)
+    assert condition(dictionary[name])
+
+
+def is_positive(number):
+    """
+    Gives True if the number is positive, False otherwise
+    """
+    return number > 0
+
+
+def is_nonnegative(number):
+    """
+    Gives True if the number is non-negative, False otherwise
+    """
+    return number >= 0
+
+
+def is_fraction(number):
+    """
+    Gives True if the number is a fraction (i.e. between 0 and 1)
+    """
+    return 0.0 <= number <= 1.0
+
+
 def test_font():
     """
     Test that font specification is valid
     """
     assert isinstance(settings.font, dict)
-    assert "name" in settings.font
-    assert "size" in settings.font
-    assert isinstance(settings.font["name"], str)
-    assert isinstance(settings.font["size"], int)
-    assert settings.font["size"] > 0
+    verify_dict_entry(settings.font, "name", str)
+    verify_dict_entry(settings.font, "size", int, is_positive)
 
 
 def test_paginated_font():
@@ -144,8 +177,38 @@ def test_paginated_font():
     Test that paginated_font specification is valid
     """
     assert isinstance(settings.paginated_font, dict)
-    assert "name" in settings.paginated_font
-    assert "size" in settings.paginated_font
-    assert isinstance(settings.paginated_font["name"], str)
-    assert isinstance(settings.paginated_font["size"], int)
-    assert settings.paginated_font["size"] > 0
+    verify_dict_entry(settings.paginated_font, "name", str)
+    verify_dict_entry(settings.paginated_font, "size", int, is_positive)
+
+
+def test_paginate_layout():
+    """
+    Test that the paginated_layout specification is valid
+    """
+    assert isinstance(settings.paginate_layout, dict)
+
+    verify_dict_entry(settings.paginate_layout, "border", dict)
+    verify_dict_entry(settings.paginate_layout, "line spacing", int,
+                      is_positive)
+
+    verify_dict_entry(settings.paginate_layout["border"], "top", int,
+                      is_nonnegative)
+    verify_dict_entry(settings.paginate_layout["border"], "left", int,
+                      is_nonnegative)
+    verify_dict_entry(settings.paginate_layout["border"], "right", int,
+                      is_nonnegative)
+    verify_dict_entry(settings.paginate_layout["border"], "bottom", int,
+                      is_nonnegative)
+
+def verify_sound_spec(sound_spec):
+    """
+    Check for valid sound specification
+    """
+    assert isinstance(sound_spec, dict)
+    verify_dict_entry(sound_spec, "filename", str, isfile)
+    verify_dict_entry(sound_spec, "volume", Number, is_fraction)
+
+def test_sounds():
+    for sound in settings.sounds:
+        assert isinstance(sound, str)
+        verify_sound_spec(settings.sounds[sound])
