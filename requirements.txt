@@ -1,0 +1,9 @@
+# The code is tested with pygame 2.1.2; hopefully it will also work
+# with later versions. pygame >= 2.1.2
+
+pygame >= 2.1.2
+
+# The code is tested with appdirs 1.4.4; hopefully later versions will
+# work, too.
+
+appdirs >= 1.4.4
