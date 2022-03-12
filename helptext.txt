@@ -16,7 +16,7 @@ In this help, the following keys can be used:
   * [End]:
        Go to the last page.
 
-  * [Q]:
+  * [Q] or [Esc]:
        Quit the help and return to the menu.
 
 GAME MECHANICS
@@ -81,7 +81,7 @@ The following keys can be used within the game:
 
   [F]           Toggle fullscreen.
 
-  [Q]           Quit the game.
+  [Q], [Esc]    Quit the game.
 
   [S]           Save the game.
 

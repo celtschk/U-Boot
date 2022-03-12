@@ -63,7 +63,8 @@ class TextScreen(GameDisplay):
             pygame.K_SPACE:     self.next_page,
             pygame.K_HOME:      self.first_page,
             pygame.K_END:       self.last_page,
-            pygame.K_q:         self.quit
+            pygame.K_q:         self.quit,
+            pygame.K_ESCAPE:    self.quit
             })
 
 
