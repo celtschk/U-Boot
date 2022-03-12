@@ -27,7 +27,7 @@ on github.
 Open a terminal, go to the U-Boot directory, and type
 ```
 python -m pip install --upgrade pip
-pip install -r dependencies.txt
+pip install -r requirements.txt
 ```
 
 You might need to use `python3` instead of `python`.
