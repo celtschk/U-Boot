@@ -220,7 +220,7 @@ class Level(GameDisplay):
             pygame.K_p:          self.pause_game,
             pygame.K_PAUSE:      self.pause_game,
             pygame.K_s: lambda:  self.quit_for_save,
-            pygame.K_q:          self.quit_game
+            pygame.K_q:          self.quit_game,
             pygame.K_ESCAPE:     self.quit_game
             })
 
