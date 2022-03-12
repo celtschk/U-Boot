@@ -245,3 +245,94 @@ def test_music():
         assert isinstance(properties, dict)
         verify_dict_entry(properties, "filename", str, isfile)
         verify_dict_entry(properties, "volume", Number, is_fraction)
+
+
+def is_num_or_range(item):
+    """
+    Returns true if the item is either a numberof a valid range
+    specification
+    """
+    if isinstance(item, Number):
+        return True
+    if not isinstance(item, dict):
+        return False
+    if item.keys() != { "min", "max" }:
+        return False
+    if not isinstance(item["min"], Number):
+        return False
+    if not isinstance(item["max"], Number):
+        return False
+    return item["min"] < item["max"]
+
+
+def verify_movement(movement, constant_names):
+    """
+    Verify correctness of object movement specification
+    """
+    verify_dict_entry(movement, "start", tuple,
+                      lambda pair: len(pair) == 2)
+
+    first_string_options = { "left", "right", "ship" }
+    first_string_options.update(constant_names)
+
+    second_string_options = { "ship" }
+    second_string_options.update(constant_names)
+
+    if isinstance(movement["start"][0], str):
+        assert movement["start"][0] in first_string_options
+    else:
+        assert isinstance(movement["start"][0], Number)
+
+    if isinstance(movement["start"][1], str):
+        assert movement["start"][1] in second_string_options
+    else:
+        assert isinstance(movement["start"][1], Number)
+
+    verify_dict_entry(movement, "speed", object, is_num_or_range)
+    verify_dict_entry(movement, "direction", tuple,
+                      lambda pair: len(pair) == 2)
+
+    assert isinstance(movement["direction"][0], Number)
+    assert isinstance(movement["direction"][1], Number)
+
+    verify_dict_entry(movement, "repeat", bool)
+
+
+def test_objects():
+    """
+    Test objects dictionary
+    """
+    assert isinstance(settings.objects, dict)
+    for name, properties in settings.objects.items():
+        assert isinstance(name, str)
+        assert isinstance(properties, dict)
+        verify_dict_entry(properties, "filename", str, isfile)
+        verify_dict_entry(properties, "origin", tuple,
+                          lambda pair: len(pair) == 2)
+        assert isinstance(properties["origin"][0], Number)
+        assert isinstance(properties["origin"][1], Number)
+        verify_dict_entry(properties, "movement", dict)
+
+        if "constants" in properties:
+            constants = properties["constants"]
+            assert isinstance(constants, dict)
+            for key, value in constants.items():
+                assert isinstance(key, str)
+                assert is_num_or_range(value)
+        else:
+            constants = {}
+
+        verify_movement(properties["movement"], constants.keys())
+
+        if "max_count" in properties:
+            assert "total_count" in properties
+        if "total_count" in properties:
+            assert "max_count" in properties
+            verify_dict_entry(properties, "max_count", int, is_positive)
+            verify_dict_entry(properties, "total_count", int, is_positive)
+
+        if "to_destroy" in properties:
+            verify_dict_entry(properties, "to_destroy", int, is_positive)
+
+        if "spawn_rate" in properties:
+            verify_dict_entry(properties, "spawn_rate", Number, is_positive)
