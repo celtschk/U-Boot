@@ -336,3 +336,32 @@ def test_objects():
 
         if "spawn_rate" in properties:
             verify_dict_entry(properties, "spawn_rate", Number, is_positive)
+
+
+def test_hit_info():
+    """
+    Test the hit_info directory
+    """
+    assert isinstance(settings.hit_info, dict)
+    for key, value in settings.hit_info.items():
+        assert isinstance(key, tuple)
+        assert len(key) == 2
+
+        assert isinstance(key[0], str)
+        assert key[0] in settings.objects
+
+        assert isinstance(key[1], str)
+        assert key[1] in settings.objects
+
+        assert isinstance(value, dict)
+
+        assert "animation" in value
+        assert isinstance(value["animation"], str)
+        assert value["animation"] in settings.animations
+
+        assert "sound" in value
+        assert isinstance(value["sound"], str)
+        assert value["sound"] in settings.sounds
+
+        assert "score" in value
+        assert isinstance(value["score"], bool)
