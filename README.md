@@ -14,12 +14,31 @@ internationalization.
 The main reason why I wrote this game is to gain familiarity
 with Python.
 
-## Playing the game
+## Installing the game
+
+Make sure a sufficiently recent version of Python is installed
+(3.8.10 or later) and in the executable search path (on Windows,
+make sure the corresponding option is checked in the installer).
+
+Get the U-Boot directory contents, either by locally cloning the
+git repository, or by downloading and extracting the zip file
+on github.
+
+Open a terminal, go to the U-Boot directory, and type
+```
+python -m pip install --upgrade pip
+pip install -r dependencies.txt
+```
+
+You might need to use `python3` instead of `python`.
+
+## Running the game
 
 To play the game, make sure you've got a sufficient recent version
-of Python and the required libraries installed (see file
-dependencies.txt for details). Then run `python U-Boot.py`
-(or possibly `python3 U-Boot.py`) in the main directory.
+of Python and the required libraries installed (see previous section).
+Then run `python U-Boot.py` (or possibly `python3 U-Boot.py`) in the
+main directory. You may also be able to start the game from the GUI
+by double clicking the file uboot.py.
 
 ## About the code
 
