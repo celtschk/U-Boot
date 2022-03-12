@@ -50,10 +50,6 @@ class TextScreen(GameDisplay):
         # start with the first page
         self.current_page = 0
 
-        # invalid control sequence sign. Always the same, thus
-        # rendered exactly once
-
-
         self.key_bindings.update({
             pygame.K_UP:        self.previous_page,
             pygame.K_PAGEUP:    self.previous_page,
