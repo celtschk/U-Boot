@@ -163,9 +163,11 @@ objects = {
         "max_count": 10,
         "total_count": 50,
         "to_destroy": 30,
-        "depth": {
-            "min": 0.1,
-            "max": 0.97
+        "constants": {
+            "depth": {
+                "min": 0.1,
+                "max": 0.97
+                }
             },
         "spawn_rate": 1/3 # average spawns per second
         },
@@ -196,9 +198,11 @@ objects = {
         "max_count": 10,
         "total_count": 50,
         "to_destroy": 30,
-        "depth": {
-            "min": 0.1,
-            "max": 0.97
+        "constants": {
+            "depth": {
+                "min": 0.1,
+                "max": 0.97
+                }
             },
         "spawn_rate": 1/20 # average spawns per second
         }
@@ -227,27 +231,35 @@ hit_info = {
 level_updates = {
     1:  {
         "submarine": {
-            "depth": {
-                "max": 0.2
+            "constants": {
+                "depth": {
+                    "max": 0.2
+                    }
                 }
             },
         "whale": {
-            "depth": {
-                "min": 0.25
+            "constants": {
+                "depth": {
+                    "min": 0.25
+                    }
                 }
             }
         },
     2:  {
         "submarine": {
-            "depth": {
-                "max": 0.4
+            "constants": {
+                "depth": {
+                    "max": 0.4
+                    }
                 }
             }
         },
     3:  {
         "submarine": {
-            "depth": {
-                "max": 0.6
+            "constants": {
+                "depth": {
+                    "max": 0.6
+                    }
                 }
             }
         }

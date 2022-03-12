@@ -255,7 +255,7 @@ class Level(GameDisplay):
             if start[0] == "ship":
                 ship = self.state["objects"]["ship"]["list"][0]
                 start_x = ship.get_position()[0]
-            elif isinstance(start[0],str):
+            elif isinstance(start[0], str):
                 start_x = resources.get_value(data[start[0]])
             else:
                 start_x = start[0]
@@ -265,7 +265,7 @@ class Level(GameDisplay):
             if start[1] == "ship":
                 start_depth = 0
             else:
-                start_depth = resources.get_value(data[start[1]])
+                start_depth = resources.get_value(data["constants"][start[1]])
         else:
             start_depth = start[1]
 
