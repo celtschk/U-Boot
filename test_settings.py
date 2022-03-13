@@ -365,3 +365,13 @@ def test_hit_info():
 
         assert "score" in value
         assert isinstance(value["score"], bool)
+
+
+# this test is incomplete
+def test_level_updates():
+    """
+    Test settings.level_updates
+    """
+    assert isinstance(settings.level_updates, dict)
+    for level, update in settings.level_updates.items():
+        verify_dict_entry(settings.level_updates, level, dict)
