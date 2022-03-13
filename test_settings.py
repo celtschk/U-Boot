@@ -5,10 +5,12 @@ Test the validity of entries in settings
 import re
 from os.path import isfile
 from numbers import Number
+from copy import deepcopy
 
 import pygame
 
 import settings
+import resources
 
 
 def test_game_name_is_string():
@@ -302,8 +304,17 @@ def test_objects():
     """
     Test objects dictionary
     """
-    assert isinstance(settings.objects, dict)
-    for name, properties in settings.objects.items():
+    # the actual tests are moved to a separate function so that they
+    # can be reused for testing level_updates
+    verify_objects(settings.objects)
+
+
+def verify_objects(object_dict):
+    """
+    Verify
+    """
+    assert isinstance(object_dict, dict)
+    for name, properties in object_dict.items():
         assert isinstance(name, str)
         assert isinstance(properties, dict)
         verify_dict_entry(properties, "filename", str, isfile)
@@ -373,7 +384,27 @@ def test_level_updates():
     Test settings.level_updates
     """
     assert isinstance(settings.level_updates, dict)
-    for level, update in settings.level_updates.items():
+    for level, updates in settings.level_updates.items():
         assert isinstance(level, int)
         assert is_positive(level)
-        assert isinstance(update, dict)
+        assert isinstance(updates, dict)
+
+        level_objects = deepcopy(settings.objects)
+        resources.recursive_update(level_objects, updates)
+        verify_objects(level_objects)
+
+
+def test_save_file():
+    """
+    Test that save_file is a non_empty string
+    """
+    assert isinstance(settings.save_file, str)
+    assert settings.save_file != ""
+
+
+def test_screenshot_file():
+    """
+    Test that screenshot_file is a non_empty string
+    """
+    assert isinstance(settings.save_file, str)
+    assert settings.save_file != ""
