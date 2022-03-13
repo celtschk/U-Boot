@@ -224,6 +224,7 @@ class Level(GameDisplay):
             pygame.K_ESCAPE:     self.quit_game
             })
 
+
     def get_state(self):
         """
         Get the current state of the level. The data is used in the
