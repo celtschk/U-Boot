@@ -374,4 +374,6 @@ def test_level_updates():
     """
     assert isinstance(settings.level_updates, dict)
     for level, update in settings.level_updates.items():
-        verify_dict_entry(settings.level_updates, level, dict)
+        assert isinstance(level, int)
+        assert is_positive(level)
+        assert isinstance(update, dict)
