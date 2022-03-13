@@ -128,9 +128,37 @@ def test_colour_values():
             assert value not in seen_values
             seen_values.add(value)
 
-        # If value is not a valid colour specification, this gives a
-        # ValueError exception
-        pygame.Color(value)
+        if isinstance(value, int):
+            assert 0 <= value <= 255
+        elif isinstance(value, tuple):
+            # If *value is not a valid colour specification, this
+            # gives a ValueError exception
+            pygame.Color(*value)
+        elif isinstance(value, dict):
+            # the channel groups together with their maximal values,
+            # in the order they're tried by resorces.get_colour
+            specs = [
+                { "red": 255, "green": 255, "blue": 255 },
+                { "gray": 255 },
+                { "grey": 255 },
+                { "hue": 360, "saturation": 100, "value": 100 },
+                { "hue": 360, "saturation": 100, "lightness": 100 }
+                ]
+            found = False
+            for spec in specs:
+                if value.keys().issubset(spec.keys()):
+                    found = True
+                    for channel, channel_value in value.keys():
+                        assert 0 <= channel_value <= spec[channel]
+                    break
+            assert found
+        elif isinstance(value, str):
+            # If value is not a valid colour specification, this gives
+            # a ValueError exception
+            pygame.Color(value)
+        else:
+            # not a valid colour specification
+            assert False
 
 
 def verify_dict_entry(dictionary, name, entry_type,
