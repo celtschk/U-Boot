@@ -49,8 +49,8 @@ def subset_or_none(dict1, dict2):
     new_dict = dict1.copy()
     new_dict.update(dict2)
     if new_dict.keys() == dict1.keys():
-        return new_dict
-    return new_dict.__class__()
+        return dict1.__class__(new_dict)
+    return dict1.__class__()
 
 
 def get_colour(name):
