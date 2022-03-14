@@ -7,6 +7,8 @@ from os.path import isfile
 from numbers import Number
 from copy import deepcopy
 
+import pytest
+
 import pygame
 
 import settings
@@ -160,6 +162,35 @@ def test_colour_values():
         else:
             # not a valid colour specification
             assert False
+
+
+# list of all colours that are referenced from the game
+needed_colours = [
+    "sky",
+    "water",
+    "text",
+    "no bombs",
+    "no more subs to destroy",
+    "not enough subs",
+    "pause",
+    "cleared",
+    "failed",
+    "menu background",
+    "menu option",
+    "menu highlight",
+    "menu message",
+    "paginated text",
+    "paginated background",
+    "paginated footer",
+    "invalid control sequence",
+    ]
+
+@pytest.mark.parametrize("colour", needed_colours)
+def test_colour_available(colour):
+    """
+    Test for availability of colours used in the game
+    """
+    assert colour in settings.colours
 
 
 def verify_dict_entry(dictionary, name, entry_type,
