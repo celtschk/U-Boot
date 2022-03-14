@@ -23,7 +23,7 @@ import pygame
 import settings
 import resources
 from gamedisplay import GameDisplay
-from objects import MovingObject, Animation
+from objects import MovingObject, Animation, TransientDisplay
 
 
 # Currently there's only one game level. Nevertheless, it makes sense to
@@ -105,6 +105,9 @@ class Level(GameDisplay):
             # setup storage for animations
             for animation_type in settings.animations:
                 self.state["objects"][animation_type] = { "list": [] }
+
+            # setup storage for transient displays
+            self.state["objects"]["transients"] = { "list": [] }
 
         self.display = {
             # set displayed score to game score
@@ -423,8 +426,14 @@ class Level(GameDisplay):
                     if bb1.colliderect(bb2):
                         targetpos = target.get_position()
                         if target.is_active() and info["score"]:
-                            self.state["score"] += int(
+                            delta = int(
                                 (targetpos[1] - waterline) / height * 20 + 0.5)
+                            self.state["score"] += delta
+                            scoredisplay = self.game.font.render(
+                                f"{delta:+}", True,
+                                resources.get_colour("score delta"))
+                            self.state["objects"]["transients"]["list"].append(
+                                TransientDisplay(scoredisplay, targetpos, 3))
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
                                               projectile.get_position())

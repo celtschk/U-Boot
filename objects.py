@@ -258,3 +258,38 @@ class Animation:
                 self.deactivate()
             else:
                 self.current_frame = frame
+
+
+class TransientDisplay:
+    """
+    Display some transient surface at a specified position for a
+    specified time in seconds
+    """
+    def __init__(self, surface, position, time):
+        self.surface = surface
+        self.position = position
+        self.remaining_time = time
+
+
+    def is_active(self):
+        """
+        A transient display is active as long as its display time
+        is not used up
+        """
+        return self.remaining_time > 0
+
+
+    def draw_on(self, surface):
+        """
+        Draw the transient display if it is active
+        """
+        if self.is_active():
+            surface.blit(self.surface, self.position)
+
+
+    def update(self, time):
+        """
+        Update the remaining time
+        """
+        if self.is_active():
+            self.remaining_time -= time
