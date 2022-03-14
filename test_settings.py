@@ -282,6 +282,23 @@ def test_sounds():
         verify_sound_spec(properties)
 
 
+# list of all sounds referenced in the game
+needed_sounds = [
+    "explosion",
+    "whale explosion",
+    "winning",
+    "losing",
+    ]
+
+
+@pytest.mark.parametrize("sound", needed_sounds)
+def test_sound_available(sound):
+    """
+    Test that a needed sound is available
+    """
+    assert sound in settings.sounds
+
+
 def test_animations():
     """
     Test animations dictionary
