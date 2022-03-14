@@ -2,6 +2,8 @@
 Test resources.py
 """
 
+import pytest
+
 import resources
 
 def test_imagestore():
@@ -108,3 +110,94 @@ def test_subset_or_none_with_mydict_and_not_subset():
     result = resources.subset_or_none(dict1, dict2)
     assert isinstance(result, MyDict)
     assert result ==  {}
+
+
+@pytest.fixture
+def fake_color_class():
+    """
+    Fixture to define a class to mock pygame.Color
+    """
+    class FakeColor:
+        """
+        Fake pygame.Color
+        """
+        def __init__(self, *args):
+            self.args = args
+            self.hsva_args = None
+            self.hsla_args = None
+        def hsva(self, *args):
+            """
+            Fake hsva; just records the args
+            """
+            self.hsva_args = args
+        def hsla(self, *args):
+            """
+            Fake hsla; just records the args
+            """
+            self.hsla_args = args
+
+    return FakeColor
+
+
+# Reusing the name of the fixture as argument is required, not an
+# error
+# pylint: disable=redefined-outer-name
+def test_get_colour_direct_name(mocker, fake_color_class):
+    """
+    Test getting a colour through get_colour using an actual colour
+    name
+    """
+    mocker.patch("resources.pygame.Color", fake_color_class)
+    result = resources.get_colour("red")
+    assert isinstance(result, fake_color_class)
+    assert result.args == ( "red", )
+
+
+def test_get_colour_indirect_name(mocker, fake_color_class):
+    """
+    Test getting a colour through get_colour using an entry leafing to
+    an actual colour name
+    """
+    resources.settings.colours = { "colour": "green" }
+    mocker.patch("resources.pygame.Color", fake_color_class)
+    result = resources.get_colour("colour")
+    assert isinstance(result, fake_color_class)
+    assert result.args == ( "green", )
+
+
+def test_get_colour_double_indirect_name(mocker, fake_color_class):
+    """
+    Test getting a colour through get_colour using an entry leading to
+    another entry which leads to an actual colour name
+    """
+    resources.settings.colours = { "colour": "pretty", "pretty": "blue" }
+    mocker.patch("resources.pygame.Color", fake_color_class)
+    result = resources.get_colour("colour")
+    assert isinstance(result, fake_color_class)
+    assert result.args == ( "blue", )
+
+
+def test_get_colour_indirect_tuple(mocker, fake_color_class):
+    """
+    Test getting a colour through get_colour using an entry leading to
+    a tuple
+    """
+    resources.settings.colours = { "colour": (2,3,5,7) }
+    mocker.patch("resources.pygame.Color", fake_color_class)
+    result = resources.get_colour("colour")
+    assert isinstance(result, fake_color_class)
+    assert result.args == (2,3,5,7)
+
+
+def test_get_colour_indirect_dict_rgb(mocker, fake_color_class):
+    """
+    Test getting a colour through get_colour using an entry leading to
+    a tuple
+    """
+    resources.settings.colours = {
+        "colour": { "red": 3, "green": 5, "blue": 7 }
+        }
+    mocker.patch("resources.pygame.Color", fake_color_class)
+    result = resources.get_colour("colour")
+    assert isinstance(result, fake_color_class)
+    assert result.args == (3,5,7)

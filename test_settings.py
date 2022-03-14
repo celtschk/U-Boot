@@ -147,9 +147,9 @@ def test_colour_values():
                 ]
             found = False
             for spec in specs:
-                if value.keys().issubset(spec.keys()):
+                if set(value.keys()).issubset(set(spec.keys())):
                     found = True
-                    for channel, channel_value in value.keys():
+                    for channel, channel_value in value.items():
                         assert 0 <= channel_value <= spec[channel]
                     break
             assert found
