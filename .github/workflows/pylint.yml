@@ -19,8 +19,8 @@ jobs:
         echo "running ..."
         python -m pip install --upgrade pip
         pip install pylint
-        pip install pygame
-        pip install appdirs
+        pip install pytest
+        pip install -r dependencies.txt
     - name: Analysing the code with pylint
       run: |
         pylint --extension-pkg-allow-list=pygame $(git ls-files '*.py')
