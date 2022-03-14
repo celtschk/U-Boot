@@ -293,3 +293,14 @@ class TransientDisplay:
         """
         if self.is_active():
             self.remaining_time -= time
+
+
+    # deepcopy normally relies on pickle, which doesn't work for
+    # python.Surface; this function enables deepcopying without pickle
+    def __deepcopy__(self, memo):
+        """
+        make a deep copy of TransientDisplay
+        """
+        return TransientDisplay(self.surface.copy(),
+                                self.position,
+                                self.remaining_time)

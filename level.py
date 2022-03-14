@@ -106,8 +106,8 @@ class Level(GameDisplay):
             for animation_type in settings.animations:
                 self.state["objects"][animation_type] = { "list": [] }
 
-            # setup storage for transient displays
-            self.state["objects"]["transients"] = { "list": [] }
+        # setup storage for transient displays
+        self.state["objects"]["transients"] = { "list": [] }
 
         self.display = {
             # set displayed score to game score
@@ -233,7 +233,11 @@ class Level(GameDisplay):
         Get the current state of the level. The data is used in the
         save file, as well as to pass on data to the next level.
         """
-        return self.state
+        # transient displays cannot be shelved, but don't need to be
+        # saved anyway, thus simply remove them from the state
+        state = deepcopy(self.state)
+        del state["objects"]["transients"]
+        return state
 
 
     def create_moving_object(self, object_type):
