@@ -301,6 +301,8 @@ class TransientDisplay:
         """
         make a deep copy of TransientDisplay
         """
-        return TransientDisplay(self.surface.copy(),
-                                self.position,
-                                self.remaining_time)
+        result = TransientDisplay(self.surface.copy(),
+                                  self.position,
+                                  self.remaining_time)
+        memo[id(self)] = result
+        return result
