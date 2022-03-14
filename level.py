@@ -373,7 +373,16 @@ class Level(GameDisplay):
             if ship_pos[0] > 0 and ship_pos[0] < self.dimensions["width"]:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                self.state["score"] -= self.get_bomb_cost()
+                bomb_cost = self.get_bomb_cost()
+                if bomb_cost != 0:
+                    scoredisplay = self.game.font.render(
+                        f"{-bomb_cost}", True,
+                        resources.get_colour("bomb score delta"))
+                    self.state["objects"]["transients"]["list"].append(
+                        TransientDisplay(scoredisplay,
+                                         (ship_pos[0], ship_pos[1]-40),
+                                         3))
+                self.state["score"] -= bomb_cost
 
                 newbomb = self.create_moving_object("bomb")
                 self.state["objects"]["bomb"]["list"].append(newbomb)

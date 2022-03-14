@@ -57,6 +57,7 @@ colours = {
     "no more subs to destroy": "good news",
     "not enough subs": "bad news",
     "score delta": "green",
+    "bomb score delta": "bad news",
 
     # menu colours
     "menu background": "dark blue",

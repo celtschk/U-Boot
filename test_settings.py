@@ -184,6 +184,7 @@ needed_colours = [
     "paginated footer",
     "invalid control sequence",
     "score delta",
+    "bomb score delta",
     ]
 
 @pytest.mark.parametrize("colour", needed_colours)
