@@ -120,13 +120,14 @@ def test_colour_values():
     pygame.Color
     """
     for value in settings.colours.values():
-        # detect infinite loops
-        seen_values = { value }
+        if isinstance(value, str):
+            # detect infinite loops
+            seen_values = { value }
 
-        while value in settings.colours:
-            value = settings.colours[value]
-            assert value not in seen_values
-            seen_values.add(value)
+            while value in settings.colours:
+                value = settings.colours[value]
+                assert value not in seen_values
+                seen_values.add(value)
 
         if isinstance(value, int):
             assert 0 <= value <= 255
