@@ -36,18 +36,18 @@ def test_loadimage_new_image(mocker):
     mocker.patch('resources.pygame.image.load',
                  return_value = Dummy("the image"))
     # make sure the imagestore is initially empty
-    resources.imagestore = {}
+    mocker.patch.object(resources, "imagestore", {})
     result = resources.load_image("test")
     assert result == "the image"
     assert resources.imagestore["test"] == "the image"
 
 
-def test_loadimage_existing_image():
+def test_loadimage_existing_image(mocker):
     """
     Test that an existing image is taken straight out of the image store
     """
     # set resources.imagestore to some fake image
-    resources.imagestore = { "foo": "some image" }
+    mocker.patch.object(resources, "imagestore", { "foo": "some image" })
     result = resources.load_image("foo")
     assert result == "some image"
 
