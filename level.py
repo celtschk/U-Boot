@@ -36,7 +36,7 @@ class Level(GameDisplay):
     LEVEL_SAVE = GameDisplay.Status()
 
     @staticmethod
-    def initial_state(old_state):
+    def initial_state(old_state, repeat = False):
         """
         Generates the initial state of a level.
 
@@ -44,7 +44,12 @@ class Level(GameDisplay):
         level ended with. If omitted or empty, the oinitial state of
         the first level is generated.
         """
-        level_number = old_state.get("level_number", 0) + 1
+        level_number = old_state.get("level_number", 0)
+        lives = old_state.get("lives", settings.lives)
+        if repeat:
+            lives -= 1
+        else:
+            level_number += 1
 
         object_settings = deepcopy(settings.objects)
         if level_number in settings.level_updates:
@@ -57,7 +62,8 @@ class Level(GameDisplay):
             "object_settings": object_settings,
             "objects": {},
             "spawnables": set(),
-            "score": old_state.get("score", 0)
+            "score": old_state.get("score", 0),
+            "lives": lives
             }
 
 
@@ -335,6 +341,12 @@ class Level(GameDisplay):
                 self.messages["cleared"].write(screen)
             elif self.status == self.LEVEL_FAILED:
                 self.messages["failed"].write(screen)
+
+        ship_image = resources.load_image(settings.objects["ship"]["filename"])
+        ship_hpos = 20
+        for _ in range(self.state["lives"]-1):
+            screen.blit(ship_image, (ship_hpos, 0))
+            ship_hpos += ship_image.get_width()
 
         pygame.display.flip()
 

@@ -43,6 +43,9 @@ level_display_frames = 5*fps
 # how many seconds transient displays stay
 transient_display_time = 3
 
+# the number of lives
+lives = 4
+
 # colours used in the game
 colours = {
     # background colours

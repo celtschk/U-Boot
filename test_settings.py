@@ -109,6 +109,14 @@ def test_transient_display_time_is_positive():
     assert settings.transient_display_time > 0
 
 
+def test_lives_is_positive_integer():
+    """
+    Test that settings.lives is a positive integer
+    """
+    assert isinstance(settings.lives, int)
+    assert settings.lives > 0
+
+
 def test_colours_is_dict():
     """
     Test that colours is a dict
