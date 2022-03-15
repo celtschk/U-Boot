@@ -40,6 +40,9 @@ score_frames = 6
 # number of frames to show the final message of each level
 level_display_frames = 5*fps
 
+# how many seconds transient displays stay
+transient_display_time = 3
+
 # colours used in the game
 colours = {
     # background colours

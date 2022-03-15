@@ -381,7 +381,7 @@ class Level(GameDisplay):
                     self.state["objects"]["transients"]["list"].append(
                         TransientDisplay(scoredisplay,
                                          (ship_pos[0], ship_pos[1]-40),
-                                         3))
+                                         settings.transient_display_time))
                 self.state["score"] -= bomb_cost
 
                 newbomb = self.create_moving_object("bomb")
@@ -446,7 +446,8 @@ class Level(GameDisplay):
                                 f"{delta:+}", True,
                                 resources.get_colour("score delta"))
                             self.state["objects"]["transients"]["list"].append(
-                                TransientDisplay(scoredisplay, targetpos, 3))
+                                TransientDisplay(scoredisplay, targetpos,
+                                                 settings.transient_display_time))
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
                                               projectile.get_position())
