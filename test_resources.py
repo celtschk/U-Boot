@@ -255,3 +255,72 @@ def test_get_colour(colours, name, args, mocker, fake_color_class):
     result = resources.get_colour(name)
     assert isinstance(result, fake_color_class)
     assert result.args == args
+
+
+def test_sound_store():
+    """
+    Test that resources.soundstore is initially an emty dictionary
+    """
+    assert isinstance(resources.sound_store, dict)
+    assert not resources.sound_store
+
+
+def test_getsound_not_loaded(mocker):
+    """
+    Test that getsound correctly loads a sound and sets its volume
+    """
+    # pylint: disable=too-few-public-methods
+    class FakeSound:
+        """
+        Mock class for pygame.mixer.Sound
+        """
+        def __init__(self, filename):
+            self.filename = filename
+            self.volume = None
+
+        def set_volume(self, volume):
+            """
+            Store the volume value
+            """
+            self.volume = volume
+    # pylint: enable=too-few-public-methods
+
+    sound_name = "newsound"
+    sound_file = "some_file"
+    sound_volume = 0.25
+    mocker.patch("resources.pygame.mixer.Sound", FakeSound)
+    mocker.patch.object(resources.settings, "sounds", {
+        "newsound": {
+            "filename": sound_file,
+            "volume": sound_volume
+            }
+        })
+    mocker.patch.object(resources, "sound_store", {})
+
+    result = resources.get_sound(sound_name)
+
+    assert isinstance(result, FakeSound)
+    assert result.filename == sound_file
+    assert result.volume == sound_volume
+    assert sound_name in resources.sound_store
+    assert resources.sound_store[sound_name] is result
+
+
+def test_get_sound_already_loaded(mocker):
+    """
+    Test that loading a sound already found in sound_store is returned
+    directly
+    """
+    sound_name = "oldsound"
+    sound_object = object()
+
+    mocker.patch.object(resources, "sound_store", {
+        sound_name: sound_object })
+
+    result = resources.get_sound(sound_name)
+
+    # test that the sound_object is returned
+    assert result is sound_object
+
+    # test that the sound store has not changed
+    assert resources.sound_store == { sound_name: sound_object }
