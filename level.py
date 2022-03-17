@@ -222,6 +222,14 @@ class Level(GameDisplay):
                 position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["failed"],
                 font = self.game.font,
+                origin = pygame.Vector2(0.5,0.5)),
+
+            # message for game over
+            "game over": resources.MessageData(
+                message = "*** GAME OVER ***",
+                position = pygame.Vector2(center_x, center_y - 32),
+                colour = self.colours["failed"],
+                font = self.game.font,
                 origin = pygame.Vector2(0.5,0.5))
             }
 
@@ -340,7 +348,10 @@ class Level(GameDisplay):
             if self.status == self.LEVEL_CLEARED:
                 self.messages["cleared"].write(screen)
             elif self.status == self.LEVEL_FAILED:
-                self.messages["failed"].write(screen)
+                if self.state["lives"] > 1:
+                    self.messages["failed"].write(screen)
+                else:
+                    self.messages["game over"].write(screen)
 
         ship_image = resources.load_image(settings.objects["ship"]["filename"])
         ship_hpos = 20
