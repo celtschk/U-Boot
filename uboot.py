@@ -36,8 +36,8 @@ class Game:
         """
         pygame.init()
 
-        self.screen = pygame.display.set_mode((settings.width,
-                                               settings.height))
+        self.screen = pygame.display.set_mode((settings.geometry["width"],
+                                               settings.geometry["height"]))
         self.clock = pygame.time.Clock()
         self.fps = settings.fps
 

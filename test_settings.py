@@ -36,27 +36,23 @@ def test_game_info():
     assert isinstance(settings.game_info["author"], str)
 
 
-def test_width_is_positive_integer():
+def test_geometry():
     """
-    Test that width is a positive integer
+    Test the game gemoetry specifications
     """
-    assert isinstance(settings.width, int)
-    assert settings.width > 0
+    assert isinstance(settings.geometry, dict)
 
+    assert "width" in settings.geometry
+    assert isinstance(settings.geometry["width"], int)
+    assert settings.geometry["width"] > 0
 
-def test_height_is_positive_integer():
-    """
-    Test that height is a positive integer
-    """
-    assert isinstance(settings.height, int)
-    assert settings.height > 0
+    assert "height" in settings.geometry
+    assert isinstance(settings.geometry["height"], int)
+    assert settings.geometry["height"] > 0
 
-
-def test_sky_fraction_is_fraction():
-    """
-    Test that sky_fraction is a number between 0.0 and 1.0
-    """
-    assert 0.0 <= settings.sky_fraction <= 1.0
+    assert "sky_fraction" in settings.geometry
+    assert isinstance(settings.geometry["sky_fraction"], Number)
+    assert 0.0 <= settings.geometry["sky_fraction"] <= 1.0
 
 
 def test_fps_is_positive_integer():

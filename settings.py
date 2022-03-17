@@ -26,12 +26,15 @@ game_info = {
     "author": "celtschk"
     }
 
-# screen resolution/window size
-width = 1024
-height = 768
+# Game geometry data
+geometry = {
+    # screen resolution/window size
+    "width": 1024,
+    "height": 768,
 
-# fraction of the screen that's sky
-sky_fraction = 0.2
+    # fraction of the screen that's sky
+    "sky_fraction": 0.2
+    }
 
 # frame rate
 fps = 60

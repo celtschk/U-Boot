@@ -77,7 +77,8 @@ class Level(GameDisplay):
             "width": game.screen.get_width(),
             "height": game.screen.get_height()
             }
-        self.dimensions["waterline"] = int(settings.sky_fraction * self.dimensions["height"])
+        self.dimensions["waterline"] = int(settings.geometry["sky_fraction"] *
+                                           self.dimensions["height"])
 
         center_x = self.dimensions["width"]//2
         center_y = self.dimensions["height"]//2
