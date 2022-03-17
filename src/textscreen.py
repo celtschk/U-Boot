@@ -18,10 +18,10 @@ This module provides a class to display running text
 
 import pygame
 
-import settings
-import resources
+from . import settings
+from . import resources
 
-from gamedisplay import GameDisplay
+from .gamedisplay import GameDisplay
 
 class TextScreen(GameDisplay):
     """

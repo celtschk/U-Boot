@@ -18,8 +18,8 @@ This module provides menus for the game
 
 import pygame
 
-import resources
-from gamedisplay import GameDisplay
+from . import resources
+from .gamedisplay import GameDisplay
 
 
 class Menu(GameDisplay):

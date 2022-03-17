@@ -11,8 +11,8 @@ import pytest
 
 import pygame
 
-import settings
-import resources
+from src import settings
+from src import resources
 
 def test_game_info():
     """

@@ -23,7 +23,7 @@ from dataclasses import dataclass
 import pygame
 import appdirs
 
-import settings
+from . import settings
 
 # A storage for images, so that they aren't loaded each time
 # another object uses the same image is

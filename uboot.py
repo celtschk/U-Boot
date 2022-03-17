@@ -21,11 +21,11 @@ import shelve
 import pygame
 
 # python files from this game
-import settings
-import resources
-from menu import Menu
-from level import Level
-from textscreen import TextScreen
+from src import settings
+from src import resources
+from src.menu import Menu
+from src.level import Level
+from src.textscreen import TextScreen
 
 class Game:
     "The game"

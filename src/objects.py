@@ -18,7 +18,7 @@ This module provides classes for game objects and animations.
 
 import pygame
 
-import resources
+from . import resources
 
 # I don't think those objects can be meaningfully implemented with
 # fewer attributes or constructor arguments

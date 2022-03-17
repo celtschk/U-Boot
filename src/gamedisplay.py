@@ -18,7 +18,7 @@ This module provides the GameDisplay class
 
 import pygame
 
-import settings
+from . import settings
 
 class GameDisplay:
     """

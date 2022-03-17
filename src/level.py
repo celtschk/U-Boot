@@ -20,10 +20,10 @@ from copy import deepcopy
 
 import pygame
 
-import settings
-import resources
-from gamedisplay import GameDisplay
-from objects import MovingObject, Animation, TransientDisplay
+from . import settings
+from . import resources
+from .gamedisplay import GameDisplay
+from .objects import MovingObject, Animation, TransientDisplay
 
 
 # Currently there's only one game level. Nevertheless, it makes sense to

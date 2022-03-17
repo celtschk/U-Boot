@@ -4,7 +4,7 @@ Test resources.py
 
 import pytest
 
-import resources
+from src import resources
 
 def test_imagestore():
     """
@@ -33,7 +33,7 @@ def test_loadimage_new_image(mocker):
             """
             return self.string
     # pylint: enable=too-few-public-methods
-    mocker.patch('resources.pygame.image.load',
+    mocker.patch('src.resources.pygame.image.load',
                  return_value = Dummy("the image"))
     # make sure the imagestore is initially empty
     mocker.patch.object(resources, "imagestore", {})
@@ -251,7 +251,7 @@ def test_get_colour(colours, name, args, mocker, fake_color_class):
     an actual colour name
     """
     mocker.patch.object(resources.settings, "colours", colours)
-    mocker.patch("resources.pygame.Color", fake_color_class)
+    mocker.patch("src.resources.pygame.Color", fake_color_class)
     result = resources.get_colour(name)
     assert isinstance(result, fake_color_class)
     assert result.args == args
@@ -288,7 +288,7 @@ def test_getsound_not_loaded(mocker):
     sound_name = "newsound"
     sound_file = "some_file"
     sound_volume = 0.25
-    mocker.patch("resources.pygame.mixer.Sound", FakeSound)
+    mocker.patch("src.resources.pygame.mixer.Sound", FakeSound)
     mocker.patch.object(resources.settings, "sounds", {
         "newsound": {
             "filename": sound_file,
