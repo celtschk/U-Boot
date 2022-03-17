@@ -170,7 +170,7 @@ class Game:
         """
         Show help
         """
-        with open("helptext.txt", encoding="utf8") as helpfile:
+        with open("assets/helptext.txt", encoding="utf8") as helpfile:
             helptext = helpfile.read()
 
             helpscreen = TextScreen(self, helptext)
