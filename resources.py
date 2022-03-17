@@ -287,9 +287,9 @@ def get_save_file():
     Get the name of the game save file
     """
     user_data_dir = pathlib.Path(appdirs.user_data_dir(
-        appname = settings.game_name,
-        appauthor = settings.game_author,
-        version = settings.game_version
+        appname = settings.game_info["name"],
+        appauthor = settings.game_info["author"],
+        version = settings.game_info["version"]
         ))
 
     # ensure the directory exists

@@ -18,11 +18,13 @@ Settings for the uboot game
 
 # pylint: disable=invalid-name
 
-# Name of the game
-game_name = "uboot"
-game_title = "U-Boot"
-game_version = "0.1"
-game_author = "celtschk"
+# Information about the game
+game_info = {
+    "name": "uboot",
+    "title": "U-Boot",
+    "version": "0.1",
+    "author": "celtschk"
+    }
 
 # screen resolution/window size
 width = 1024

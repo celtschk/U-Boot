@@ -41,7 +41,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.fps = settings.fps
 
-        pygame.display.set_caption(settings.game_title)
+        pygame.display.set_caption(settings.game_info["title"])
         pygame.mouse.set_visible(False)
         pygame.key.set_repeat(0)
 

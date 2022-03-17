@@ -153,7 +153,7 @@ class TextScreen(GameDisplay):
             item = resources.load_image(control_name[4:])
         elif control_name == "title":
             item = self.font.render(
-                settings.game_title,
+                settings.game_info["title"],
                 True,
                 self.colours["foreground"])
         else:

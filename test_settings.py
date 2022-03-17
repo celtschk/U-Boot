@@ -14,44 +14,26 @@ import pygame
 import settings
 import resources
 
-
-def test_game_name_is_string():
+def test_game_info():
     """
-    Test that the game name is of type str
+    Test the game_info dictionary
     """
-    assert isinstance(settings.game_name, str)
+    assert isinstance(settings.game_info, dict)
 
+    assert "name" in settings.game_info
+    assert isinstance(settings.game_info["name"], str)
 
-def test_game_title_is_string():
-    """
-    Test that the game name is of type str
-    """
-    assert isinstance(settings.game_title, str)
+    assert "title" in settings.game_info
+    assert isinstance(settings.game_info["title"], str)
 
+    assert "version" in settings.game_info
+    assert isinstance(settings.game_info["version"], str)
 
-def test_game_version_is_string():
-    """
-    Test that game_version is a string
-    """
-    assert isinstance(settings.game_version, str)
-
-
-def test_game_version_is_valid_version_number():
-    """
-    Test that game_version contains a valid version nnumber.
-
-    A valid version number is a sequence of two or more non-negative
-    integers separated by dots, with no spaces.
-    """
     version_number_regex = re.compile(r"^[0-9]+(\.[0-9]+)*$")
-    assert version_number_regex.match(settings.game_version) is not None
+    assert version_number_regex.match(settings.game_info["version"]) is not None
 
-
-def test_game_author_is_string():
-    """
-    Test that game_author is a string
-    """
-    assert isinstance(settings.game_author, str)
+    assert "author" in settings.game_info
+    assert isinstance(settings.game_info["author"], str)
 
 
 def test_width_is_positive_integer():
