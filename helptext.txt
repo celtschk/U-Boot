@@ -21,13 +21,13 @@ In this help, the following keys can be used:
 
 GAME MECHANICS
 
-You are controlling the bomb release of a ship that moves on the surface from left to right. The ship looks like this: @img schiff.png@
+You are controlling the bomb release of a ship that moves on the surface from left to right. The ship looks like this: @img assets/schiff.png@
 
 Pressing the down arrow key releases a bomb if available. It appears below the ship and sinks at constant speed.
 
-A bomb explodes on hitting a submarine and destroys it, giving you score. In rare cases, two bombs may destroy one submarine, or one bomb may destroy two submarines at once. Submarines look like this: @img Uboot.png@
+A bomb explodes on hitting a submarine and destroys it, giving you score. In rare cases, two bombs may destroy one submarine, or one bomb may destroy two submarines at once. Submarines look like this: @img assets/Uboot.png@
 
-A bomb may also destroy a whale instead of a submarine. Destroying a whale does not give you score. A whale looks like this: @img whale.png@
+A bomb may also destroy a whale instead of a submarine. Destroying a whale does not give you score. A whale looks like this: @img assets/whale.png@
 
 In each level you must destroy a minimal number of submarines.
 

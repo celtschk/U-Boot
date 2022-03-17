@@ -109,19 +109,19 @@ paginate_layout = {
 # sounds used in the game
 sounds = {
     "explosion": {
-        "filename": "Flashbang-Kibblesbob-899170896.wav",
+        "filename": "assets/Flashbang-Kibblesbob-899170896.wav",
         "volume": 0.2
         },
     "whale explosion": {
-        "filename": "Torpedo Impact-SoundBible.com-765913562.wav",
+        "filename": "assets/Torpedo Impact-SoundBible.com-765913562.wav",
         "volume": 1
         },
     "winning": {
-        "filename": "Short_triumphal_fanfare-John_Stracke-815794903.wav",
+        "filename": "assets/Short_triumphal_fanfare-John_Stracke-815794903.wav",
         "volume": 0.5
         },
     "losing": {
-        "filename": "Sad_Trombone-Joe_Lamb-665429450.wav",
+        "filename": "assets/Sad_Trombone-Joe_Lamb-665429450.wav",
         "volume": 0.5
         }
     }
@@ -138,13 +138,13 @@ animations = {
 
         # image file name format string, with the frame number
         # replaced by {frame}. The first
-        "images": "explosion_{frame}.png"
+        "images": "assets/explosion_{frame}.png"
         }
     }
 
 music = {
     "background": {
-        "filename": "The Enemy.mp3",
+        "filename": "assets/The Enemy.mp3",
         "volume": 0.1
         }
     }
@@ -152,7 +152,7 @@ music = {
 # list of game objects and their properties
 objects = {
     "ship": {
-        "filename": "schiff.png",
+        "filename": "assets/schiff.png",
         "origin": (0.5,1),
         "movement": {
             "start": ("left", 0),
@@ -162,7 +162,7 @@ objects = {
             },
         },
     "submarine": {
-        "filename": "Uboot.png",
+        "filename": "assets/Uboot.png",
         "origin": (0, 0),
         "movement": {
             "start": ("right", "depth"),
@@ -185,7 +185,7 @@ objects = {
         "spawn_rate": 1/3 # average spawns per second
         },
     "bomb": {
-        "filename": "bomb.png",
+        "filename": "assets/bomb.png",
         "origin": (0.5, 0),
         "movement": {
             "start": ("ship", "ship"),
@@ -197,7 +197,7 @@ objects = {
         "total_count": 100
         },
     "whale": {
-        "filename": "whale.png",
+        "filename": "assets/whale.png",
         "origin": (0,0),
         "movement": {
             "start": ("right", "depth"),
