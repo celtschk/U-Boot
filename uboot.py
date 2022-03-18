@@ -139,13 +139,13 @@ class Game:
         while True:
             pygame.mixer.music.unpause()
             result = level.execute()
+            state = level.get_state()
             if result == Level.LEVEL_CLEARED:
                 repeat = False
             elif result == Level.LEVEL_FAILED and state["lives"] > 1:
                 repeat = True
             else:
                 break
-            state = level.get_state()
             level = Level(self, Level.initial_state(state, repeat))
 
         # stop the background music
