@@ -324,3 +324,29 @@ def test_get_sound_already_loaded(mocker):
 
     # test that the sound store has not changed
     assert resources.sound_store == { sound_name: sound_object }
+
+
+def test_load_music(mocker):
+    """
+    Test resources.load_music
+    """
+    dummy_music_name = "test"
+    dummy_filename = "foo"
+    dummy_volume = 0.42
+
+    def mock_load(filename):
+        assert filename == dummy_filename
+    def mock_set_volume(volume):
+        assert volume == dummy_volume
+
+    mocker.patch.object(resources.settings, "music", {
+        dummy_music_name: { "filename": dummy_filename,
+                            "volume": dummy_volume }})
+
+    mocker.patch("src.resources.pygame.mixer.music.load",
+                 side_effect = mock_load)
+
+    mocker.patch("src.resources.pygame.mixer.music.set_volume",
+                 side_effect = mock_set_volume)
+
+    resources.load_music(dummy_music_name)
