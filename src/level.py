@@ -469,8 +469,10 @@ class Level(GameDisplay):
                             scoredisplay = self.game.font.render(
                                 f"{delta:+}", True,
                                 resources.get_colour("score delta"))
+                            scorepos = targetpos.copy()
+                            scorepos[0] = max(0, scorepos[0])
                             self.state["objects"]["transients"]["list"].append(
-                                TransientDisplay(scoredisplay, targetpos,
+                                TransientDisplay(scoredisplay, scorepos,
                                                  settings.transient_display_time))
                         self.play(info["sound"])
                         self.create_animation(info["animation"],
