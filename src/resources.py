@@ -19,7 +19,7 @@ This module provides access to various resources.
 import random
 import pathlib
 from dataclasses import dataclass
-from typing import Union, Callable
+from typing import Union, Callable, Dict
 
 import pygame
 import appdirs
@@ -182,7 +182,7 @@ def get_colour(name):
     return pygame.Color(name)
 
 
-sound_store = {}
+sound_store: Dict[str, pygame.mixer.Sound] = {}
 
 def get_sound(sound_name):
     """
