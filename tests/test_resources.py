@@ -6,6 +6,12 @@ import pytest
 
 from src import resources
 
+# some mock classes only have a few methods; that's not a problem
+# pylint: disable=too-few-public-methods
+
+# mock class members need to be members even if they don't access self
+# pylint: disable=no-self-use
+
 def test_imagestore():
     """
     Test that theimagestore variable exists, is a dictionary, and
@@ -20,7 +26,6 @@ def test_loadimage_new_image(mocker):
     Test that a new image is properly loaded and stored in the
     imagestore
     """
-    # pylint: disable=too-few-public-methods
     class Dummy:
         """
         A dummy class to stand for the result of pygame.image.load
@@ -32,7 +37,6 @@ def test_loadimage_new_image(mocker):
             This mocks pygame.Surface.convert_alpha
             """
             return self.string
-    # pylint: enable=too-few-public-methods
     mocker.patch('src.resources.pygame.image.load',
                  return_value = Dummy("the image"))
     # make sure the imagestore is initially empty
@@ -350,3 +354,132 @@ def test_load_music(mocker):
                  side_effect = mock_set_volume)
 
     resources.load_music(dummy_music_name)
+
+
+@pytest.fixture
+def dummy_surface():
+    """
+    Fixture to return a dummy surface class
+    """
+    class DummySurface:
+        """
+        Dummy surface
+        """
+        def __init__(self):
+            self.args = None
+            self.kwargs = None
+
+        def get_width(self):
+            """
+            dummy width
+            """
+            return 42
+
+        def get_height(self):
+            """
+            dummy height
+            """
+            return 23
+
+        def blit(self, *args, **kwargs):
+            """
+            Dummy blit
+            """
+            self.args = args
+            self.kwargs = kwargs
+
+    return DummySurface
+
+@pytest.fixture
+def dummy_font(dummy_surface):
+    """
+    Fixture to return dummy  font class
+    """
+    class DummyFont:
+        """
+        Dummy font
+        """
+        def __init__(self):
+            self.args = None
+            self.kwargs = None
+            self.surface = dummy_surface()
+
+        def render(self, *args, **kwargs):
+            """
+            dummy render
+            """
+            self.args = args
+            self.kwargs = kwargs
+            return self.surface
+
+    return DummyFont
+
+
+def test_message_data(dummy_surface, dummy_font):
+    """
+    Test the message data class with default arguments and no cached
+    data
+    """
+    font = dummy_font()
+
+    message_template = "test message {foo}, {bar}"
+
+    testobj = resources.MessageData(
+        message = message_template,
+        position = (3, 5),
+        colour = (1, 2, 3),
+        font = font
+        )
+
+    assert testobj.origin == (0, 0)
+    assert testobj.cache == (None, None)
+
+    screen = dummy_surface()
+
+    values = { "foo": "foo value", "bar": "bar value" }
+    testobj.write(screen, values)
+
+    expected_text = message_template.format(**values)
+
+    assert testobj.cache == (expected_text, font.surface)
+
+    assert font.args == (expected_text, True, (1, 2, 3))
+    assert font.kwargs == {}
+
+    assert screen.args == (font.surface, (3,5))
+    assert screen.kwargs == {}
+
+
+def test_message_data_cached(dummy_surface, dummy_font):
+    """
+    Test that the write method correctly uses cached data
+    """
+    font = dummy_font()
+    message_template = "test message {foo}, {bar}"
+    values = { "foo": "foo value", "bar": "bar value" }
+    expected_text = message_template.format(**values)
+    screen = dummy_surface()
+
+    def never_call(data):
+        assert False, "This line should never be executed"
+
+    testobj = resources.MessageData(
+        message = message_template,
+        position = (3, 5),
+        colour = never_call,
+        font = font
+        )
+
+    # manually set up the cache
+    testobj.cache = (expected_text, font.surface)
+
+    testobj.write(screen, values)
+
+    # the cache should not have changed
+    assert testobj.cache == (expected_text, font.surface)
+
+    assert font.args is None
+    assert font.args is None
+
+    assert screen.args == (font.surface, (3,5))
+    assert screen.kwargs == {}

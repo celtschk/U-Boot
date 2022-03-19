@@ -19,6 +19,7 @@ This module provides access to various resources.
 import random
 import pathlib
 from dataclasses import dataclass
+from typing import Union, Callable
 
 import pygame
 import appdirs
@@ -221,8 +222,8 @@ class MessageData:
     """
     message: str
     position: tuple
-    colour: tuple
-    font: pygame.font.SysFont
+    colour: Union[tuple, str, pygame.Color, Callable]
+    font: pygame.font.Font
     origin: tuple = (0, 0)
     cache: tuple = (None, None)
 
@@ -241,9 +242,7 @@ class MessageData:
             text = self.cache[1]
         else:
             if callable(self.colour):
-                # pylint: disable=not-callable
                 colour = self.colour(data)
-                # pylint: enable=not-callable
             else:
                 colour = self.colour
             text = self.font.render(string, True, colour)
