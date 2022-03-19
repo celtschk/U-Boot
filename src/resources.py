@@ -282,7 +282,7 @@ def randomly_true(probability: float) -> float:
     return random.uniform(0,1) < probability
 
 
-def get_save_file():
+def get_save_file() -> pathlib.Path:
     """
     Get the name of the game save file
     """
@@ -327,7 +327,7 @@ def try_load_all():
         get_colour(colour)
 
 
-def recursive_update(dictionary, updates):
+def recursive_update(dictionary: dict, updates: dict):
     """
     Recursively update a dictionary.
     """
@@ -342,7 +342,7 @@ def recursive_update(dictionary, updates):
                 dictionary[key] = value
 
 
-def bisect(first, last, condition):
+def bisect(first: int, last: int, condition: Callable[[int], int]):
     """
     Returns the largest integer i with first <= i <= last such that
     condition(i-1) is True.
