@@ -19,7 +19,7 @@ This module provides access to various resources.
 import random
 import pathlib
 from dataclasses import dataclass
-from typing import Union, Callable, Dict
+from typing import Union, Callable, Dict, Any
 
 import pygame
 import appdirs
@@ -184,7 +184,7 @@ def get_colour(name: str) -> pygame.Color:
 
 sound_store: Dict[str, pygame.mixer.Sound] = {}
 
-def get_sound(sound_name):
+def get_sound(sound_name: str) -> pygame.mixer.Sound:
     """
     Get a pygame sound from a sound name.
 
@@ -194,14 +194,14 @@ def get_sound(sound_name):
     if sound_name in sound_store:
         sound = sound_store[sound_name]
     else:
-        sound_info = settings.sounds[sound_name]
+        sound_info: Dict[str, Any] = settings.sounds[sound_name]
         sound = pygame.mixer.Sound(sound_info["filename"])
         sound.set_volume(sound_info["volume"])
         sound_store[sound_name] = sound
     return sound
 
 
-def load_music(music_name):
+def load_music(music_name: str):
     """
     Sets up pygame music from a music name.
 
@@ -209,7 +209,7 @@ def load_music(music_name):
     up the music to play in the background, but doesn't actually start
     playing.
     """
-    music_info = settings.music[music_name]
+    music_info: Dict[str, Any] = settings.music[music_name]
     pygame.mixer.music.load(music_info["filename"])
     pygame.mixer.music.set_volume(music_info["volume"])
 
@@ -231,7 +231,8 @@ class MessageData:
     # The argument data is not changed in the function, therefore the
     # default value is safe
     # pylint: disable=dangerous-default-value
-    def write(self, screen, data = {}):
+    def write(self, screen: pygame.surface.Surface,
+              data: Dict[str, Any] = {}):
         """
         Write the message at a given position on screen
         """
@@ -259,7 +260,7 @@ class MessageData:
     # pylint: enable=dangerous-default-value
 
 
-def get_value(value_or_range):
+def get_value(value_or_range: Union[float, Dict[str, float]]) -> float:
     """
     Get a specific or random value from a given specification.
 
@@ -274,7 +275,7 @@ def get_value(value_or_range):
     return value_or_range
 
 
-def randomly_true(probability):
+def randomly_true(probability: float) -> float:
     """
     Return True with a given probability, False otherwise.
     """
