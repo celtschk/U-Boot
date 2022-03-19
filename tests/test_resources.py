@@ -450,6 +450,81 @@ def test_message_data(dummy_surface, dummy_font):
     assert screen.kwargs == {}
 
 
+def test_message_data_with_origin(dummy_surface, dummy_font):
+    """
+    Test the message data class with default arguments and no cached
+    data
+    """
+    font = dummy_font()
+
+    message_template = "test message {foo}, {bar}"
+
+    testobj = resources.MessageData(
+        message = message_template,
+        position = (3, 5),
+        colour = (1, 2, 3),
+        font = font,
+        origin = (0.5, 0.5)
+        )
+
+    assert testobj.cache == (None, None)
+
+    screen = dummy_surface()
+
+    values = { "foo": "foo value", "bar": "bar value" }
+    testobj.write(screen, values)
+
+    expected_text = message_template.format(**values)
+
+    assert testobj.cache == (expected_text, font.surface)
+
+    assert font.args == (expected_text, True, (1, 2, 3))
+    assert font.kwargs == {}
+
+    assert screen.args == (font.surface,
+                           (int(3 - 0.5*font.surface.get_width()),
+                            int(5 - 0.5*font.surface.get_height())))
+    assert screen.kwargs == {}
+
+
+def test_message_data_with_function(dummy_surface, dummy_font):
+    """
+    Test the message data class with default arguments and no cached
+    data
+    """
+    font = dummy_font()
+
+    message_template = "test message {foo}, {bar}"
+
+    def colour(vals):
+        return f"colour({vals})"
+
+    testobj = resources.MessageData(
+        message = message_template,
+        position = (3, 5),
+        colour = colour,
+        font = font
+        )
+
+    assert testobj.origin == (0, 0)
+    assert testobj.cache == (None, None)
+
+    screen = dummy_surface()
+
+    values = { "foo": "foo value", "bar": "bar value" }
+    testobj.write(screen, values)
+
+    expected_text = message_template.format(**values)
+
+    assert testobj.cache == (expected_text, font.surface)
+
+    assert font.args == (expected_text, True, f"colour({values})")
+    assert font.kwargs == {}
+
+    assert screen.args == (font.surface, (3,5))
+    assert screen.kwargs == {}
+
+
 def test_message_data_cached(dummy_surface, dummy_font):
     """
     Test that the write method correctly uses cached data
@@ -460,8 +535,10 @@ def test_message_data_cached(dummy_surface, dummy_font):
     expected_text = message_template.format(**values)
     screen = dummy_surface()
 
+    # pylint: disable=unused-argument
     def never_call(data):
         assert False, "This line should never be executed"
+    # pylint: enable=unused-argument
 
     testobj = resources.MessageData(
         message = message_template,
@@ -483,3 +560,72 @@ def test_message_data_cached(dummy_surface, dummy_font):
 
     assert screen.args == (font.surface, (3,5))
     assert screen.kwargs == {}
+
+def test_message_data_changed(dummy_surface, dummy_font):
+    """
+    Test that the write method ignores cached data if values have
+    changed
+    """
+    font = dummy_font()
+    message_template = "test message {foo}, {bar}"
+
+    old_values = { "foo": "foo value", "bar": "bar value" }
+    old_expected_text = message_template.format(**old_values)
+
+    values = { "foo": "other foo value", "bar": "other bar value" }
+    expected_text = message_template.format(**values)
+
+    screen = dummy_surface()
+
+    testobj = resources.MessageData(
+        message = message_template,
+        position = (3, 5),
+        colour = "red",
+        font = font
+        )
+
+    # manually set up the cache
+    testobj.cache = (old_expected_text, None)
+
+    testobj.write(screen, values)
+
+    # the cache should have changed
+    assert testobj.cache == (expected_text, font.surface)
+
+    assert font.args == (expected_text, True, "red")
+    assert font.kwargs == {}
+
+    assert screen.args == (font.surface, (3,5))
+    assert screen.kwargs == {}
+
+
+def test_get_value(mocker):
+    """
+    Test resources.get_value
+    """
+    mocker.patch.object(resources.random, "uniform",
+                        lambda x, y: (x, y))
+
+    assert resources.get_value(42) == 42
+    assert resources.get_value({"min": 10, "max": 20}) == (10, 20)
+
+
+def test_randomly_true(mocker):
+    """
+    Test resources.randomly_true
+    """
+    x_value = None
+    y_value = None
+    def uniform(arg_x, arg_y):
+        nonlocal x_value
+        nonlocal y_value
+        x_value = arg_x
+        y_value = arg_y
+        return 0.5
+
+    mocker.patch.object(resources.random, "uniform", uniform)
+
+    assert not resources.randomly_true(0.3)
+    assert x_value == 0
+    assert y_value == 1
+    assert resources.randomly_true(0.7)
