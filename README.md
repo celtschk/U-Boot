@@ -36,7 +36,7 @@ You might need to use `python3` instead of `python`.
 
 To play the game, make sure you've got a sufficient recent version
 of Python and the required libraries installed (see previous section).
-Then run `python U-Boot.py` (or possibly `python3 U-Boot.py`) in the
+Then run `python uboot.py` (or possibly `python3 uboot.py`) in the
 main directory. You may also be able to start the game from the GUI
 by double clicking the file uboot.py.
 
