@@ -28,10 +28,10 @@ from . import settings
 
 # A storage for images, so that they aren't loaded each time
 # another object uses the same image is
-imagestore = {}
+imagestore: Dict[str, pygame.surface.Surface] = {}
 
 
-def load_image(path):
+def load_image(path: str) -> pygame.surface.Surface:
     """
     Load an image, if not already loaded. Otherwise, return the
     already loaded image.
@@ -41,7 +41,7 @@ def load_image(path):
     return imagestore[path]
 
 
-def subset_or_none(dict1, dict2):
+def subset_or_none(dict1: dict, dict2: dict) -> dict:
     """
     If the keys of dict2 are a subset of the keys of dict1,
     return a copy of dict1 updated with the values of dict2,
@@ -54,7 +54,7 @@ def subset_or_none(dict1, dict2):
     return dict1.__class__()
 
 
-def get_colour(name):
+def get_colour(name: str) -> pygame.Color:
     """
     Get the rgb values of a named colour.
 
@@ -103,14 +103,14 @@ def get_colour(name):
     # these are used because pygame.Color does not support named
     # arguments for the colours, and furthermore some colour models
     # are only available through direct assignment of properties
-    def rgb(red, green, blue):
+    def rgb(red: int, green: int, blue: int) -> pygame.Color:
         """
         Returns a Color object with the specified rgb values
         """
         return pygame.Color(red, green, blue)
 
 
-    def greyscale(grey):
+    def greyscale(grey: int) -> pygame.Color:
         """
         Returns a Color object corresponding to zjr specified grey value
         """
@@ -119,14 +119,14 @@ def get_colour(name):
 
     # This function is separate from greyscale because of the different
     # argument name
-    def grayscale(gray):
+    def grayscale(gray: int) -> pygame.Color:
         """
         Returns a Color object corresponding to zjr specified grey value
         """
         return pygame.Color(gray, gray, gray)
 
 
-    def hsv(hue, saturation, value):
+    def hsv(hue: int, saturation: int, value: int) -> pygame.Color:
         """
         Returns a Color object with the specified hsv values
         """
@@ -135,7 +135,7 @@ def get_colour(name):
         return colour
 
 
-    def hsl(hue, saturation, lightness):
+    def hsl(hue: int, saturation: int, lightness: int) -> pygame.Color:
         """
         Returns a Color object with the specified hsl values
         """
