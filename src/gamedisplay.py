@@ -49,7 +49,7 @@ class GameDisplay:
         """
         self.game = game
         self.running = False
-        self.status: Union[Status, None] = None
+        self.status: Union[GameDisplay.Status, None] = None
 
         # key bindings
         self.key_bindings = {
