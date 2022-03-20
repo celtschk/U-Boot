@@ -18,6 +18,8 @@ This module provides the GameDisplay class
 
 import pygame
 
+from typing import Union
+
 from . import settings
 
 class GameDisplay:
@@ -47,7 +49,7 @@ class GameDisplay:
         """
         self.game = game
         self.running = False
-        self.status = None
+        self.status: Union[Status, None] = None
 
         # key bindings
         self.key_bindings = {
@@ -65,7 +67,7 @@ class GameDisplay:
         raise NotImplementedError("Must be supplied by the derived class")
 
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event):
         """
         Handle a known event. Returns if the event has been handled.
 
@@ -139,7 +141,7 @@ class GameDisplay:
         return self.status
 
 
-    def quit(self, status = QUIT):
+    def quit(self, status: Status = QUIT):
         """
         Quit the display, but not necessarily the game
         """
