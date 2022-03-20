@@ -267,7 +267,7 @@ def test_get_colour_cycle_detection(mocker):
     """
     mocker.patch.object(resources.settings, "colours", { "cyclic": "cyclic" })
     with pytest.raises(ValueError, match = "recursive colour specification"):
-        result = resources.get_colour("cyclic")
+        resources.get_colour("cyclic")
 
 
 def test_get_colour_indirect_cycle_detection(mocker):
@@ -280,7 +280,7 @@ def test_get_colour_indirect_cycle_detection(mocker):
         "one": "two",
         "two": "cyclic" })
     with pytest.raises(ValueError, match = "recursive colour specification"):
-        result = resources.get_colour("cyclic")
+        resources.get_colour("cyclic")
 
 
 def test_sound_store():
