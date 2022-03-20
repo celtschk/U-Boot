@@ -261,6 +261,28 @@ def test_get_colour(colours, name, args, mocker, fake_color_class):
     assert result.args == args
 
 
+def test_get_colour_cycle_detection(mocker):
+    """
+    Test that a cycle in the colour specification gives an exception
+    """
+    mocker.patch.object(resources.settings, "colours", { "cyclic": "cyclic" })
+    with pytest.raises(ValueError, match = "recursive colour specification"):
+        result = resources.get_colour("cyclic")
+
+
+def test_get_colour_indirect_cycle_detection(mocker):
+    """
+    Test that an indirect cycle in the colour specification gives an
+    exception
+    """
+    mocker.patch.object(resources.settings, "colours", {
+        "cyclic": "one",
+        "one": "two",
+        "two": "cyclic" })
+    with pytest.raises(ValueError, match = "recursive colour specification"):
+        result = resources.get_colour("cyclic")
+
+
 def test_sound_store():
     """
     Test that resources.soundstore is initially an emty dictionary
