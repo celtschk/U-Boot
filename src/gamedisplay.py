@@ -16,9 +16,9 @@
 This module provides the GameDisplay class
 """
 
-import pygame
-
 from typing import Union
+
+import pygame
 
 from . import settings
 
