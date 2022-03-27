@@ -267,7 +267,6 @@ class Level(GameDisplay):
 
         height = self.areas["screen"].height
         width = self.areas["screen"].width
-        waterline = self.areas["water"].top
 
         movement = data["movement"]
 
@@ -297,20 +296,22 @@ class Level(GameDisplay):
             start_depth = start[1]
 
         def y_from_depth(depth):
+            waterline = self.areas["water"].top
             return depth*(height - waterline) + waterline
 
         def calc_velocity(speed, direction):
             return pygame.Vector2(speed * direction[0] * width,
                                   speed * direction[1] * height)
 
-        if "filename" in data:
-            source = data["filename"]
-        elif "function" in data:
-            source = getattr(resources, data["function"])
-        else:
+        def get_source(data):
+            if "filename" in data:
+                return data["filename"]
+            if "function" in data:
+                return getattr(resources, data["function"])
             assert False, "This line should never be reached"
+
         return MovingObject(
-            source = source,
+            source = get_source(data),
             start = pygame.Vector2(start_x, y_from_depth(start_depth)),
             adjust_start = start_adjustment,
             movement_region = self.areas[movement["area"]],

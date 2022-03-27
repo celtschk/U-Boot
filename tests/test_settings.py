@@ -6,6 +6,7 @@ import re
 from os.path import isfile
 from numbers import Number
 from copy import deepcopy
+from typing import Callable
 
 import pytest
 
@@ -373,6 +374,14 @@ def verify_movement(movement, constant_names):
     verify_dict_entry(movement, "repeat", bool)
 
 
+def is_valid_function(name):
+    """
+    Test that a name actually refers to acallable object in the module
+    resources
+    """
+    return isinstance(getattr(resources, name), Callable)
+
+
 def test_objects():
     """
     Test objects dictionary
@@ -390,7 +399,11 @@ def verify_objects(object_dict):
     for name, properties in object_dict.items():
         assert isinstance(name, str)
         assert isinstance(properties, dict)
-        verify_dict_entry(properties, "filename", str, isfile)
+        assert "filename" in properties or "function" in properties
+        if "filename" in properties:
+            verify_dict_entry(properties, "filename", str, isfile)
+        if "function" in properties:
+            verify_dict_entry(properties, "function", str, is_valid_function)
         verify_dict_entry(properties, "origin", tuple,
                           lambda pair: len(pair) == 2)
         assert isinstance(properties["origin"][0], Number)
