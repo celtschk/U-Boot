@@ -80,7 +80,11 @@ colours = {
     "paginated text": "white",
     "paginated background": "blue",
     "paginated footer": "orange",
-    "invalid control sequence": "red"
+    "invalid control sequence": "red",
+
+    # bubbles
+    "bubble interior": { "hue": 240, "lightness": 70 },
+    "bubble boundary": "dark blue"
     }
 
 # font used in the game
@@ -158,8 +162,40 @@ objects = {
             "start": ("left", 0),
             "speed": 0.1,
             "direction": (1,0),
+            "area": "sky",
             "repeat": True
             },
+        },
+    "bubble": {
+        "function": "bubble",
+        "origin": (0, 1), # (0.5, 0.5),
+        "size": {
+            "min": 1,
+            "max": 5
+            },
+        "movement": {
+            "start": ("startx", "startdepth"),
+            "speed": {
+                "min": 0.01,
+                "max": 0.1
+                },
+            "direction": (0,-1),
+            "area": "water",
+            "repeat": False
+            },
+        "constants": {
+            "startx": {
+                "min": 0,
+                "max": geometry["width"]
+                },
+            "startdepth": {
+                "min": 0.2,
+                "max": 1
+                }
+            },
+        "max_count": 20,
+        "total_count": 1000, # basically unlimited
+        "spawn_rate": 1
         },
     "submarine": {
         "filename": "assets/Uboot.png",
@@ -171,6 +207,7 @@ objects = {
                 "max": 0.2
                 },
             "direction": (-1,0),
+            "area": "water",
             "repeat": False
             },
         "max_count": 10,
@@ -191,6 +228,7 @@ objects = {
             "start": ("ship", "ship"),
             "speed": 0.1,
             "direction": (0,1),
+            "area": "water",
             "repeat": False
             },
         "max_count": 15,
@@ -206,6 +244,7 @@ objects = {
                 "max": 0.05
                 },
             "direction": (-1,0),
+            "area": "water",
             "repeat": False
             },
         "max_count": 10,
@@ -218,7 +257,7 @@ objects = {
                 }
             },
         "spawn_rate": 1/20 # average spawns per second
-        }
+        },
     }
 
 # information about possible hits

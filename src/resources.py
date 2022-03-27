@@ -298,6 +298,20 @@ def get_save_file() -> pathlib.Path:
     return user_data_dir/settings.save_file
 
 
+def bubble():
+    """
+    A function that creates a random bubble image (actually
+    just a coloured circle)
+    """
+    size = get_value(settings.objects["bubble"]["size"])
+    surfacesize = (2*size+1, 2*size+1)
+    interior_colour = get_colour("bubble interior")
+    border_colour = get_colour("bubble boundary")
+    bubble = pygame.Surface(surfacesize, pygame.SRCALPHA);
+    pygame.draw.circle(bubble, interior_colour, (size, size), size)
+    pygame.draw.circle(bubble, border_colour, (size, size), size, 1)
+    return bubble
+
 def try_load_all():
     """
     This function tries to load all resources that will be used in the
@@ -307,7 +321,8 @@ def try_load_all():
 
     # load all the images for objects
     for obj in settings.objects.values():
-        load_image(obj["filename"])
+        if "filename" in obj:
+            load_image(obj["filename"])
 
     # load all the images for animations
     for animation in settings.animations.values():

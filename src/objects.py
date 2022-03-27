@@ -153,7 +153,9 @@ class MovingObject:
         Draw the object on a pygame surface, if active
         """
         if self.is_active():
-            surface.blit(self.image, self.get_position(True))
+            drawing_surface = surface.subsurface(surface.get_rect())
+            drawing_surface.set_clip(self.movement_region)
+            drawing_surface.blit(self.image, self.get_position(True))
 
 
     def is_active(self):

@@ -73,15 +73,18 @@ class Level(GameDisplay):
         """
         super().__init__(game)
 
-        self.dimensions = {
-            "width": game.screen.get_width(),
-            "height": game.screen.get_height()
-            }
-        self.dimensions["waterline"] = int(settings.geometry["sky_fraction"] *
-                                           self.dimensions["height"])
+        width = game.screen.get_width()
+        height = game.screen.get_height()
+        waterline = int(settings.geometry["sky_fraction"] * height)
 
-        center_x = self.dimensions["width"]//2
-        center_y = self.dimensions["height"]//2
+        self.areas = {
+            "screen": game.screen.get_rect(),
+            "water":  pygame.Rect((0, waterline), (width, height - waterline)),
+            "sky":    pygame.Rect((0, 0), (width, waterline))
+            }
+
+        center_x = self.areas["screen"].width//2
+        center_y = self.areas["screen"].height//2
 
         self.state = old_state
 
@@ -262,9 +265,9 @@ class Level(GameDisplay):
         data = self.state["object_settings"][object_type]
         origin = pygame.Vector2(data["origin"])
 
-        height = self.dimensions["height"]
-        width = self.dimensions["width"]
-        waterline = self.dimensions["waterline"]
+        height = self.areas["screen"].height
+        width = self.areas["screen"].width
+        waterline = self.areas["water"].top
 
         movement = data["movement"]
 
@@ -300,11 +303,17 @@ class Level(GameDisplay):
             return pygame.Vector2(speed * direction[0] * width,
                                   speed * direction[1] * height)
 
+        if "filename" in data:
+            source = data["filename"]
+        elif "function" in data:
+            source = getattr(resources, data["function"])
+        else:
+            assert False, "This line should never be reached"
         return MovingObject(
-            data["filename"],
+            source = source,
             start = pygame.Vector2(start_x, y_from_depth(start_depth)),
             adjust_start = start_adjustment,
-            movement_region = self.game.screen.get_rect(),
+            movement_region = self.areas[movement["area"]],
             velocity = calc_velocity(resources.get_value(movement["speed"]),
                                      movement["direction"]),
             origin = origin,
@@ -319,9 +328,9 @@ class Level(GameDisplay):
         screen.fill(self.colours["background"])
         pygame.draw.rect(screen, self.colours["water"],
                          (0,
-                          self.dimensions["waterline"],
-                          self.dimensions["width"],
-                          self.dimensions["height"] - self.dimensions["waterline"]))
+                          self.areas["water"].top,
+                          self.areas["screen"].width,
+                          self.areas["screen"].height - self.areas["water"].top))
 
         for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
@@ -394,7 +403,7 @@ class Level(GameDisplay):
             ship_pos = ship.get_position()
 
             # don't drop a bomb off-screen
-            if ship_pos[0] > 0 and ship_pos[0] < self.dimensions["width"]:
+            if ship_pos[0] > 0 and ship_pos[0] < self.areas["screen"].width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
                 bomb_cost = self.get_bomb_cost()
@@ -451,8 +460,8 @@ class Level(GameDisplay):
         Check if any projectile hit any target, and if so, remove both
         and update score
         """
-        waterline = self.dimensions["waterline"]
-        height    = self.dimensions["height"]
+        waterline = self.areas["water"].top
+        height    = self.areas["screen"].height
 
         for obj_pair, info in settings.hit_info.items():
             target_name, projectile_name = obj_pair
