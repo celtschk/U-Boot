@@ -19,7 +19,7 @@ This module provides access to various resources.
 import random
 import pathlib
 from dataclasses import dataclass
-from typing import Union, Callable, Dict, Any
+from typing import Union, Callable, Dict, Any, List, Tuple
 
 import pygame
 import appdirs
@@ -164,7 +164,7 @@ def get_colour(name: str) -> pygame.Color:
             return pygame.Color(*colour)
 
         elif isinstance(colour, dict):
-            colour_options = [
+            colour_options: List[Tuple[Dict[str,int], Callable]] = [
                 ({"red": 0, "green": 0, "blue": 0}, rgb),
                 ({"grey": 0}, greyscale),
                 ({"gray": 0}, grayscale),
