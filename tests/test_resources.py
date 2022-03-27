@@ -77,7 +77,7 @@ def test_subset_or_none_with_not_subset():
     dict2 = { 1: 11, 4: 31 }
     result = resources.subset_or_none(dict1, dict2)
     assert isinstance(result, dict)
-    assert result ==  {}
+    assert not result
 
 
 class MyDict(dict):
@@ -113,7 +113,7 @@ def test_subset_or_none_with_mydict_and_not_subset():
     dict2 = MyDict2({ 1: 11, 4: 31 })
     result = resources.subset_or_none(dict1, dict2)
     assert isinstance(result, MyDict)
-    assert result ==  {}
+    assert not result
 
 
 @pytest.fixture
