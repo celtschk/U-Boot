@@ -310,7 +310,7 @@ def bubble():
     the_bubble = pygame.Surface(surfacesize, pygame.SRCALPHA)
     pygame.draw.circle(the_bubble, interior_colour, (size, size), size)
     pygame.draw.circle(the_bubble, border_colour, (size, size), size, 1)
-    return bubble
+    return the_bubble
 
 def try_load_all():
     """
