@@ -16,6 +16,8 @@
 This module provides classes for game objects and animations.
 """
 
+from typing import Callable
+
 import pygame
 
 from . import resources
@@ -28,13 +30,14 @@ from . import resources
 class MovingObject:
     "This class represents any moving object in the game."
 
-    def __init__(self, path, start, velocity, movement_region,
+    def __init__(self, source, start, velocity, movement_region,
                  origin, repeat, adjust_start):
         """
         Create a new moving object.
 
         Mandatory Arguments:
-          path:             the file path to the image to display
+          source:           the file path to the image to display
+                            or a function creating that image
           start:            the pixel at which the movement starts
           velocity:         the velocity of the object (pixels/second)
           movement_region:  The region in which the object may move.
@@ -57,8 +60,16 @@ class MovingObject:
         set back to the start position, depending on the value of
         repeat.
         """
-        self.image_path = path  # for serialization
-        self.image = resources.load_image(path)
+        self.image_path = None
+        self.creation_function = None
+        if isinstance(source, str):
+            self.image_path = source  # for serialization
+            self.image = resources.load_image(source)
+        elif isinstance(source, Callable):
+            self.creation_function = source
+            self.image = source()
+        else:
+            raise ValueError("Unsupported image source")
 
         width = self.image.get_width()
 
@@ -92,7 +103,10 @@ class MovingObject:
         Deserialize the object for pickle
         """
         self.__dict__.update(state)
-        self.image = resources.load_image(self.image_path)
+        if self.image_path is not None:
+            self.image = resources.load_image(self.image_path)
+        else:
+            self.image = self.creation_function()
 
 
     def update(self, time):
