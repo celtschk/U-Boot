@@ -280,7 +280,7 @@ class Level(GameDisplay):
                 ship = self.state["objects"]["ship"]["list"][0]
                 start_x = ship.get_position()[0]
             elif isinstance(start[0], str):
-                start_x = resources.get_value(data[start[0]])
+                start_x = resources.get_value(data["constants"][start[0]])
             else:
                 start_x = start[0]
             start_adjustment = pygame.Vector2(0, 0)
