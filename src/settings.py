@@ -16,10 +16,12 @@
 Settings for the uboot game
 """
 
+from typing import Dict, Tuple, Union, Any
+
 # pylint: disable=invalid-name
 
 # Information about the game
-game_info = {
+game_info: Dict[str, str] = {
     "name": "uboot",
     "title": "U-Boot",
     "version": "0.1",
@@ -27,7 +29,7 @@ game_info = {
     }
 
 # Game geometry data
-geometry = {
+geometry: Dict[str, float] = {
     # screen resolution/window size
     "width": 1024,
     "height": 768,
@@ -37,22 +39,26 @@ geometry = {
     }
 
 # frame rate
-fps = 60
+fps: int = 60
 
 # frames per score animation update
-score_frames = 6
+score_frames: int = 6
 
 # number of frames to show the final message of each level
-level_display_frames = 5*fps
+level_display_frames: int = 5*fps
 
 # how many seconds transient displays stay
-transient_display_time = 3
+transient_display_time: float = 3
 
 # the number of lives
-lives = 4
+lives: int = 4
 
 # colours used in the game
-colours = {
+colours: Dict[str,
+              Union[str,
+                    Dict[str, int],
+                    Tuple[int, int, int],
+                    Tuple[int, int, int, int]]] = {
     # background colours
     "sky": "sky blue",
     "water": "blue",
@@ -88,19 +94,19 @@ colours = {
     }
 
 # font used in the game
-font = {
+font: Dict[str, Any] = {
     "name": "Courier New",
     "size": 30
     }
 
 # font used for paginated text
-paginated_font = {
+paginated_font: Dict[str, Any] = {
     "name": "Courier New", # "Helvetica",
     "size": 30
     }
 
 # layout of paginated text (all sizes are in pixels)
-paginate_layout = {
+paginate_layout: Dict[str, Union[Dict[str, int], int]] = {
     "border": {
         "top": 50,
         "left": 70,
@@ -111,7 +117,7 @@ paginate_layout = {
     }
 
 # sounds used in the game
-sounds = {
+sounds: Dict[str, Dict[str, Union[str, float]]] = {
     "explosion": {
         "filename": "assets/Flashbang-Kibblesbob-899170896.wav",
         "volume": 0.2
@@ -131,7 +137,7 @@ sounds = {
     }
 
 # animations used in the game
-animations = {
+animations: Dict[str, Dict[str, Any]] = {
     "explosion": {
         # frame rate of the animation
         # for best results, use a factor of the global fps
@@ -146,7 +152,7 @@ animations = {
         }
     }
 
-music = {
+music: Dict[str, Dict[str, Any]] = {
     "background": {
         "filename": "assets/The Enemy.mp3",
         "volume": 0.1
@@ -154,7 +160,7 @@ music = {
     }
 
 # list of game objects and their properties
-objects = {
+objects: Dict[str, Dict[str, Any]] = {
     "ship": {
         "filename": "assets/schiff.png",
         "origin": (0.5,1),
@@ -261,7 +267,7 @@ objects = {
     }
 
 # information about possible hits
-hit_info = {
+hit_info: Dict[Tuple[str, str], Dict[str, Union[str, bool]]] = {
     ("submarine", "bomb"): {
         # Which animation to play on hit. Animations are always played
         # at the position of the second object
@@ -280,7 +286,7 @@ hit_info = {
         }
     }
 
-level_updates = {
+level_updates: Dict[int, Dict[str, Dict[str, Any]]] = {
     1:  {
         "submarine": {
             "constants": {
@@ -317,5 +323,5 @@ level_updates = {
         }
     }
 
-save_file = "uboot.save"
-screenshot_file = "U-Boot-screenshot.png"
+save_file: str = "uboot.save"
+screenshot_file: str = "U-Boot-screenshot.png"
