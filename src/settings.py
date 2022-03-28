@@ -238,7 +238,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "repeat": False
             },
         "max_count": 15,
-        "total_count": 100
+        "total_count": 60
         },
     "whale": {
         "filename": "assets/whale.png",
