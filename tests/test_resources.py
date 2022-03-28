@@ -2,6 +2,8 @@
 Test resources.py
 """
 
+import pathlib
+
 import pytest
 
 from src import resources
@@ -651,3 +653,23 @@ def test_randomly_true(mocker):
     assert x_value == 0
     assert y_value == 1
     assert resources.randomly_true(0.7)
+
+
+def test_get_save_file(mocker, tmp_path):
+    """
+    test get_save_file
+    """
+    def mock_user_data_dir(appname, appauthor, version):
+        return tmp_path / appname / appauthor / version
+    mocker.patch.object(resources.appdirs, "user_data_dir",
+                        mock_user_data_dir)
+    mocker.patch.object(resources.settings, "game_info", {
+        "name": "Name",
+        "author": "Author",
+        "version": "Version"
+        })
+    mocker.patch.object(resources.settings, "save_file", "File")
+
+    result = resources.get_save_file()
+    assert isinstance(result, pathlib.Path)
+    assert result.as_posix() == tmp_path.as_posix() + "/Name/Author/Version/File"
