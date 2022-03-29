@@ -133,6 +133,10 @@ sounds: Dict[str, Dict[str, Union[str, float]]] = {
     "losing": {
         "filename": "assets/Sad_Trombone-Joe_Lamb-665429450.wav",
         "volume": 0.5
+        },
+    "bomb drop": {
+        "filename": "assets/Video_Game_Splash-Ploor-699235037.wav",
+        "volume": 0.5
         }
     }
 

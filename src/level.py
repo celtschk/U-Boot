@@ -421,6 +421,7 @@ class Level(GameDisplay):
                 newbomb = self.create_moving_object("bomb")
                 self.state["objects"]["bomb"]["list"].append(newbomb)
                 self.state["objects"]["bomb"]["remaining"] -= 1
+                self.play("bomb drop")
 
 
     def spawn_objects(self):

@@ -1,5 +1,11 @@
 Non-original files used:
 
+Bomb dropping sound:
+    File: Video_Game_Splash-Ploor-699235037.wav
+    Author: Ploor
+    Source: https://soundbible.com/2100-Splash-Rock-In-Lake.html
+    License: Public Domain
+
 Explosion sound:
     File: Flashbang-Kibblesbob-899170896.wav
     Author: Kibblesbob
