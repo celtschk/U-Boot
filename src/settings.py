@@ -137,6 +137,10 @@ sounds: Dict[str, Dict[str, Union[str, float]]] = {
     "bomb drop": {
         "filename": "assets/Video_Game_Splash-Ploor-699235037.wav",
         "volume": 0.5
+        },
+    "click": {
+        "filename": "assets/Click2-Sebastian-759472264.wav",
+        "volume": 1
         }
     }
 

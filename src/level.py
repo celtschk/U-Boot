@@ -422,6 +422,10 @@ class Level(GameDisplay):
                 self.state["objects"]["bomb"]["list"].append(newbomb)
                 self.state["objects"]["bomb"]["remaining"] -= 1
                 self.play("bomb drop")
+                return
+
+        # If we get here, no bomb was dropped
+        self.play("click")
 
 
     def spawn_objects(self):

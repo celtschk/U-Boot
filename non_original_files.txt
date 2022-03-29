@@ -6,6 +6,12 @@ Bomb dropping sound:
     Source: https://soundbible.com/2100-Splash-Rock-In-Lake.html
     License: Public Domain
 
+Click sound:
+    File: Click2-Sebastian-759472264.wav
+    Author: Sebastian
+    Source: https://soundbible.com/1705-Click2.html
+    License: Creative Commons Attribution 3.0
+
 Explosion sound:
     File: Flashbang-Kibblesbob-899170896.wav
     Author: Kibblesbob
