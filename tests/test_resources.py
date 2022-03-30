@@ -723,9 +723,9 @@ def test_try_load_all(mocker):
         nonlocal seen_names
         seen_names.add(filename)
 
-    def mock_get(map, key):
+    def mock_get(mapping, key):
         nonlocal seen_names
-        seen_names.add(map[key])
+        seen_names.add(mapping[key])
 
     mocker.patch.object(resources, "load_image", mock_load_image)
     mocker.patch.object(resources, "get_sound",
