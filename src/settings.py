@@ -18,8 +18,6 @@ Settings for the uboot game
 
 from typing import Dict, Tuple, Union, Any
 
-# pylint: disable=invalid-name
-
 # Information about the game
 game_info: Dict[str, str] = {
     "name": "uboot",
