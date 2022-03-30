@@ -298,7 +298,7 @@ def get_save_file() -> pathlib.Path:
     return user_data_dir/settings.save_file
 
 
-def try_load_all():
+def try_load_all() -> None:
     """
     This function tries to load all resources that will be used in the
     game, so that errors can be caught right away rather than in the
