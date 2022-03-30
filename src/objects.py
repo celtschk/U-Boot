@@ -16,7 +16,7 @@
 This module provides classes for game objects and animations.
 """
 
-from typing import Callable
+from typing import Callable, Dict
 
 import pygame
 
@@ -62,14 +62,8 @@ class MovingObject:
         """
         self.image_path = None
         self.creation_function = None
-        if isinstance(source, str):
-            self.image_path = source  # for serialization
-            self.image = resources.load_image(source)
-        elif isinstance(source, Callable):
-            self.creation_function = source
-            self.image = source()
-        else:
-            raise ValueError("Unsupported image source")
+        self.creation_function = source
+        self.image = self.creation_function()
 
         width = self.image.get_width()
 
@@ -322,3 +316,26 @@ class TransientDisplay:
                                   self.remaining_time)
         memo[id(self)] = result
         return result
+
+
+def _bubble(constants: Dict) -> pygame.surface.Surface:
+    """
+    A function that creates a random bubble image (actually
+    just a coloured circle)
+    """
+    size = resources.get_value(constants["size"])
+    surfacesize = (2*size+1, 2*size+1)
+    interior_colour = resources.get_colour(constants["interior colour"])
+    border_colour = resources.get_colour(constants["boundary colour"])
+    the_bubble = pygame.Surface(surfacesize, pygame.SRCALPHA)
+    pygame.draw.circle(the_bubble, interior_colour, (size, size), size)
+    pygame.draw.circle(the_bubble, border_colour, (size, size), size, 1)
+    return the_bubble
+
+def _image(constants: Dict) -> pygame.surface.Surface:
+    return resources.load_image(constants["filename"])
+
+object_functions: Dict[str, Callable[[Dict],pygame.surface.Surface]] = {
+    "image": _image,
+    "bubble": _bubble
+    }

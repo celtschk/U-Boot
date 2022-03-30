@@ -12,8 +12,8 @@ import pytest
 
 import pygame
 
-from src import settings
-from src import resources
+from src import settings, resources
+from src.objects import object_functions
 
 def test_game_info():
     """
@@ -376,10 +376,9 @@ def verify_movement(movement, constant_names):
 
 def is_valid_function(name):
     """
-    Test that a name actually refers to acallable object in the module
-    resources
+    Test that a name actually refers to an entry in object_functions
     """
-    return isinstance(getattr(resources, name), Callable)
+    return isinstance(object_functions.get(name), Callable)
 
 
 def test_objects():
@@ -399,11 +398,17 @@ def verify_objects(object_dict):
     for name, properties in object_dict.items():
         assert isinstance(name, str)
         assert isinstance(properties, dict)
-        assert "filename" in properties or "function" in properties
-        if "filename" in properties:
-            verify_dict_entry(properties, "filename", str, isfile)
-        if "function" in properties:
-            verify_dict_entry(properties, "function", str, is_valid_function)
+        verify_dict_entry(properties, "source", str, is_valid_function)
+        assert "initdata" in properties
+        if properties["source"] == "image":
+            verify_dict_entry(properties["initdata"], "filename", str, isfile)
+        if properties["source"] == "bubble":
+            assert "size" in properties["initdata"]
+            assert is_num_or_range(properties["initdata"]["size"])
+            verify_dict_entry(properties["initdata"], "interior colour",
+                              str, lambda value: value in settings.colours)
+            verify_dict_entry(properties["initdata"], "boundary colour",
+                              str, lambda value: value in settings.colours)
         verify_dict_entry(properties, "origin", tuple,
                           lambda pair: len(pair) == 2)
         assert isinstance(properties["origin"][0], Number)

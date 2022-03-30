@@ -170,7 +170,10 @@ music: Dict[str, Dict[str, Any]] = {
 # list of game objects and their properties
 objects: Dict[str, Dict[str, Any]] = {
     "ship": {
-        "filename": "assets/schiff.png",
+        "source": "image",
+        "initdata": {
+            "filename": "assets/schiff.png",
+            },
         "origin": (0.5,1),
         "movement": {
             "start": ("left", 0),
@@ -178,15 +181,19 @@ objects: Dict[str, Dict[str, Any]] = {
             "direction": (1,0),
             "area": "sky",
             "repeat": True
-            },
+            }
         },
     "bubble": {
-        "function": "bubble",
-        "origin": (0, 1), # (0.5, 0.5),
-        "size": {
-            "min": 1,
-            "max": 5
+        "source": "bubble",
+        "initdata": {
+            "size": {
+                "min": 1,
+                "max": 5
+                },
+            "interior colour": "bubble interior",
+            "boundary colour": "bubble boundary"
             },
+        "origin": (0, 1), # (0.5, 0.5),
         "movement": {
             "start": ("startx", "startdepth"),
             "speed": {
@@ -205,14 +212,17 @@ objects: Dict[str, Dict[str, Any]] = {
             "startdepth": {
                 "min": 0.2,
                 "max": 1
-                }
+                },
             },
         "max_count": 20,
         "total_count": 1000, # basically unlimited
         "spawn_rate": 1
         },
     "submarine": {
-        "filename": "assets/Uboot.png",
+        "source": "image",
+        "initdata": {
+            "filename": "assets/Uboot.png",
+            },
         "origin": (0, 0),
         "movement": {
             "start": ("right", "depth"),
@@ -231,12 +241,15 @@ objects: Dict[str, Dict[str, Any]] = {
             "depth": {
                 "min": 0.1,
                 "max": 0.97
-                }
+                },
             },
         "spawn_rate": 1/3 # average spawns per second
         },
     "bomb": {
-        "filename": "assets/bomb.png",
+        "source": "image",
+        "initdata": {
+            "filename": "assets/bomb.png",
+            },
         "origin": (0.5, 0),
         "movement": {
             "start": ("ship", "ship"),
@@ -246,10 +259,13 @@ objects: Dict[str, Dict[str, Any]] = {
             "repeat": False
             },
         "max_count": 15,
-        "total_count": 60
+        "total_count": 60,
         },
     "whale": {
-        "filename": "assets/whale.png",
+        "source": "image",
+        "initdata": {
+            "filename": "assets/whale.png",
+            },
         "origin": (0,0),
         "movement": {
             "start": ("right", "depth"),
@@ -268,7 +284,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "depth": {
                 "min": 0.1,
                 "max": 0.97
-                }
+                },
             },
         "spawn_rate": 1/20 # average spawns per second
         },

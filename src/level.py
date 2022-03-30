@@ -17,6 +17,7 @@ This module implements the class Level, which contains the actual gameplay.
 """
 
 from copy import deepcopy
+from functools import partial
 
 import pygame
 
@@ -24,10 +25,9 @@ from . import settings
 from . import resources
 from .gamedisplay import GameDisplay
 from .objects import MovingObject, Animation, TransientDisplay
+from .objects import object_functions
 
 
-# Currently there's only one game level. Nevertheless, it makes sense to
-# separate out the class
 class Level(GameDisplay):
     "A game level"
     # Level specific exit values
@@ -303,15 +303,9 @@ class Level(GameDisplay):
             return pygame.Vector2(speed * direction[0] * width,
                                   speed * direction[1] * height)
 
-        def get_source(data):
-            if "filename" in data:
-                return data["filename"]
-            if "function" in data:
-                return getattr(resources, data["function"])
-            assert False, "This line should never be reached"
-
         return MovingObject(
-            source = get_source(data),
+            source = partial(object_functions[data["source"]],
+                             data["initdata"]),
             start = pygame.Vector2(start_x, y_from_depth(start_depth)),
             adjust_start = start_adjustment,
             movement_region = self.areas[movement["area"]],
@@ -364,7 +358,7 @@ class Level(GameDisplay):
                 else:
                     self.messages["game over"].write(screen)
 
-        ship_image = resources.load_image(settings.objects["ship"]["filename"])
+        ship_image = resources.load_image(settings.objects["ship"]["initdata"]["filename"])
         ship_hpos = 20
         for _ in range(self.state["lives"]-1):
             screen.blit(ship_image, (ship_hpos, 0))
