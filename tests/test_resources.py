@@ -3,6 +3,7 @@ Test resources.py
 """
 
 import pathlib
+from functools import partial
 
 import pytest
 
@@ -673,3 +674,67 @@ def test_get_save_file(mocker, tmp_path):
     result = resources.get_save_file()
     assert isinstance(result, pathlib.Path)
     assert result.as_posix() == tmp_path.as_posix() + "/Name/Author/Version/File"
+
+
+def test_try_load_all(mocker):
+    """
+    test try_load_all function
+    """
+    all_names = { "foo", "bar", "baz0", "baz1", "baz2",
+                  "qux1", "qux2", "quux", "red", "green", "blue" }
+    seen_names = set()
+
+    mocker.patch.object(resources.settings, "objects", {
+        "foo_object": {
+            "initdata": {
+                "filename": "foo"
+                }
+            },
+        "bar_object": {
+            "initdata": {
+                "filename": "bar"
+                }
+            }
+        })
+
+    mocker.patch.object(resources.settings, "animations", {
+        "baz_animation": {
+            "frame_count": 3,
+            "images": "baz{frame}"
+            }
+        })
+
+    mocker.patch.object(resources.settings, "sounds", {
+        "sound1": "qux1",
+        "sound2": "qux2"
+        })
+
+    mocker.patch.object(resources.settings, "music", {
+        "music": "quux"
+        })
+
+    mocker.patch.object(resources.settings, "colours", {
+        "colour1": "red",
+        "colour2": "green",
+        "colour3": "blue"
+        })
+
+    def mock_load_image(filename):
+        nonlocal seen_names
+        seen_names.add(filename)
+
+    def mock_get(map, key):
+        nonlocal seen_names
+        seen_names.add(map[key])
+
+    mocker.patch.object(resources, "load_image", mock_load_image)
+    mocker.patch.object(resources, "get_sound",
+                        partial(mock_get, resources.settings.sounds))
+    mocker.patch.object(resources, "load_music",
+                        partial(mock_get, resources.settings.music))
+    mocker.patch.object(resources, "get_colour",
+                        partial(mock_get, resources.settings.colours))
+
+    resources.try_load_all()
+
+    assert seen_names == all_names

@@ -307,8 +307,8 @@ def try_load_all() -> None:
 
     # load all the images for objects
     for obj in settings.objects.values():
-        if "filename" in obj:
-            load_image(obj["filename"])
+        if "filename" in obj["initdata"]:
+            load_image(obj["initdata"]["filename"])
 
     # load all the images for animations
     for animation in settings.animations.values():
