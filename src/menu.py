@@ -16,6 +16,8 @@
 This module provides menus for the game
 """
 
+from functools import partial
+
 import pygame
 
 from . import resources
@@ -26,6 +28,8 @@ class Menu(GameDisplay):
     """
     Class representing a menu.
     """
+
+    MENU_MAIN = GameDisplay.Status()
 
     def __init__(self, game, menuspec, font, message = None):
         """
@@ -47,7 +51,9 @@ class Menu(GameDisplay):
         self.key_bindings.update({
             pygame.K_UP: self.move_up,
             pygame.K_DOWN: self.move_down,
-            pygame.K_RETURN: self.select_option
+            pygame.K_RETURN: self.select_option,
+            pygame.K_q: partial(self.quit, Menu.MENU_MAIN),
+            pygame.K_ESCAPE: partial(self.quit, Menu.MENU_MAIN)
             })
 
 
@@ -152,4 +158,6 @@ class Menu(GameDisplay):
         """
         if self.terminated():
             return None
+        if self.status == Menu.MENU_MAIN:
+            return "menu"
         return self.menuspec[self.selection]["action"]
