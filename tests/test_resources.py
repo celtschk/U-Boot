@@ -777,3 +777,13 @@ def test_recursive_update(old, update, new):
     """
     resources.recursive_update(old, update)
     assert old == new
+
+
+def test_bisect():
+    """
+    Test the bisect function
+    """
+    assert resources.bisect(3, 16, lambda x: x < 10) == 10
+    assert resources.bisect(3, 16, lambda x: x < 20) == 16
+    assert resources.bisect(3, 16, lambda x: True) == 16
+    assert resources.bisect(3, 3, lambda x: True) == 3
