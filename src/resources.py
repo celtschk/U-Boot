@@ -341,6 +341,8 @@ def recursive_update(dictionary: dict, updates: dict):
                 recursive_update(oldvalue, value)
             else:
                 dictionary[key] = value
+        else:
+            dictionary[key] = value
 
 
 def bisect(first: int, last: int, condition: Callable[[int], int]):

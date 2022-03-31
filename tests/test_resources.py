@@ -738,3 +738,42 @@ def test_try_load_all(mocker):
     resources.try_load_all()
 
     assert seen_names == all_names
+
+DICTIONARY_TEST_ARGS = "old, update, new"
+
+dictionary_test_data = [
+    # Updating an empty directory with an empty directory does nothing
+    ( { }, { }, { } ),
+
+    # Updating a non-empty directory with an emty directory does nothing
+    ( { "foo": 1 }, { }, { "foo": 1 } ),
+
+    # Replacement of one value
+    ( { "foo": 1, "bar": 2 }, { "foo": 3 }, { "foo": 3, "bar": 2 } ),
+
+    # Addition of a new value
+    ( { "foo": 1 }, { "bar": 2 }, { "foo":1, "bar": 2 } ),
+
+    # Removal of a value
+    ( { "foo": 1, "bar": 2 }, { "foo": None }, { "bar": 2 } ),
+
+    # Adding a value to a nested dict
+    ( { "foo": { "bar": 3 } }, { "foo": { "baz": 5 } },
+      { "foo": { "bar": 3, "baz": 5 } } ),
+
+    # Updating in several levels at once
+    ( { "foo": { "bar": { "baz": 1 } } },
+      { "foo2": 2, "foo": { "bar2": 3, "bar": { "baz": 5 } } },
+      { "foo": { "bar": { "baz": 5 }, "bar2": 3 }, "foo2": 2 } ),
+
+    # Deleting a key whose value is a dict
+    ( { "foo": { "bar": 3 } }, { "foo": None }, { } ),
+    ]
+
+@pytest.mark.parametrize(DICTIONARY_TEST_ARGS, dictionary_test_data)
+def test_recursive_update(old, update, new):
+    """
+    Test the recursive update function
+    """
+    resources.recursive_update(old, update)
+    assert old == new
