@@ -214,6 +214,14 @@ def load_music(music_name: str):
     pygame.mixer.music.set_volume(music_info["volume"])
 
 
+def get_font(name: str) -> pygame.font.Font:
+    """
+    Looks up a font in the settings and returns a pygame font for it
+    """
+    fontspec = { arg: settings.fonts[name].get(arg, False)
+                 for arg in ["name", "size", "bold", "italic"] }
+    return pygame.font.SysFont(**fontspec)
+
 
 @dataclass
 class MessageData:

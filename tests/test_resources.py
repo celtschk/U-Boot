@@ -424,7 +424,8 @@ def dummy_font(dummy_surface):
         """
         Dummy font
         """
-        def __init__(self):
+        def __init__(self, name=None, size=None, bold=False, italic=False):
+            self.initargs = [ name, size, bold, italic ]
             self.args = None
             self.kwargs = None
             self.surface = dummy_surface()
@@ -438,6 +439,24 @@ def dummy_font(dummy_surface):
             return self.surface
 
     return DummyFont
+
+
+def test_get_font(mocker, dummy_font):
+    """
+    Test resources.get_font
+    """
+    mocker.patch.object(resources.pygame.font, "SysFont", dummy_font)
+    mocker.patch.object(resources.settings, "fonts", {
+        "foo": { "name": "aaa", "size": 42 },
+        "bar": { "name": "bbb", "size": 23, "bold": True },
+        "baz": { "name": "ccc", "size": 69, "italic": True },
+        "qux": { "name": "ddd", "size": 13, "bold": True, "italic": True }
+        })
+
+    assert resources.get_font("foo").initargs == [ "aaa", 42, False, False ]
+    assert resources.get_font("bar").initargs == [ "bbb", 23, True, False ]
+    assert resources.get_font("baz").initargs == [ "ccc", 69, False, True ]
+    assert resources.get_font("qux").initargs == [ "ddd", 13, True, True ]
 
 
 def test_message_data(dummy_surface, dummy_font):
