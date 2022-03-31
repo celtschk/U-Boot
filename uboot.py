@@ -48,12 +48,12 @@ class Game:
         # try to load all resources, for early failing
         resources.try_load_all()
 
-        self.font = pygame.font.SysFont(settings.font["name"],
-                                        settings.font["size"])
+        self.font = pygame.font.SysFont(settings.fonts["default"]["name"],
+                                        settings.fonts["default"]["size"])
 
         self.paginated_font = pygame.font.SysFont(
-            settings.paginated_font["name"],
-            settings.paginated_font["size"])
+            settings.fonts["paginated"]["name"],
+            settings.fonts["paginated"]["size"])
 
         # music
         resources.load_music("background")

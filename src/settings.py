@@ -91,16 +91,18 @@ colours: Dict[str,
     "bubble boundary": "dark blue"
     }
 
-# font used in the game
-font: Dict[str, Any] = {
-    "name": "Courier New",
-    "size": 30
-    }
+# fonts used in the game
+fonts: Dict[str, Dict[str, Any]] = {
+    "default": {
+        "name": "Courier New",
+        "size": 30
+        },
 
-# font used for paginated text
-paginated_font: Dict[str, Any] = {
-    "name": "Courier New", # "Helvetica",
-    "size": 30
+    # font used for paginated text
+    "paginated": {
+        "name": "Courier New", # "Helvetica",
+        "size": 30
+        }
     }
 
 # layout of paginated text (all sizes are in pixels)

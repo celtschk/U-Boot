@@ -222,22 +222,19 @@ def is_fraction(number):
     return 0.0 <= number <= 1.0
 
 
-def test_font():
+def test_fonts():
     """
-    Test that font specification is valid
+    Test that font specifications are valid
     """
-    assert isinstance(settings.font, dict)
-    verify_dict_entry(settings.font, "name", str)
-    verify_dict_entry(settings.font, "size", int, is_positive)
+    assert isinstance(settings.fonts, dict)
+    for key, value in settings.fonts.items():
+        assert isinstance(key, str)
+        assert isinstance(value, dict)
+        verify_dict_entry(value, "name", str)
+        verify_dict_entry(value, "size", int, is_positive)
 
-
-def test_paginated_font():
-    """
-    Test that paginated_font specification is valid
-    """
-    assert isinstance(settings.paginated_font, dict)
-    verify_dict_entry(settings.paginated_font, "name", str)
-    verify_dict_entry(settings.paginated_font, "size", int, is_positive)
+    assert "default" in settings.fonts
+    assert "paginated" in settings.fonts
 
 
 def test_paginate_layout():
