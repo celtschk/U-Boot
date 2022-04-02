@@ -76,7 +76,7 @@ class GameDisplay:
         """
         # A pygame.QUIT event always terminates the game completely
         if event.type == pygame.QUIT:
-            self.terminate()
+            self.quit(self.TERMINATE)
             return True
 
         if event.type == pygame.KEYDOWN:
@@ -150,15 +150,8 @@ class GameDisplay:
         self.status = status
 
 
-    def terminate(self):
-        """
-        Quit the game
-        """
-        self.quit(self.TERMINATE)
-
-
     def terminated(self):
         """
-        Returns whether the terminate function was called.
+        Returns whether quit(TERMINATE) was called.
         """
         return self.status == self.TERMINATE
