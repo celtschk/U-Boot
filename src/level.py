@@ -242,7 +242,8 @@ class Level(GameDisplay):
             pygame.K_PAUSE:      self.__pause_game,
             pygame.K_s:          self.__quit_for_save,
             pygame.K_q:          self.__quit_game,
-            pygame.K_ESCAPE:     self.__quit_game
+            pygame.K_ESCAPE:     self.__quit_game,
+            pygame.K_DOWN:       self.__drop_bomb
             })
 
 
@@ -391,6 +392,10 @@ class Level(GameDisplay):
     def __drop_bomb(self):
         "Drop a bomb, if possible"
 
+        # If the level is paused or not running, don't drop any bombs
+        if self.paused or not self.running:
+            return
+
         # don't drop a new bomb if there already exist a naximal
         # number of them, or the score would go negative
         if self.__get_available_bombs() > 0:
@@ -517,25 +522,6 @@ class Level(GameDisplay):
         """
         self.display["final_display_frames"] = 0
         self.quit(self.LEVEL_SAVE)
-
-
-    def handle_event(self, event):
-        """
-        Handle an event
-        """
-        if super().handle_event(event):
-            return True
-
-        if event.type == pygame.KEYDOWN:
-            # Game actions are only processed if the game is running
-            # and not paused
-            if self.running and not self.paused:
-                # Down arrow drops a bomb
-                if event.key == pygame.K_DOWN:
-                    self.__drop_bomb()
-                    return True
-
-        return False
 
 
     def __objects_remaining(self, obj_type):
