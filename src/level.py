@@ -109,7 +109,7 @@ class Level(GameDisplay):
                     object_info["to_destroy"] = obj["to_destroy"]
 
             # create the ship
-            ship = self.create_moving_object("ship")
+            ship = self.__create_moving_object("ship")
             self.state["objects"]["ship"] = { "list": [ship] }
 
             # setup storage for animations
@@ -238,11 +238,11 @@ class Level(GameDisplay):
             }
 
         self.key_bindings.update({
-            pygame.K_p:          self.pause_game,
-            pygame.K_PAUSE:      self.pause_game,
-            pygame.K_s:          self.quit_for_save,
-            pygame.K_q:          self.quit_game,
-            pygame.K_ESCAPE:     self.quit_game
+            pygame.K_p:          self.__pause_game,
+            pygame.K_PAUSE:      self.__pause_game,
+            pygame.K_s:          self.__quit_for_save,
+            pygame.K_q:          self.__quit_game,
+            pygame.K_ESCAPE:     self.__quit_game
             })
 
 
@@ -258,7 +258,7 @@ class Level(GameDisplay):
         return state
 
 
-    def create_moving_object(self, object_type):
+    def __create_moving_object(self, object_type):
         """
         Create a moving object of type object_type
         """
@@ -333,9 +333,9 @@ class Level(GameDisplay):
 
         displaydata = {
             "remaining_bombs": self.state["objects"]["bomb"]["remaining"],
-            "available_bombs": self.get_available_bombs(),
-            "bomb_cost": self.get_bomb_cost(),
-            "remaining_subs": self.objects_remaining("submarine"),
+            "available_bombs": self.__get_available_bombs(),
+            "bomb_cost": self.__get_bomb_cost(),
+            "remaining_subs": self.__objects_remaining("submarine"),
             "to_destroy": self.state["objects"]["submarine"]["to_destroy"],
             "level": self.state["level_number"],
             "score": self.display["score"]
@@ -367,13 +367,13 @@ class Level(GameDisplay):
         pygame.display.flip()
 
 
-    def get_bomb_cost(self, count=1):
+    def __get_bomb_cost(self, count=1):
         "Returns the score cost of dropping another count bombs"
         num_of_bombs = len(self.state["objects"]["bomb"]["list"])
         return sum((num_of_bombs+k)**2 for k in range(count))
 
 
-    def get_available_bombs(self):
+    def __get_available_bombs(self):
         "Returns the maximum number of extra bombs that can be thrown"
 
         bomb_info = self.state["objects"]["bomb"]
@@ -382,18 +382,18 @@ class Level(GameDisplay):
 
         available_bombs = max_bombs - existing_bombs
 
-        while self.get_bomb_cost(available_bombs) > self.state["score"]:
+        while self.__get_bomb_cost(available_bombs) > self.state["score"]:
             available_bombs -= 1
 
         return available_bombs
 
 
-    def drop_bomb(self):
+    def __drop_bomb(self):
         "Drop a bomb, if possible"
 
         # don't drop a new bomb if there already exist a naximal
         # number of them, or the score would go negative
-        if self.get_available_bombs() > 0:
+        if self.__get_available_bombs() > 0:
             ship = self.state["objects"]["ship"]["list"][0]
             ship_pos = ship.get_position()
 
@@ -401,7 +401,7 @@ class Level(GameDisplay):
             if ship_pos[0] > 0 and ship_pos[0] < self.areas["screen"].width:
                 # the score must be updated before adding the new bomb
                 # because adding the bomb changes the cost
-                bomb_cost = self.get_bomb_cost()
+                bomb_cost = self.__get_bomb_cost()
                 if bomb_cost != 0:
                     scoredisplay = self.game.font.render(
                         f"{-bomb_cost}", True,
@@ -412,17 +412,17 @@ class Level(GameDisplay):
                                          settings.transient_display_time))
                 self.state["score"] -= bomb_cost
 
-                newbomb = self.create_moving_object("bomb")
+                newbomb = self.__create_moving_object("bomb")
                 self.state["objects"]["bomb"]["list"].append(newbomb)
                 self.state["objects"]["bomb"]["remaining"] -= 1
-                self.play("bomb drop")
+                self.__play_sound("bomb drop")
                 return
 
         # If we get here, no bomb was dropped
-        self.play("click")
+        self.__play_sound("click")
 
 
-    def spawn_objects(self):
+    def __spawn_objects(self):
         "Possibly spawn new spawnable objects"
         for obj_type in self.state["spawnables"]:
             obj_data = self.state["objects"][obj_type]
@@ -437,13 +437,13 @@ class Level(GameDisplay):
 
             if existing_objects < max_objects:
                 if resources.randomly_true(rate/self.game.fps):
-                    newobj = self.create_moving_object(obj_type)
+                    newobj = self.__create_moving_object(obj_type)
                     self.state["objects"][obj_type]["list"].append(newobj)
                     if limited:
                         obj_data["remaining"] -= 1
 
 
-    def create_animation(self, animation_type, position):
+    def __create_animation(self, animation_type, position):
         """
         Create an animation of given type at a specific position.
         """
@@ -455,7 +455,7 @@ class Level(GameDisplay):
                       position = position))
 
 
-    def handle_hits(self):
+    def __handle_hits(self):
         """
         Check if any projectile hit any target, and if so, remove both
         and update score
@@ -483,16 +483,16 @@ class Level(GameDisplay):
                             self.state["objects"]["transients"]["list"].append(
                                 TransientDisplay(scoredisplay, scorepos,
                                                  settings.transient_display_time))
-                        self.play(info["sound"])
-                        self.create_animation(info["animation"],
-                                              projectile.get_position())
+                        self.__play_sound(info["sound"])
+                        self.__create_animation(info["animation"],
+                                                projectile.get_position())
                         target.deactivate()
                         projectile.deactivate()
                         if self.state["objects"][target_name]["to_destroy"] > 0:
                             self.state["objects"][target_name]["to_destroy"] -= 1
 
 
-    def pause_game(self):
+    def __pause_game(self):
         """
         Pause the game
         """
@@ -503,7 +503,7 @@ class Level(GameDisplay):
         self.paused = not self.paused
 
 
-    def quit_game(self):
+    def __quit_game(self):
         """
         Quit the level immediately, without saving
         """
@@ -511,7 +511,7 @@ class Level(GameDisplay):
         self.quit()
 
 
-    def quit_for_save(self):
+    def __quit_for_save(self):
         """
         Quit the level and mark it for being saved
         """
@@ -532,13 +532,13 @@ class Level(GameDisplay):
             if self.running and not self.paused:
                 # Down arrow drops a bomb
                 if event.key == pygame.K_DOWN:
-                    self.drop_bomb()
+                    self.__drop_bomb()
                     return True
 
         return False
 
 
-    def objects_remaining(self, obj_type):
+    def __objects_remaining(self, obj_type):
         """
         Return True if all objects of the given type have already beem
         generated.
@@ -547,7 +547,7 @@ class Level(GameDisplay):
         return obj_info.get("remaining", 1) + len(obj_info["list"])
 
 
-    def update_displayed_score(self):
+    def __update_displayed_score(self):
         """
         Move the displayed score one step closer to the actual score
         """
@@ -571,7 +571,7 @@ class Level(GameDisplay):
             return
 
         # move the displayed score towards the actual score
-        self.update_displayed_score()
+        self.__update_displayed_score()
 
         # if the game is no longer running, decrease the final frame
         # counter if appropriate, advance any remaining animations,
@@ -591,33 +591,33 @@ class Level(GameDisplay):
                 obj.update(self.game.clock.get_time()/1000)
 
         # handle bombs hitting submarines
-        self.handle_hits()
+        self.__handle_hits()
 
         # remove inactive objects and animations
         for thing in self.state["objects"].values():
             thing["list"] = [obj for obj in thing["list"] if obj.is_active()]
 
         # determine whether to quit the level
-        submarines_remaining = self.objects_remaining("submarine")
+        submarines_remaining = self.__objects_remaining("submarine")
         submarines_to_destroy = self.state["objects"]["submarine"]["to_destroy"]
         if submarines_remaining == 0:
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
-                self.play("losing")
+                self.__play_sound("losing")
             else:
                 self.quit(self.LEVEL_CLEARED)
-                self.play("winning")
+                self.__play_sound("winning")
 
         # spawn new spawnable objects at random
-        self.spawn_objects()
+        self.__spawn_objects()
 
 
     def ready_to_quit(self):
         return self.display["final_display_frames"] == 0
 
 
-    def play(self, sound_name):
+    def __play_sound(self, sound_name):
         """
         Play a sound only if sounds are enabled
         """

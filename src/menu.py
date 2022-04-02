@@ -49,9 +49,9 @@ class Menu(GameDisplay):
 
         # menu specific keybindings
         self.key_bindings.update({
-            pygame.K_UP: self.move_up,
-            pygame.K_DOWN: self.move_down,
-            pygame.K_RETURN: self.select_option,
+            pygame.K_UP: self.__move_up,
+            pygame.K_DOWN: self.__move_down,
+            pygame.K_RETURN: self.__select_option,
             pygame.K_q: partial(self.quit, Menu.MENU_MAIN),
             pygame.K_ESCAPE: partial(self.quit, Menu.MENU_MAIN)
             })
@@ -108,7 +108,7 @@ class Menu(GameDisplay):
         pygame.display.flip()
 
 
-    def move_up(self):
+    def __move_up(self):
         """
         Move the menu selection one position up
         """
@@ -117,7 +117,7 @@ class Menu(GameDisplay):
         self.selection -= 1
 
 
-    def move_down(self):
+    def __move_down(self):
         """
         Move the menu selection one position down
         """
@@ -126,7 +126,7 @@ class Menu(GameDisplay):
             self.selection = 0
 
 
-    def select_option(self):
+    def __select_option(self):
         """
         Select a menu option
         """

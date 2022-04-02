@@ -54,7 +54,7 @@ class GameDisplay:
         # key bindings
         self.key_bindings = {
             pygame.K_f: self.game.toggle_fullscreen,
-            pygame.K_HASH: self.screenshot
+            pygame.K_HASH: self.__screenshot
             }
 
 
@@ -88,7 +88,7 @@ class GameDisplay:
         return False
 
 
-    def screenshot(self):
+    def __screenshot(self):
         """
         Make a screenshot of the current display
         """

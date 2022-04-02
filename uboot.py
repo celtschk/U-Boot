@@ -117,7 +117,7 @@ class Game:
             pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 
-    def play(self, state):
+    def __play(self, state):
         """
         Actually play the game
         """
@@ -151,7 +151,7 @@ class Game:
         return result, level.get_state()
 
 
-    def display_menu(self, menu_name, message):
+    def __display_menu(self, menu_name, message):
         """
         Display a menu
         """
@@ -162,7 +162,7 @@ class Game:
         return menu.get_selected_action()
 
 
-    def show_help(self):
+    def __show_help(self):
         """
         Show help
         """
@@ -188,10 +188,10 @@ class Game:
         message = None
         while action != "quit":
             if action in self.menus:
-                action = self.display_menu(action, message)
+                action = self.__display_menu(action, message)
                 message = None
             elif action == "help":
-                action = self.show_help()
+                action = self.__show_help()
             elif action in ("play", "resume"):
                 # play the game
                 if action == "play":
@@ -205,7 +205,7 @@ class Game:
                     message = "Did not find saved game"
                     action = "menu"
                 else:
-                    result, state = self.play(state)
+                    result, state = self.__play(state)
 
                     if result == Level.LEVEL_SAVE:
                         save_file = resources.get_save_file()
