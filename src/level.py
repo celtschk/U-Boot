@@ -31,6 +31,7 @@ from .objects import object_functions
 class Level(GameDisplay):
     "A game level"
     # Level specific exit values
+    PAUSED = GameDisplay.Status()
     LEVEL_CLEARED = GameDisplay.Status()
     LEVEL_FAILED  = GameDisplay.Status()
     LEVEL_SAVE = GameDisplay.Status()
@@ -72,6 +73,8 @@ class Level(GameDisplay):
         Initializes a level based on the passed state
         """
         super().__init__(game)
+
+        self.running_statuses.add(self.PAUSED)
 
         width = game.screen.get_width()
         height = game.screen.get_height()
@@ -156,9 +159,6 @@ class Level(GameDisplay):
             # colour of the level failed text display
             "failed": resources.get_colour("failed")
             }
-
-        # The game is initially not paused
-        self.paused = False
 
         def bomb_text_colour(data):
             if data["available_bombs"] > 0:
@@ -346,11 +346,11 @@ class Level(GameDisplay):
             message.write(screen, displaydata)
 
         # show message if game is paused:
-        if self.paused:
+        if self.status == self.PAUSED:
             self.messages["paused"].write(screen)
 
         # show final message as appropriate:
-        if not self.running:
+        if not self.is_running():
             if self.status == self.LEVEL_CLEARED:
                 self.messages["cleared"].write(screen)
             elif self.status == self.LEVEL_FAILED:
@@ -393,7 +393,7 @@ class Level(GameDisplay):
         "Drop a bomb, if possible"
 
         # If the level is paused or not running, don't drop any bombs
-        if self.paused or not self.running:
+        if self.status != self.RUNNING:
             return
 
         # don't drop a new bomb if there already exist a naximal
@@ -501,11 +501,12 @@ class Level(GameDisplay):
         """
         Pause the game
         """
-        if self.paused:
+        if self.status == self.PAUSED:
+            self.status = self.RUNNING
             pygame.mixer.music.unpause()
         else:
+            self.status = self.PAUSED
             pygame.mixer.music.pause()
-        self.paused = not self.paused
 
 
     def __quit_game(self):
@@ -553,7 +554,7 @@ class Level(GameDisplay):
         Update the state of the game
         """
         # if the game is paused, do nothing
-        if self.paused:
+        if self.status == self.PAUSED:
             return
 
         # move the displayed score towards the actual score
@@ -563,7 +564,7 @@ class Level(GameDisplay):
         # counter if appropriate, advance any remaining animations,
         # and then return immediately (so that game objects no longer
         # move, and score is no longer collected)
-        if not self.running:
+        if not self.is_running():
             if self.display["final_display_frames"] > 0:
                 self.display["final_display_frames"] -=1
             for animation_type in settings.animations:

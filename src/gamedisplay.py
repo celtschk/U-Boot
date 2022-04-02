@@ -16,8 +16,6 @@
 This module provides the GameDisplay class
 """
 
-from typing import Union
-
 import pygame
 
 from . import settings
@@ -39,6 +37,8 @@ class GameDisplay:
         """
     # pylint: enable=too-few-public-methods
 
+    INITIALIZED = Status()
+    RUNNING = Status()
     TERMINATE = Status()
     QUIT = Status()
 
@@ -48,14 +48,25 @@ class GameDisplay:
         Initializes the GameDisplay object
         """
         self.game = game
-        self.running = False
-        self.status: Union[GameDisplay.Status, None] = None
+        self.status: GameDisplay.Status = self.INITIALIZED
+
+        # set of status values that are considered running (that is,
+        # the program should stay in the main loop). Derived classes
+        # can add their own values.
+        self.running_statuses = { self.RUNNING }
 
         # key bindings
         self.key_bindings = {
             pygame.K_f: self.game.toggle_fullscreen,
             pygame.K_HASH: self.__screenshot
             }
+
+
+    def is_running(self):
+        """
+        Returns true if the current status is a running_state
+        """
+        return self.status in self.running_statuses
 
 
     def draw(self):
@@ -131,8 +142,8 @@ class GameDisplay:
         """
         The main loop
         """
-        self.running = True
-        while self.running or not self.ready_to_quit():
+        self.status = self.RUNNING
+        while self.is_running() or not self.ready_to_quit():
             self.draw()
             self.game.clock.tick(self.game.fps)
             for event in pygame.event.get():
@@ -146,7 +157,6 @@ class GameDisplay:
         Quit the display, but not necessarily the game
         """
         assert isinstance(status, self.Status)
-        self.running = False
         self.status = status
 
 
