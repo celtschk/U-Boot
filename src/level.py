@@ -601,7 +601,7 @@ class Level(GameDisplay):
 
 
     def ready_to_quit(self):
-        return self.display["final_display_frames"] == 0
+        return self.terminated() or self.display["final_display_frames"] == 0
 
 
     def __play_sound(self, sound_name):
