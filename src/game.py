@@ -223,4 +223,3 @@ class Game:
                     else:
                         # return to the menu
                         action = "menu"
-
