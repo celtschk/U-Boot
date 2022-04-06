@@ -1,19 +1,12 @@
 """
 Test the GameDisplay class
 """
-
-import pytest
+# pylint: disable=invalid-name
+# pylint: disable=protected-access
 
 import pygame
 
 from src.gamedisplay import GameDisplay
-
-@pytest.fixture
-def mockgame():
-    class MockGame:
-        def toggle_fullscreen(self):
-            pass
-    return MockGame
 
 def test_class():
     """
@@ -49,10 +42,13 @@ def test_GameDisplay_init(mockgame):
     assert hasattr(game_display, 'key_bindings')
     assert isinstance(game_display.key_bindings, dict)
     assert pygame.K_f in game_display.key_bindings
+    # Comparison with callable is indeed intended
+    # pylint: disable=comparison-with-callable
     assert game_display.key_bindings[pygame.K_f] == mock_game.toggle_fullscreen
     assert pygame.K_HASH in game_display.key_bindings
     assert (game_display.key_bindings[pygame.K_HASH] ==
             game_display._GameDisplay__screenshot)
+    # pylint: enable=comparison-with-callable
 
 
 def test_GameDisplay_is_running(mockgame):
@@ -71,4 +67,3 @@ def test_GameDisplay_is_running(mockgame):
 
     game_display.status = GameDisplay.QUIT
     assert not game_display.is_running()
-
