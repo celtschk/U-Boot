@@ -4,6 +4,8 @@ Test the GameDisplay class
 # pylint: disable=invalid-name
 # pylint: disable=protected-access
 
+import pytest
+
 import pygame
 
 from src.gamedisplay import GameDisplay
@@ -67,3 +69,52 @@ def test_GameDisplay_is_running(mockgame):
 
     game_display.status = GameDisplay.QUIT
     assert not game_display.is_running()
+
+
+def test_GameDisplay_draw(mockgame):
+    """
+    Test GameDisplay.draw
+    """
+    with pytest.raises(NotImplementedError):
+        GameDisplay(mockgame()).draw()
+
+
+event_cases = [
+    (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_x),
+     False, False, False, GameDisplay.RUNNING),
+    (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_f),
+     True, True, False, GameDisplay.RUNNING),
+    (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_b),
+     True, False, True, GameDisplay.RUNNING),
+    (pygame.event.Event(pygame.QUIT),
+     True, False, False, GameDisplay.TERMINATE)
+    ]
+
+# pylint: disable=too-many-arguments
+@pytest.mark.parametrize("event, handled, call_foo, call_bar, status", event_cases)
+def test_GameDisplay_handle_event(event, handled, call_foo, call_bar, status,
+                                  mockgame):
+    """
+    Test GameDisplay.handle_event
+    """
+    function_foo_called = function_bar_called = False
+    def function_foo():
+        nonlocal function_foo_called
+        function_foo_called = True
+    def function_bar():
+        nonlocal function_bar_called
+        function_bar_called = True
+
+    game_display = GameDisplay(mockgame())
+    game_display.key_bindings = {
+        pygame.K_f: function_foo,
+        pygame.K_b: function_bar
+        }
+    game_display.status = GameDisplay.RUNNING
+
+    event_handled = game_display.handle_event(event)
+    assert isinstance(event_handled, bool)
+    assert event_handled == handled
+    assert function_foo_called == call_foo
+    assert function_bar_called == call_bar
+    assert game_display.status == status
