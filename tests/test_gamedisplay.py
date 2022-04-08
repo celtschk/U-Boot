@@ -8,6 +8,7 @@ import pytest
 
 import pygame
 
+from src import gamedisplay
 from src.gamedisplay import GameDisplay
 
 def test_class():
@@ -118,3 +119,24 @@ def test_GameDisplay_handle_event(event, handled, call_foo, call_bar, status,
     assert function_foo_called == call_foo
     assert function_bar_called == call_bar
     assert game_display.status == status
+
+
+def test_screenshot(mocker, mockgame):
+    """
+    Test GameDisplay.__screenshot
+    """
+    game_display = GameDisplay(mockgame())
+
+    def mocksave(surface, filename):
+        mocksave.surface = surface
+        mocksave.filename = filename
+
+    mockfile = "dummy"
+
+    mocker.patch.object(pygame.image, "save", mocksave)
+    mocker.patch.object(gamedisplay.settings, "screenshot_file", mockfile)
+
+    game_display._GameDisplay__screenshot()
+
+    assert mocksave.surface is game_display.game.screen
+    assert mocksave.filename == mockfile
