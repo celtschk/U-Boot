@@ -65,24 +65,6 @@ def fake_color_class():
 
 
 @pytest.fixture
-def mockgame():
-    """
-    Fixture for MockGame
-    """
-    # pylint: disable=too-few-public-methods
-    class MockGame:
-        """
-        Mock class for game.Game
-        """
-        def toggle_fullscreen(self):
-            """
-            dummy method
-            """
-    # pylint: enable=too-few-public-methods
-    return MockGame
-
-
-@pytest.fixture
 def dummy_surface():
     """
     Fixture to return a dummy surface class
@@ -119,6 +101,28 @@ def dummy_surface():
 
 # This is just how fixtures work for pytest
 # pylint: disable=redefined-outer-name
+@pytest.fixture
+def mockgame(dummy_surface):
+    """
+    Fixture for MockGame
+    """
+    # pylint: disable=too-few-public-methods
+    class MockGame:
+        """
+        Mock class for game.Game
+        """
+        def __init__(self):
+            self.screen = dummy_surface()
+
+        def toggle_fullscreen(self):
+            """
+            dummy method
+            """
+
+    # pylint: enable=too-few-public-methods
+    return MockGame
+
+
 @pytest.fixture
 def dummy_font(dummy_surface):
     """
