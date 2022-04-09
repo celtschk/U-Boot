@@ -8,6 +8,9 @@ All fixtures
 # mock class members need to be members even if they don't access self
 # pylint: disable=no-self-use
 
+# The way how fixtures work for pytest requires "redefining" outer names
+# pylint: disable=redefined-outer-name
+
 import pytest
 
 @pytest.fixture
@@ -99,10 +102,34 @@ def dummy_surface():
     return DummySurface
 
 
-# This is just how fixtures work for pytest
-# pylint: disable=redefined-outer-name
 @pytest.fixture
-def mockgame(dummy_surface):
+def mockclock():
+    """
+    Return a mock clock
+    """
+    class MockClock:
+        """
+        Mock object for pygame.time.Clock
+        """
+        def __init__(self):
+            self.fake_time = 0
+
+        def tick(self, fps):
+            """
+            Pretent to return elapsed time
+            """
+            if fps > 0:
+                time_leap = (999+fps)//fps
+            else:
+                time_leap = 1
+            self.fake_time += time_leap
+            return self.fake_time
+
+    return MockClock
+
+
+@pytest.fixture
+def mockgame(dummy_surface, mockclock):
     """
     Fixture for MockGame
     """
@@ -113,6 +140,8 @@ def mockgame(dummy_surface):
         """
         def __init__(self):
             self.screen = dummy_surface()
+            self.clock = mockclock()
+            self.fps = 42
 
         def toggle_fullscreen(self):
             """

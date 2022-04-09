@@ -140,3 +140,78 @@ def test_screenshot(mocker, mockgame):
 
     assert mocksave.surface is game_display.game.screen
     assert mocksave.filename == mockfile
+
+
+def test_ready_to_quit(mockgame):
+    """
+    Test GameDisplay.ready_to_quit
+    """
+    game_display = GameDisplay(mockgame())
+
+    assert game_display.ready_to_quit()
+
+execute_data = [
+    [ [ pygame.event.Event(pygame.QUIT, quit=GameDisplay.TERMINATE) ] ],
+    [ [], [ pygame.event.Event(pygame.QUIT, quit=GameDisplay.TERMINATE) ] ],
+    [ [ pygame.event.Event(pygame.KEYDOWN, key=pygame.K_x) ],
+        [ pygame.event.Event(pygame.QUIT, quit=GameDisplay.TERMINATE) ] ],
+    [ [ pygame.event.Event(pygame.KEYDOWN, key=pygame.K_x) ],
+      [ pygame.event.Event(pygame.KEYDOWN, key=pygame.K_x),
+        pygame.event.Event(pygame.QUIT, quit=GameDisplay.QUIT) ] ],
+    ]
+
+@pytest.mark.parametrize("event_queue", execute_data)
+def test_execute(event_queue, mocker, mockgame):
+    """
+    Test GameDisplay.execute
+    """
+    game_display = GameDisplay(mockgame())
+
+    expected_result = None
+
+    expected_call_sequence = []
+    for events in event_queue:
+        expected_call_sequence.append(("draw",))
+        expected_call_sequence.append(("tick",
+                                       game_display.game.fps))
+        for event in events:
+            expected_call_sequence.append(("handle_event", event))
+            if hasattr(event, 'quit'):
+                expected_result = event.quit
+
+    call_sequence = []
+
+    def mock_draw():
+        nonlocal call_sequence
+        call_sequence.append(("draw",))
+
+    game_display.draw = mock_draw
+
+    def mock_handle_event(event):
+        nonlocal call_sequence
+        call_sequence.append(("handle_event", event))
+        if hasattr(event, 'quit'):
+            game_display.quit(event.quit)
+        return True
+
+    game_display.handle_event = mock_handle_event
+
+    def mock_get_events():
+        nonlocal event_queue
+        events = event_queue[0]
+        event_queue = event_queue[1:]
+        return events
+
+    mocker.patch.object(pygame.event, "get", mock_get_events)
+
+    def new_tick(fps):
+        old_tick(fps)
+        call_sequence.append(("tick", fps))
+
+    old_tick = game_display.game.clock.tick
+    game_display.game.clock.tick = new_tick
+
+    result = game_display.execute()
+
+    assert result == expected_result
+    assert call_sequence == expected_call_sequence
