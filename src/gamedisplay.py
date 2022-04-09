@@ -42,6 +42,8 @@ class GameDisplay:
     TERMINATE = Status()
     QUIT = Status()
 
+    EVENT_HIDE_MOUSE = 1
+
 
     def __init__(self, game):
         """
@@ -82,8 +84,9 @@ class GameDisplay:
         """
         Handle a known event. Returns if the event has been handled.
 
-        This function handles pygame.QUIT and pygame.KEYDOWN.
-        To handle other events, override this function.
+        This function handles pygame.QUIT, pygame.KEYDOWN,
+        pygame.MOUSEMOTION and the user event EVENT_HIDE_MOUSE. To
+        handle other events, override this function.
         """
         # A pygame.QUIT event always terminates the game completely
         if event.type == pygame.QUIT:
@@ -93,6 +96,16 @@ class GameDisplay:
         if event.type == pygame.KEYDOWN:
             if event.key in self.key_bindings:
                 self.key_bindings[event.key]()
+                return True
+
+        if event.type == pygame.MOUSEMOTION:
+            GameDisplay.__show_mouse_temporarily(
+                int(1000*settings.mouse_visibility_time))
+            return True
+
+        if event.type == pygame.USEREVENT:
+            if event.event == GameDisplay.EVENT_HIDE_MOUSE:
+                pygame.mouse.set_visible(False)
                 return True
 
         # If we get here, no event has been handled.
@@ -165,3 +178,16 @@ class GameDisplay:
         Returns whether quit(TERMINATE) was called.
         """
         return self.status == self.TERMINATE
+
+
+    # temporarily don't complain about the member not being used
+    # pylint: disable=unused-private-member
+    @staticmethod
+    def __show_mouse_temporarily(time):
+        """
+        Teporarily show the mouse pointer
+        """
+        pygame.mouse.set_visible(True)
+        event = pygame.event.Event(pygame.USEREVENT,
+                                   event=GameDisplay.EVENT_HIDE_MOUSE)
+        pygame.time.set_timer(event, time, loops=1)

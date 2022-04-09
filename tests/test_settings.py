@@ -88,6 +88,14 @@ def test_transient_display_time_is_positive():
     assert settings.transient_display_time > 0
 
 
+def mouse_visibility_time_is_positive():
+    """
+    Test that transient_display_time is a positive number
+    """
+    assert isinstance(settings.mouse_visibility_time, Number)
+    assert settings.mouse_visibility_time > 0
+
+
 def test_lives_is_positive_integer():
     """
     Test that settings.lives is a positive integer

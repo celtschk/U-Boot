@@ -48,6 +48,9 @@ level_display_frames: int = 5*fps
 # how many seconds transient displays stay
 transient_display_time: float = 3
 
+# how many seconds the mouse pointer stays visible when moved
+mouse_visibility_time: float = 0.2
+
 # the number of lives
 lives: int = 4
 

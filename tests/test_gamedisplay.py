@@ -16,6 +16,7 @@ def test_class():
     Test subclass and class members
     """
     assert 'Status' in GameDisplay.__dict__
+
     assert 'INITIALIZED' in GameDisplay.__dict__
     assert isinstance(GameDisplay.INITIALIZED, GameDisplay.Status)
     assert 'RUNNING' in GameDisplay.__dict__
@@ -24,6 +25,10 @@ def test_class():
     assert isinstance(GameDisplay.TERMINATE, GameDisplay.Status)
     assert 'QUIT' in GameDisplay.__dict__
     assert isinstance(GameDisplay.QUIT, GameDisplay.Status)
+
+    assert 'EVENT_HIDE_MOUSE' in GameDisplay.__dict__
+    assert isinstance(GameDisplay.EVENT_HIDE_MOUSE, int)
+    assert GameDisplay.EVENT_HIDE_MOUSE == 1
 
 
 def test_GameDisplay_init(mockgame):
@@ -82,19 +87,29 @@ def test_GameDisplay_draw(mockgame):
 
 event_cases = [
     (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_x),
-     False, False, False, GameDisplay.RUNNING),
+     False, False, False, None, False, GameDisplay.RUNNING),
     (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_f),
-     True, True, False, GameDisplay.RUNNING),
+     True, True, False, None, False, GameDisplay.RUNNING),
     (pygame.event.Event(pygame.KEYDOWN, key=pygame.K_b),
-     True, False, True, GameDisplay.RUNNING),
+     True, False, True, None, False, GameDisplay.RUNNING),
     (pygame.event.Event(pygame.QUIT),
-     True, False, False, GameDisplay.TERMINATE)
+     True, False, False, None, False, GameDisplay.TERMINATE),
+    (pygame.event.Event(pygame.USEREVENT, event=GameDisplay.EVENT_HIDE_MOUSE),
+     True, False, False, False, False, GameDisplay.RUNNING),
+    (pygame.event.Event(pygame.MOUSEMOTION),
+     True, False, False, None, True, GameDisplay.RUNNING),
     ]
 
 # pylint: disable=too-many-arguments
-@pytest.mark.parametrize("event, handled, call_foo, call_bar, status", event_cases)
-def test_GameDisplay_handle_event(event, handled, call_foo, call_bar, status,
-                                  mockgame):
+# pylint: disable=too-many-locals
+@pytest.mark.parametrize(
+    "event, handled, call_foo, call_bar, call_is_visible, call_show, status",
+    event_cases)
+def test_GameDisplay_handle_event(event, handled,
+                                  call_foo, call_bar,
+                                  call_is_visible, call_show,
+                                  status,
+                                  mocker, mockgame):
     """
     Test GameDisplay.handle_event
     """
@@ -106,6 +121,15 @@ def test_GameDisplay_handle_event(event, handled, call_foo, call_bar, status,
         nonlocal function_bar_called
         function_bar_called = True
 
+    def set_visible(is_visible):
+        set_visible.is_visible = is_visible
+    set_visible.is_visible = None
+
+    visibility_ms = 1500
+    visibility_time = visibility_ms if call_show else None
+
+    mocker.patch.object(pygame.mouse, "set_visible", set_visible)
+
     game_display = GameDisplay(mockgame())
     game_display.key_bindings = {
         pygame.K_f: function_foo,
@@ -113,12 +137,26 @@ def test_GameDisplay_handle_event(event, handled, call_foo, call_bar, status,
         }
     game_display.status = GameDisplay.RUNNING
 
+    def show_mouse(time):
+        show_mouse.time = time
+    show_mouse.time = None
+
+    mocker.patch.object(GameDisplay, "_GameDisplay__show_mouse_temporarily",
+                        show_mouse)
+
+    mocker.patch.object(gamedisplay.settings, "mouse_visibility_time",
+                        visibility_ms/1000)
+
     event_handled = game_display.handle_event(event)
     assert isinstance(event_handled, bool)
     assert event_handled == handled
     assert function_foo_called == call_foo
     assert function_bar_called == call_bar
+    assert set_visible.is_visible == call_is_visible
+    assert show_mouse.time == visibility_time
     assert game_display.status == status
+# pylint: enable=too-many-arguments
+# pylint: enable=too-many-locals
 
 
 def test_screenshot(mocker, mockgame):
@@ -254,3 +292,34 @@ def test_terminated(status, expected, mockgame):
     game_display.status = status
     result = game_display.terminated()
     assert result == expected
+
+
+def test_show_mouse_temporarily(mocker):
+    """
+    Test GameDisplay.__show_mouse_temporarily
+    """
+    def set_visible(is_visible):
+        set_visible.is_visible = is_visible
+    set_visible.is_visible = None
+
+    mocker.patch.object(pygame.mouse, "set_visible", set_visible)
+
+    def set_timer(event, millis, loops=0):
+        set_timer.args = { "event": event, "millis": millis, "loops": loops }
+    set_timer.args = None
+
+    mocker.patch.object(pygame.time, "set_timer", set_timer)
+
+    time = 420815
+
+    GameDisplay._GameDisplay__show_mouse_temporarily(time)
+
+    expected_timer_args = {
+        "event": pygame.event.Event(pygame.USEREVENT,
+                                    event=GameDisplay.EVENT_HIDE_MOUSE),
+        "millis": time,
+        "loops": 1
+        }
+
+    assert set_visible.is_visible
+    assert set_timer.args == expected_timer_args
