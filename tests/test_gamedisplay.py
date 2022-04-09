@@ -192,7 +192,7 @@ def test_execute(event_queue, mocker, mockgame):
         nonlocal call_sequence
         call_sequence.append(("handle_event", event))
         if hasattr(event, 'quit'):
-            game_display.quit(event.quit)
+            game_display.status = event.quit
         return True
 
     game_display.handle_event = mock_handle_event
@@ -222,3 +222,35 @@ def test_execute(event_queue, mocker, mockgame):
 
     assert result == expected_result
     assert call_sequence == expected_call_sequence
+
+
+def test_quit(mockgame):
+    """
+    Test GameDisplay.quit
+    """
+    game_display = GameDisplay(mockgame())
+
+    game_display.quit(GameDisplay.TERMINATE)
+    assert game_display.status == GameDisplay.TERMINATE
+
+    game_display.quit(GameDisplay.QUIT)
+    assert game_display.status == GameDisplay.QUIT
+
+
+terminated_tests = [
+    (GameDisplay.INITIALIZED, False),
+    (GameDisplay.RUNNING, False),
+    (GameDisplay.QUIT, False),
+    (GameDisplay.TERMINATE, True)
+    ]
+
+@pytest.mark.parametrize("status, expected", terminated_tests)
+def test_terminated(status, expected, mockgame):
+    """
+    Test GameDisplay.terminated
+    """
+    game_display = GameDisplay(mockgame())
+
+    game_display.status = status
+    result = game_display.terminated()
+    assert result == expected
