@@ -178,6 +178,7 @@ def test_execute(event_queue, mocker, mockgame):
             expected_call_sequence.append(("handle_event", event))
             if hasattr(event, 'quit'):
                 expected_result = event.quit
+        expected_call_sequence.append(("update_state",))
 
     call_sequence = []
 
@@ -196,6 +197,12 @@ def test_execute(event_queue, mocker, mockgame):
 
     game_display.handle_event = mock_handle_event
 
+    def mock_update_state():
+        nonlocal call_sequence
+        call_sequence.append(("update_state",))
+
+    game_display.update_state = mock_update_state
+
     def mock_get_events():
         nonlocal event_queue
         events = event_queue[0]
@@ -204,12 +211,12 @@ def test_execute(event_queue, mocker, mockgame):
 
     mocker.patch.object(pygame.event, "get", mock_get_events)
 
-    def new_tick(fps):
-        old_tick(fps)
+    def tick(fps):
+        tick.old(fps)
         call_sequence.append(("tick", fps))
 
-    old_tick = game_display.game.clock.tick
-    game_display.game.clock.tick = new_tick
+    tick.old = game_display.game.clock.tick
+    game_display.game.clock.tick = tick
 
     result = game_display.execute()
 
