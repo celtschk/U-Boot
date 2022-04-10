@@ -159,7 +159,10 @@ animations: Dict[str, Dict[str, Any]] = {
 
         # image file name format string, with the frame number
         # replaced by {frame}. The first
-        "images": "assets/explosion_{frame}.png"
+        "images": "assets/explosion_{frame}.png",
+
+        # The layer where it is shown
+        "layer": "effects"
         }
     }
 
@@ -170,6 +173,9 @@ music: Dict[str, Dict[str, Any]] = {
         }
     }
 
+# list of layers to be drawn on. Starts with "background"
+layers = [ "background", "objects", "effects", "info" ]
+
 # list of game objects and their properties
 objects: Dict[str, Dict[str, Any]] = {
     "ship": {
@@ -178,6 +184,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "filename": "assets/schiff.png",
             },
         "origin": (0.5,1),
+        "layer": "objects",
         "movement": {
             "start": ("left", 0),
             "speed": 0.1,
@@ -197,6 +204,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "boundary colour": "bubble boundary"
             },
         "origin": (0, 1), # (0.5, 0.5),
+        "layer": "background",
         "movement": {
             "start": ("startx", "startdepth"),
             "speed": {
@@ -227,6 +235,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "filename": "assets/Uboot.png",
             },
         "origin": (0, 0),
+        "layer": "objects",
         "movement": {
             "start": ("right", "depth"),
             "speed": {
@@ -254,6 +263,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "filename": "assets/bomb.png",
             },
         "origin": (0.5, 0),
+        "layer": "objects",
         "movement": {
             "start": ("ship", "ship"),
             "speed": 0.1,
@@ -270,6 +280,7 @@ objects: Dict[str, Dict[str, Any]] = {
             "filename": "assets/whale.png",
             },
         "origin": (0,0),
+        "layer": "objects",
         "movement": {
             "start": ("right", "depth"),
             "speed": {

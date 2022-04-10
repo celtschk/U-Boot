@@ -95,7 +95,10 @@ class Level(GameDisplay):
             # get limits and probabilities for objects
             for obj_type, obj in self.state["object_settings"].items():
                 # record object info in objects dictionary
-                object_info = self.state["objects"][obj_type] = { "list": [] }
+                object_info = self.state["objects"][obj_type] = {
+                    "list": [],
+                    "layer": obj["layer"],
+                    }
 
                 if "max_count" in obj:
                     # initially, none of those objects exis
@@ -112,15 +115,22 @@ class Level(GameDisplay):
                     object_info["to_destroy"] = obj["to_destroy"]
 
             # create the ship
-            ship = self.__create_moving_object("ship")
-            self.state["objects"]["ship"] = { "list": [ship] }
+            self.state["objects"]["ship"]["list"] = [
+                self.__create_moving_object("ship")
+                ]
 
             # setup storage for animations
-            for animation_type in settings.animations:
-                self.state["objects"][animation_type] = { "list": [] }
+            for animation_type, animation in settings.animations.items():
+                self.state["objects"][animation_type] = {
+                    "list": [],
+                    "layer": animation["layer"]
+                    }
 
         # setup storage for transient displays
-        self.state["objects"]["transients"] = { "list": [] }
+        self.state["objects"]["transients"] = {
+            "list": [],
+            "layer": "info"
+            }
 
         self.display = {
             # set displayed score to game score
@@ -320,9 +330,12 @@ class Level(GameDisplay):
         """
         Draw the game graphics
         """
-        screen = self.game.screen
-        screen.fill(self.colours["background"])
-        pygame.draw.rect(screen, self.colours["water"],
+        layers = { layer: pygame.Surface((self.areas["screen"].width,
+                                          self.areas["screen"].height),
+                                         pygame.SRCALPHA)
+                   for layer in settings.layers }
+
+        pygame.draw.rect(layers["background"], self.colours["water"],
                          (0,
                           self.areas["water"].top,
                           self.areas["screen"].width,
@@ -330,7 +343,7 @@ class Level(GameDisplay):
 
         for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
-                obj.draw_on(screen)
+                obj.draw_on(layers[obj_data["layer"]])
 
         displaydata = {
             "remaining_bombs": self.state["objects"]["bomb"]["remaining"],
@@ -343,27 +356,31 @@ class Level(GameDisplay):
             }
 
         for message in self.game_state_display:
-            message.write(screen, displaydata)
+            message.write(layers["info"], displaydata)
 
         # show message if game is paused:
         if self.status == self.PAUSED:
-            self.messages["paused"].write(screen)
+            self.messages["paused"].write(layers["info"])
 
         # show final message as appropriate:
         if not self.is_running():
             if self.status == self.LEVEL_CLEARED:
-                self.messages["cleared"].write(screen)
+                self.messages["cleared"].write(layers["info"])
             elif self.status == self.LEVEL_FAILED:
                 if self.state["lives"] > 1:
-                    self.messages["failed"].write(screen)
+                    self.messages["failed"].write(layers["info"])
                 else:
-                    self.messages["game over"].write(screen)
+                    self.messages["game over"].write(layers["info"])
 
         ship_image = resources.load_image(settings.objects["ship"]["initdata"]["filename"])
         ship_hpos = 20
         for _ in range(self.state["lives"]-1):
-            screen.blit(ship_image, (ship_hpos, 0))
+            layers["info"].blit(ship_image, (ship_hpos, 0))
             ship_hpos += ship_image.get_width()
+
+        self.game.screen.fill(self.colours["background"])
+        for layer in layers.values():
+            self.game.screen.blit(layer, (0,0))
 
         pygame.display.flip()
 

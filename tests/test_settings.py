@@ -314,6 +314,8 @@ def test_animations():
         verify_dict_entry(properties, "images", str)
         for frame in range(properties["frame_count"]):
             assert isfile(properties["images"].format(frame = frame))
+        verify_dict_entry(properties, "layer", str,
+                          lambda layer: layer in settings.layers)
 
 
 def test_music():
@@ -386,6 +388,20 @@ def is_valid_function(name):
     return isinstance(object_functions.get(name), Callable)
 
 
+def test_layers():
+    """
+    Test that the layers list contains only distict strings, starts
+    with the string "background" and contains the string "info".
+    """
+    assert isinstance(settings.layers, list)
+    assert settings.layers
+    assert len(settings.layers) == len(set(settings.layers))
+    for entry in settings.layers:
+        assert isinstance(entry, str)
+    assert settings.layers[0] == "background"
+    assert "info" in settings.layers
+
+
 def test_objects():
     """
     Test objects dictionary
@@ -419,6 +435,8 @@ def verify_objects(object_dict):
         assert isinstance(properties["origin"][0], Number)
         assert isinstance(properties["origin"][1], Number)
         verify_dict_entry(properties, "movement", dict)
+        verify_dict_entry(properties, "layer", str,
+                          lambda layer: layer in settings.layers)
 
         if "constants" in properties:
             constants = properties["constants"]
