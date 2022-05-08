@@ -31,11 +31,11 @@ class Menu(GameDisplay):
 
     MENU_MAIN = GameDisplay.Status()
 
-    def __init__(self, game, menuspec, font, message = None):
+    def __init__(self, media, menuspec, font, message = None):
         """
         Initialize the menu
         """
-        super().__init__(game)
+        super().__init__(media, font)
         self.menuspec = menuspec
         self.colours = {
             "background": resources.get_colour("menu background"),
@@ -61,7 +61,7 @@ class Menu(GameDisplay):
         """
         Draw the menu
         """
-        screen = self.game.screen
+        screen = self.media.get_screen()
         screen.fill(self.colours["background"])
 
         line_height = 50

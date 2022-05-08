@@ -31,14 +31,18 @@ def test_class():
     assert GameDisplay.EVENT_HIDE_MOUSE == 1
 
 
-def test_GameDisplay_init(mockgame):
+def test_GameDisplay_init(mockmedia, dummy_font):
     """
     Test the members of a newly created GameDisplay onject
     """
-    mock_game = mockgame()
-    game_display = GameDisplay(mock_game)
-    assert hasattr(game_display, 'game')
-    assert game_display.game is mock_game
+    mock_media = mockmedia()
+    font = dummy_font()
+    game_display = GameDisplay(mock_media, font)
+    assert hasattr(game_display, 'media')
+    assert game_display.media is mock_media
+
+    assert hasattr(game_display, 'font')
+    assert game_display.font is font
 
     assert hasattr(game_display, 'status')
     assert game_display.status == GameDisplay.INITIALIZED
@@ -52,18 +56,18 @@ def test_GameDisplay_init(mockgame):
     assert pygame.K_f in game_display.key_bindings
     # Comparison with callable is indeed intended
     # pylint: disable=comparison-with-callable
-    assert game_display.key_bindings[pygame.K_f] == mock_game.toggle_fullscreen
+    assert game_display.key_bindings[pygame.K_f] == mock_media.toggle_fullscreen
     assert pygame.K_HASH in game_display.key_bindings
     assert (game_display.key_bindings[pygame.K_HASH] ==
             game_display._GameDisplay__screenshot)
     # pylint: enable=comparison-with-callable
 
 
-def test_GameDisplay_is_running(mockgame):
+def test_GameDisplay_is_running(mockmedia, dummy_font):
     """
     Test the is_running member
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     assert not game_display.is_running()
 
@@ -77,12 +81,12 @@ def test_GameDisplay_is_running(mockgame):
     assert not game_display.is_running()
 
 
-def test_GameDisplay_draw(mockgame):
+def test_GameDisplay_draw(mockmedia, dummy_font):
     """
     Test GameDisplay.draw
     """
     with pytest.raises(NotImplementedError):
-        GameDisplay(mockgame()).draw()
+        GameDisplay(mockmedia(), dummy_font()).draw()
 
 
 event_cases = [
@@ -109,7 +113,7 @@ def test_GameDisplay_handle_event(event, handled,
                                   call_foo, call_bar,
                                   call_is_visible, call_show,
                                   status,
-                                  mocker, mockgame):
+                                  mocker, mockmedia, dummy_font):
     """
     Test GameDisplay.handle_event
     """
@@ -130,7 +134,7 @@ def test_GameDisplay_handle_event(event, handled,
 
     mocker.patch.object(pygame.mouse, "set_visible", set_visible)
 
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
     game_display.key_bindings = {
         pygame.K_f: function_foo,
         pygame.K_b: function_bar
@@ -159,11 +163,11 @@ def test_GameDisplay_handle_event(event, handled,
 # pylint: enable=too-many-locals
 
 
-def test_screenshot(mocker, mockgame):
+def test_screenshot(mocker, mockmedia, dummy_font):
     """
     Test GameDisplay.__screenshot
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     def mocksave(surface, filename):
         mocksave.surface = surface
@@ -176,15 +180,15 @@ def test_screenshot(mocker, mockgame):
 
     game_display._GameDisplay__screenshot()
 
-    assert mocksave.surface is game_display.game.screen
+    assert mocksave.surface is game_display.media.get_screen()
     assert mocksave.filename == mockfile
 
 
-def test_ready_to_quit(mockgame):
+def test_ready_to_quit(mockmedia, dummy_font):
     """
     Test GameDisplay.ready_to_quit
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     assert game_display.ready_to_quit()
 
@@ -198,20 +202,21 @@ execute_data = [
         pygame.event.Event(pygame.QUIT, quit=GameDisplay.QUIT) ] ],
     ]
 
+
+# pylint: disable=too-many-locals
 @pytest.mark.parametrize("event_queue", execute_data)
-def test_execute(event_queue, mocker, mockgame):
+def test_execute(event_queue, mocker, mockmedia, dummy_font):
     """
     Test GameDisplay.execute
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     expected_result = None
 
     expected_call_sequence = []
     for events in event_queue:
         expected_call_sequence.append(("draw",))
-        expected_call_sequence.append(("tick",
-                                       game_display.game.fps))
+        expected_call_sequence.append(("tick"))
         for event in events:
             expected_call_sequence.append(("handle_event", event))
             if hasattr(event, 'quit'):
@@ -249,12 +254,11 @@ def test_execute(event_queue, mocker, mockgame):
 
     mocker.patch.object(pygame.event, "get", mock_get_events)
 
-    def tick(fps):
-        tick.old(fps)
-        call_sequence.append(("tick", fps))
+    def tick():
+        call_sequence.append(("tick"))
 
-    tick.old = game_display.game.clock.tick
-    game_display.game.clock.tick = tick
+    tick.old = game_display.media.tick
+    game_display.media.tick = tick
 
     result = game_display.execute()
 
@@ -262,11 +266,11 @@ def test_execute(event_queue, mocker, mockgame):
     assert call_sequence == expected_call_sequence
 
 
-def test_quit(mockgame):
+def test_quit(mockmedia, dummy_font):
     """
     Test GameDisplay.quit
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     game_display.quit(GameDisplay.TERMINATE)
     assert game_display.status == GameDisplay.TERMINATE
@@ -283,11 +287,11 @@ terminated_tests = [
     ]
 
 @pytest.mark.parametrize("status, expected", terminated_tests)
-def test_terminated(status, expected, mockgame):
+def test_terminated(status, expected, mockmedia, dummy_font):
     """
     Test GameDisplay.terminated
     """
-    game_display = GameDisplay(mockgame())
+    game_display = GameDisplay(mockmedia(), dummy_font())
 
     game_display.status = status
     result = game_display.terminated()

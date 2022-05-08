@@ -153,6 +153,36 @@ def mockgame(dummy_surface, mockclock):
 
 
 @pytest.fixture
+def mockmedia(dummy_surface):
+    """
+    Fixture for media.Media
+    """
+    class MockMedia:
+        """
+        Mock class for media.Media
+        """
+        def __init__(self):
+            self.screen = dummy_surface()
+
+
+        def get_screen(self):
+            """
+            return a dummy surface
+            """
+            return self.screen
+
+        def tick(self):
+            """
+            dummy method
+            """
+
+        def toggle_fullscreen(self):
+            """
+            dummy method
+            """
+    return MockMedia
+
+@pytest.fixture
 def dummy_font(dummy_surface):
     """
     Fixture to return dummy  font class

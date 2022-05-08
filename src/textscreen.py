@@ -27,11 +27,11 @@ class TextScreen(GameDisplay):
     """
     Display a text in screenfuls.
     """
-    def __init__(self, game, text):
+    def __init__(self, media, font, text):
         """
         Initialize the TextScreen object, paginating
         """
-        super().__init__(game)
+        super().__init__(media, font)
 
         # the colours used
         self.colours = {
@@ -42,7 +42,7 @@ class TextScreen(GameDisplay):
             }
 
         self.layout = settings.paginate_layout
-        self.font = self.game.paginated_font
+        #self.font = self.game.paginated_font
 
         # paginate the text
         self.__paginate(text)
@@ -129,7 +129,7 @@ class TextScreen(GameDisplay):
         """
         create an empty page
         """
-        screen = self.game.screen
+        screen = self.media.get_screen()
 
         textwidth = (screen.get_width()
                      - self.layout["border"]["right"]
@@ -168,7 +168,7 @@ class TextScreen(GameDisplay):
         """
         Draw the current page
         """
-        screen = self.game.screen
+        screen = self.media.get_screen()
         screen.fill(self.colours["background"])
         screen.blit(self.pages[self.current_page],
                     (self.layout["border"]["left"],
@@ -180,10 +180,8 @@ class TextScreen(GameDisplay):
             True,
             self.colours["footer"])
         posx = self.layout["border"]["left"]
-        posy = (self.game.screen.get_height()
-                - self.layout["border"]["bottom"]
-                + 10)
-        self.game.screen.blit(text, (posx, posy))
+        posy = (screen.get_height() - self.layout["border"]["bottom"] + 10)
+        screen.blit(text, (posx, posy))
         pygame.display.flip()
 
 

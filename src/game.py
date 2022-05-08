@@ -18,14 +18,15 @@ The main class of the game
 
 import shelve
 
-import pygame
-
 # python files from this game
 from . import settings
 from . import resources
+from .media import Media
 from .menu import Menu
 from .level import Level
 from .textscreen import TextScreen
+
+# pylint: disable=too-few-public-methods
 
 class Game:
     "The game"
@@ -34,16 +35,10 @@ class Game:
         """
         Initialize the game
         """
-        pygame.init()
-
-        self.screen = pygame.display.set_mode((settings.geometry["width"],
-                                               settings.geometry["height"]))
-        self.clock = pygame.time.Clock()
-        self.fps = settings.fps
-
-        pygame.display.set_caption(settings.game_info["title"])
-        pygame.mouse.set_visible(False)
-        pygame.key.set_repeat(0)
+        self.media = Media(settings.game_info["title"],
+                           settings.geometry["width"],
+                           settings.geometry["height"],
+                           settings.fps)
 
         # try to load all resources, for early failing
         resources.try_load_all()
@@ -51,8 +46,7 @@ class Game:
         self.font = resources.get_font("default")
         self.paginated_font = resources.get_font("paginated")
 
-        # music
-        resources.load_music("background")
+        self.media.load_music("background")
 
         main_menu = [
             { "text": "Play new game", "action": "play" },
@@ -106,26 +100,17 @@ class Game:
             }
 
 
-    def toggle_fullscreen(self):
-        """
-        toggle between fullscreen and windowed
-        """
-        size = (self.screen.get_width(), self.screen.get_height())
-        if self.screen.get_flags() & pygame.FULLSCREEN:
-            pygame.display.set_mode(size)
-        else:
-            pygame.display.set_mode(size, pygame.FULLSCREEN)
-
-
     def __play(self, state):
         """
         Actually play the game
         """
-        # start the backkground music in infinte loop
-        if self.options["music"]:
-            pygame.mixer.music.play(-1)
+        # Enable music and sounds according to options
+        self.media.enable_music(self.options["music"])
+        self.media.enable_sound(self.options["sound"])
 
-        level = Level(self, state)
+        self.media.play_music()
+
+        level = Level(self.media, self.font, state)
 
         if "debug" in settings.__dict__:
             # pylint: disable=no-member
@@ -133,7 +118,8 @@ class Game:
             # pylint: enable=no-member
 
         while True:
-            pygame.mixer.music.unpause()
+            #pygame.mixer.music.unpause()
+            self.media.unpause_music()
             result = level.execute()
             state = level.get_state()
             if result == Level.LEVEL_CLEARED:
@@ -142,11 +128,10 @@ class Game:
                 repeat = True
             else:
                 break
-            level = Level(self, Level.initial_state(state, repeat))
+            level = Level(self.media, self.font,
+                          Level.initial_state(state, repeat))
 
-        # stop the background music
-        if self.options["music"]:
-            pygame.mixer.music.stop()
+        self.media.stop_music()
 
         return result, level.get_state()
 
@@ -155,7 +140,7 @@ class Game:
         """
         Display a menu
         """
-        menu = Menu(self, self.menus[menu_name], self.font, message)
+        menu = Menu(self.media, self.menus[menu_name], self.font, message)
         menu.execute()
         if menu.terminated():
             return "quit"
@@ -169,7 +154,7 @@ class Game:
         with open("assets/helptext.txt", encoding="utf8") as helpfile:
             helptext = helpfile.read()
 
-            helpscreen = TextScreen(self, helptext)
+            helpscreen = TextScreen(self.media, self.paginated_font, helptext)
             helpscreen.execute()
 
             if helpscreen.terminated():

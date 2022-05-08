@@ -45,11 +45,12 @@ class GameDisplay:
     EVENT_HIDE_MOUSE = 1
 
 
-    def __init__(self, game):
+    def __init__(self, media, font):
         """
         Initializes the GameDisplay object
         """
-        self.game = game
+        self.media = media
+        self.font = font
         self.status: GameDisplay.Status = self.INITIALIZED
 
         # set of status values that are considered running (that is,
@@ -59,7 +60,7 @@ class GameDisplay:
 
         # key bindings
         self.key_bindings = {
-            pygame.K_f: self.game.toggle_fullscreen,
+            pygame.K_f: self.media.toggle_fullscreen,
             pygame.K_HASH: self.__screenshot
             }
 
@@ -116,7 +117,7 @@ class GameDisplay:
         """
         Make a screenshot of the current display
         """
-        pygame.image.save(self.game.screen, settings.screenshot_file)
+        pygame.image.save(self.media.get_screen(), settings.screenshot_file)
 
 
     # This must be a member function in order to be overridden
@@ -158,7 +159,8 @@ class GameDisplay:
         self.status = self.RUNNING
         while self.is_running() or not self.ready_to_quit():
             self.draw()
-            self.game.clock.tick(self.game.fps)
+            #self.game.clock.tick(self.game.fps)
+            self.media.tick()
             for event in pygame.event.get():
                 self.handle_event(event)
             self.update_state()

@@ -27,7 +27,6 @@ from .gamedisplay import GameDisplay
 from .objects import MovingObject, Animation, TransientDisplay
 from .objects import object_functions
 
-
 class Level(GameDisplay):
     "A game level"
     # Level specific exit values
@@ -68,23 +67,29 @@ class Level(GameDisplay):
             }
 
 
-    def __init__(self, game, old_state):
+    def __calc_areas(self):
         """
-        Initializes a level based on the passed state
+        Calculate the areas of the game
         """
-        super().__init__(game)
-
-        self.running_statuses.add(self.PAUSED)
-
-        width = game.screen.get_width()
-        height = game.screen.get_height()
+        width, height = self.media.get_dimensions()
         waterline = int(settings.geometry["sky_fraction"] * height)
 
         self.areas = {
-            "screen": game.screen.get_rect(),
+            "screen": self.media.get_screen().get_rect(),
             "water":  pygame.Rect((0, waterline), (width, height - waterline)),
             "sky":    pygame.Rect((0, 0), (width, waterline))
             }
+
+
+    def __init__(self, media, font, old_state):
+        """
+        Initializes a level based on the passed state
+        """
+        super().__init__(media, font)
+
+        self.running_statuses.add(self.PAUSED)
+
+        self.__calc_areas()
 
         center_x = self.areas["screen"].width//2
         center_y = self.areas["screen"].height//2
@@ -187,28 +192,28 @@ class Level(GameDisplay):
                 message = "Bombs: {remaining_bombs} ({available_bombs} available)",
                 position = pygame.Vector2(20, 20),
                 colour = bomb_text_colour,
-                font = self.game.font
+                font = self.font
                 ),
 
             resources.MessageData(
                 message = "Bomb cost: {bomb_cost} ",
                 position = pygame.Vector2(20, 50),
                 colour = self.colours["text"],
-                font = self.game.font
+                font = self.font
                 ),
 
             resources.MessageData(
                 message = "Level: {level},  Score: {score}",
                 position = pygame.Vector2(20+center_x, 20),
                 colour = self.colours["text"],
-                font = self.game.font
+                font = self.font
                 ),
 
             resources.MessageData(
                 message = "Remaining submarines: {to_destroy}/{remaining_subs}",
                 position = pygame.Vector2(20+center_x, 50),
                 colour = submarine_text_colour,
-                font = self.game.font
+                font = self.font
                 )
 
             ]
@@ -219,7 +224,7 @@ class Level(GameDisplay):
                 message = "--- PAUSED ---",
                 position = pygame.Vector2(center_x, center_y),
                 colour = self.colours["pause"],
-                font = self.game.font,
+                font = self.font,
                 origin = pygame.Vector2(0.5,0.5)),
 
             # message for cleared level
@@ -227,7 +232,7 @@ class Level(GameDisplay):
                 message = "*** LEVEL CLEARED ***",
                 position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["cleared"],
-                font = self.game.font,
+                font = self.font,
                 origin = pygame.Vector2(0.5,0.5)),
 
             # message for failed level
@@ -235,7 +240,7 @@ class Level(GameDisplay):
                 message = "*** LEVEL FAILED ***",
                 position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["failed"],
-                font = self.game.font,
+                font = self.font,
                 origin = pygame.Vector2(0.5,0.5)),
 
             # message for game over
@@ -243,7 +248,7 @@ class Level(GameDisplay):
                 message = "*** GAME OVER ***",
                 position = pygame.Vector2(center_x, center_y - 32),
                 colour = self.colours["failed"],
-                font = self.game.font,
+                font = self.font,
                 origin = pygame.Vector2(0.5,0.5))
             }
 
@@ -378,9 +383,9 @@ class Level(GameDisplay):
             layers["info"].blit(ship_image, (ship_hpos, 0))
             ship_hpos += ship_image.get_width()
 
-        self.game.screen.fill(self.colours["background"])
+        self.media.get_screen().fill(self.colours["background"])
         for layer in layers.values():
-            self.game.screen.blit(layer, (0,0))
+            self.media.get_screen().blit(layer, (0,0))
 
         pygame.display.flip()
 
@@ -425,7 +430,7 @@ class Level(GameDisplay):
                 # because adding the bomb changes the cost
                 bomb_cost = self.__get_bomb_cost()
                 if bomb_cost != 0:
-                    scoredisplay = self.game.font.render(
+                    scoredisplay = self.font.render(
                         f"{-bomb_cost}", True,
                         resources.get_colour("bomb score delta"))
                     self.state["objects"]["transients"]["list"].append(
@@ -437,11 +442,11 @@ class Level(GameDisplay):
                 newbomb = self.__create_moving_object("bomb")
                 self.state["objects"]["bomb"]["list"].append(newbomb)
                 self.state["objects"]["bomb"]["remaining"] -= 1
-                self.__play_sound("bomb drop")
+                self.media.play_sound("bomb drop")
                 return
 
         # If we get here, no bomb was dropped
-        self.__play_sound("click")
+        self.media.play_sound("click")
 
 
     def __spawn_objects(self):
@@ -458,7 +463,7 @@ class Level(GameDisplay):
             rate = obj_data["spawn_rate"]
 
             if existing_objects < max_objects:
-                if resources.randomly_true(rate/self.game.fps):
+                if resources.randomly_true(rate/self.media.get_fps()):
                     newobj = self.__create_moving_object(obj_type)
                     self.state["objects"][obj_type]["list"].append(newobj)
                     if limited:
@@ -497,7 +502,7 @@ class Level(GameDisplay):
                             delta = int(
                                 (targetpos[1] - waterline) / height * 20 + 0.5)
                             self.state["score"] += delta
-                            scoredisplay = self.game.font.render(
+                            scoredisplay = self.font.render(
                                 f"{delta:+}", True,
                                 resources.get_colour("score delta"))
                             scorepos = targetpos.copy()
@@ -505,7 +510,7 @@ class Level(GameDisplay):
                             self.state["objects"]["transients"]["list"].append(
                                 TransientDisplay(scoredisplay, scorepos,
                                                  settings.transient_display_time))
-                        self.__play_sound(info["sound"])
+                        self.media.play_sound(info["sound"])
                         self.__create_animation(info["animation"],
                                                 projectile.get_position())
                         target.deactivate()
@@ -586,13 +591,13 @@ class Level(GameDisplay):
                 self.display["final_display_frames"] -=1
             for animation_type in settings.animations:
                 for obj in self.state["objects"][animation_type]["list"]:
-                    obj.update(self.game.clock.get_time()/1000)
+                    obj.update(self.media.get_time())
             return
 
         # move all objects and advance all animations
         for obj_data in self.state["objects"].values():
             for obj in obj_data["list"]:
-                obj.update(self.game.clock.get_time()/1000)
+                obj.update(self.media.get_time())
 
         # handle bombs hitting submarines
         self.__handle_hits()
@@ -608,10 +613,10 @@ class Level(GameDisplay):
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
                 self.quit(self.LEVEL_FAILED)
-                self.__play_sound("losing")
+                self.media.play_sound("losing")
             else:
                 self.quit(self.LEVEL_CLEARED)
-                self.__play_sound("winning")
+                self.media.play_sound("winning")
 
         # spawn new spawnable objects at random
         self.__spawn_objects()
@@ -619,12 +624,3 @@ class Level(GameDisplay):
 
     def ready_to_quit(self):
         return self.terminated() or self.display["final_display_frames"] == 0
-
-
-    def __play_sound(self, sound_name):
-        """
-        Play a sound only if sounds are enabled
-        """
-        sound = resources.get_sound(sound_name)
-        if self.game.options["sound"]:
-            sound.play()
