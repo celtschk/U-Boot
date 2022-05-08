@@ -17,8 +17,6 @@ This module provides a class managing all the media the game interacts
 with (here the clock also is considered a medium).
 """
 
-from typing import Optional
-
 import pygame
 
 from . import resources
@@ -28,8 +26,7 @@ class Media:
     Collectively handle all media
     """
     def __init__(self, title: str, width: int, height: int, fps: int) -> None:
-        self.__width = width
-        self.__height = height
+        self.__dimensions = (width, height)
         self.__fps = fps
 
         self.__music_loaded = False
@@ -51,7 +48,7 @@ class Media:
         """
         Load music to play
         """
-        resources.load_music(title);
+        resources.load_music(title)
         self.__music_loaded = True
 
 
@@ -114,7 +111,7 @@ class Media:
         """
         toggle between fullscreen and windowed
         """
-        size = (self.__width(), self.__height)
+        size = self.__dimensions
         if self.__screen.get_flags() & pygame.FULLSCREEN:
             pygame.display.set_mode(size)
         else:
@@ -132,7 +129,7 @@ class Media:
         """
         Get the screen dimensions
         """
-        return (self.__width, self.__height)
+        return self.__dimensions
 
 
     def get_fps(self):
