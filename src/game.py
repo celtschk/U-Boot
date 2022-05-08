@@ -118,7 +118,6 @@ class Game:
             # pylint: enable=no-member
 
         while True:
-            #pygame.mixer.music.unpause()
             self.media.unpause_music()
             result = level.execute()
             state = level.get_state()
