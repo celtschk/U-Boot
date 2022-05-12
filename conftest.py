@@ -182,6 +182,7 @@ def mockmedia(dummy_surface):
             """
     return MockMedia
 
+
 @pytest.fixture
 def dummy_font(dummy_surface):
     """

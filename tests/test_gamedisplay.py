@@ -47,10 +47,6 @@ def test_GameDisplay_init(mockmedia, dummy_font):
     assert hasattr(game_display, 'status')
     assert game_display.status == GameDisplay.INITIALIZED
 
-    assert hasattr(game_display, 'running_statuses')
-    assert isinstance(game_display.running_statuses, set)
-    assert game_display.running_statuses == { GameDisplay.RUNNING }
-
     assert hasattr(game_display, 'key_bindings')
     assert isinstance(game_display.key_bindings, dict)
     assert pygame.K_f in game_display.key_bindings
@@ -184,14 +180,6 @@ def test_screenshot(mocker, mockmedia, dummy_font):
     assert mocksave.filename == mockfile
 
 
-def test_ready_to_quit(mockmedia, dummy_font):
-    """
-    Test GameDisplay.ready_to_quit
-    """
-    game_display = GameDisplay(mockmedia(), dummy_font())
-
-    assert game_display.ready_to_quit()
-
 execute_data = [
     [ [ pygame.event.Event(pygame.QUIT, quit=GameDisplay.TERMINATE) ] ],
     [ [], [ pygame.event.Event(pygame.QUIT, quit=GameDisplay.TERMINATE) ] ],
@@ -266,16 +254,16 @@ def test_execute(event_queue, mocker, mockmedia, dummy_font):
     assert call_sequence == expected_call_sequence
 
 
-def test_quit(mockmedia, dummy_font):
+def test_set_status(mockmedia, dummy_font):
     """
-    Test GameDisplay.quit
+    Test GameDisplay.set_status
     """
     game_display = GameDisplay(mockmedia(), dummy_font())
 
-    game_display.quit(GameDisplay.TERMINATE)
+    game_display.set_status(GameDisplay.TERMINATE)
     assert game_display.status == GameDisplay.TERMINATE
 
-    game_display.quit(GameDisplay.QUIT)
+    game_display.set_status(GameDisplay.QUIT)
     assert game_display.status == GameDisplay.QUIT
 
 

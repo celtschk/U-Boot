@@ -16,8 +16,8 @@
 This module implements the class Level, which contains the actual gameplay.
 """
 
-from copy import deepcopy
 from functools import partial
+from copy import deepcopy
 
 import pygame
 
@@ -30,9 +30,13 @@ from .objects import object_functions
 class Level(GameDisplay):
     "A game level"
     # Level specific exit values
-    PAUSED = GameDisplay.Status()
+    PAUSED = GameDisplay.Status(running=True)
     LEVEL_CLEARED = GameDisplay.Status()
+    LEVEL_SHUTDOWN_CLEARED = GameDisplay.Status(running = True,
+                                                next = LEVEL_CLEARED)
     LEVEL_FAILED  = GameDisplay.Status()
+    LEVEL_SHUTDOWN_FAILED = GameDisplay.Status(running = True,
+                                               next = LEVEL_FAILED)
     LEVEL_SAVE = GameDisplay.Status()
 
     @staticmethod
@@ -86,8 +90,6 @@ class Level(GameDisplay):
         Initializes a level based on the passed state
         """
         super().__init__(media, font)
-
-        self.running_statuses.add(self.PAUSED)
 
         self.__calc_areas()
 
@@ -368,10 +370,10 @@ class Level(GameDisplay):
             self.messages["paused"].write(layers["info"])
 
         # show final message as appropriate:
-        if not self.is_running():
-            if self.status == self.LEVEL_CLEARED:
+        if self.status != self.RUNNING:
+            if self.status == self.LEVEL_SHUTDOWN_CLEARED:
                 self.messages["cleared"].write(layers["info"])
-            elif self.status == self.LEVEL_FAILED:
+            elif self.status == self.LEVEL_SHUTDOWN_FAILED:
                 if self.state["lives"] > 1:
                     self.messages["failed"].write(layers["info"])
                 else:
@@ -536,7 +538,7 @@ class Level(GameDisplay):
         Quit the level immediately, without saving
         """
         self.display["final_display_frames"] = 0
-        self.quit()
+        self.set_status(self.QUIT)
 
 
     def __quit_for_save(self):
@@ -544,7 +546,7 @@ class Level(GameDisplay):
         Quit the level and mark it for being saved
         """
         self.display["final_display_frames"] = 0
-        self.quit(self.LEVEL_SAVE)
+        self.set_status(self.LEVEL_SAVE)
 
 
     def __objects_remaining(self, obj_type):
@@ -571,6 +573,21 @@ class Level(GameDisplay):
                 self.display["score_countdown"] -= 1
 
 
+    def __shutdown_update(self):
+        """
+        Update the state in case of shutdown
+        """
+        if self.display["final_display_frames"] > 0:
+            self.display["final_display_frames"] -=1
+        else:
+            next_status = self.status.get("next")
+            if next_status:
+                self.set_status(next_status)
+        for animation_type in settings.animations:
+            for obj in self.state["objects"][animation_type]["list"]:
+                obj.update(self.media.get_time())
+
+
     def update_state(self):
         """
         Update the state of the game
@@ -586,12 +603,8 @@ class Level(GameDisplay):
         # counter if appropriate, advance any remaining animations,
         # and then return immediately (so that game objects no longer
         # move, and score is no longer collected)
-        if not self.is_running():
-            if self.display["final_display_frames"] > 0:
-                self.display["final_display_frames"] -=1
-            for animation_type in settings.animations:
-                for obj in self.state["objects"][animation_type]["list"]:
-                    obj.update(self.media.get_time())
+        if self.status != self.RUNNING:
+            self.__shutdown_update()
             return
 
         # move all objects and advance all animations
@@ -612,15 +625,11 @@ class Level(GameDisplay):
         if submarines_remaining == 0:
             pygame.mixer.music.pause()
             if submarines_to_destroy > 0:
-                self.quit(self.LEVEL_FAILED)
+                self.set_status(self.LEVEL_SHUTDOWN_FAILED)
                 self.media.play_sound("losing")
             else:
-                self.quit(self.LEVEL_CLEARED)
+                self.set_status(self.LEVEL_SHUTDOWN_CLEARED)
                 self.media.play_sound("winning")
 
         # spawn new spawnable objects at random
         self.__spawn_objects()
-
-
-    def ready_to_quit(self):
-        return self.terminated() or self.display["final_display_frames"] == 0

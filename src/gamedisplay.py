@@ -16,9 +16,12 @@
 This module provides the GameDisplay class
 """
 
+from typing import Any
+
 import pygame
 
 from . import settings
+
 
 class GameDisplay:
     """
@@ -29,16 +32,28 @@ class GameDisplay:
     # will want to add more. Also, no need for numeric values;
     # equality comparison is fully sufficient
 
-    # This class is intentionally empty, thus make pylint shut up about it
-    # pylint: disable=too-few-public-methods
     class Status:
         """
         Empty class to define unique status values
         """
-    # pylint: enable=too-few-public-methods
+        def __init__(self, running: bool = False, **kwargs):
+            self.__is_running = running
+            self.__data = kwargs
+
+        def is_running(self) -> bool:
+            """
+            Return True if the status belongs to a running state
+            """
+            return self.__is_running
+
+        def get(self, key: str) -> Any:
+            """
+            Get value of extra __init__ argument, or None if nonexistent
+            """
+            return self.__data.get(key)
 
     INITIALIZED = Status()
-    RUNNING = Status()
+    RUNNING = Status(running = True)
     TERMINATE = Status()
     QUIT = Status()
 
@@ -53,11 +68,6 @@ class GameDisplay:
         self.font = font
         self.status: GameDisplay.Status = self.INITIALIZED
 
-        # set of status values that are considered running (that is,
-        # the program should stay in the main loop). Derived classes
-        # can add their own values.
-        self.running_statuses = { self.RUNNING }
-
         # key bindings
         self.key_bindings = {
             pygame.K_f: self.media.toggle_fullscreen,
@@ -69,7 +79,7 @@ class GameDisplay:
         """
         Returns true if the current status is a running_state
         """
-        return self.status in self.running_statuses
+        return self.status.is_running()
 
 
     def draw(self):
@@ -91,7 +101,7 @@ class GameDisplay:
         """
         # A pygame.QUIT event always terminates the game completely
         if event.type == pygame.QUIT:
-            self.quit(self.TERMINATE)
+            self.set_status(self.TERMINATE)
             return True
 
         if event.type == pygame.KEYDOWN:
@@ -132,32 +142,12 @@ class GameDisplay:
     # pylint: enable=no-self-use
 
 
-    # This must be a member function in order to be overridden
-    # pylint: disable=no-self-use
-    def ready_to_quit(self):
-        """
-        Returns True if the level can actually be quit.
-
-        This method always returns True. It can be overridden by a
-        derived class to allow delayed quitting, e.g. to display a
-        message.
-
-        When quit() has been called, but this function returns False,
-        the event loop still continues, but self.running is false.
-
-        This function is only called from the event loop if
-        self.running == False.
-        """
-        return True
-    # pylint: enable=no-self-use
-
-
     def execute(self):
         """
         The main loop
         """
         self.status = self.RUNNING
-        while self.is_running() or not self.ready_to_quit():
+        while self.is_running():
             self.draw()
             #self.game.clock.tick(self.game.fps)
             self.media.tick()
@@ -167,7 +157,7 @@ class GameDisplay:
         return self.status
 
 
-    def quit(self, status: Status = QUIT):
+    def set_status(self, status: Status):
         """
         Quit the display, but not necessarily the game
         """

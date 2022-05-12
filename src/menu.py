@@ -52,8 +52,8 @@ class Menu(GameDisplay):
             pygame.K_UP: self.__move_up,
             pygame.K_DOWN: self.__move_down,
             pygame.K_RETURN: self.__select_option,
-            pygame.K_q: partial(self.quit, Menu.MENU_MAIN),
-            pygame.K_ESCAPE: partial(self.quit, Menu.MENU_MAIN)
+            pygame.K_q: partial(self.set_status, Menu.MENU_MAIN),
+            pygame.K_ESCAPE: partial(self.set_status, Menu.MENU_MAIN)
             })
 
 
@@ -132,7 +132,7 @@ class Menu(GameDisplay):
         """
         action = self.menuspec[self.selection]["action"]
         if isinstance(action, str):
-            self.quit()
+            self.set_status(self.QUIT)
         else:
             action()
 

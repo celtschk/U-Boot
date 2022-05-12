@@ -16,6 +16,8 @@
 This module provides a class to display running text
 """
 
+from functools import partial
+
 import pygame
 
 from . import settings
@@ -59,8 +61,8 @@ class TextScreen(GameDisplay):
             pygame.K_SPACE:     self.__next_page,
             pygame.K_HOME:      self.__first_page,
             pygame.K_END:       self.__last_page,
-            pygame.K_q:         self.quit,
-            pygame.K_ESCAPE:    self.quit
+            pygame.K_q:         partial(self.set_status, self.QUIT),
+            pygame.K_ESCAPE:    partial(self.set_status, self.QUIT)
             })
 
 
